@@ -1,0 +1,29 @@
+{
+  "name": "svg-c",
+  "version": "0.1.0",
+  "description": "Generate SVG paths data using C points for animation purposes.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guandjoy/svg-c.git"
+  },
+  "keywords": [
+    "svg",
+    "animate",
+    "generator",
+    "vector",
+    "path"
+  ],
+  "author": "Yurko Turskiy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/guandjoy/svg-c/issues"
+  },
+  "homepage": "https://github.com/guandjoy/svg-c#readme",
+  "devDependencies": {
+    "typescript": "^3.5.3"
+  }
+}
