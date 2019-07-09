@@ -376,7 +376,7 @@ const generateSVGPathData = (path: PathData): PathData => {
   return path;
 };
 
-export const generateShape = (
+const generateShape = (
   frameParams: FrameParameters,
   groups: GroupParameters[]
 ): PathData => {
@@ -396,3 +396,5 @@ export const generateShape = (
   path = generateD(path);
   return path;
 };
+
+export default generateShape;

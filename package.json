@@ -1,5 +1,5 @@
 {
-  "name": "svg-c",
+  "name": "svg-curveto",
   "version": "0.1.0",
   "description": "Generate SVG paths data using C points for animation purposes.",
   "main": "index.js",

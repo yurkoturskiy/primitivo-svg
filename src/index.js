@@ -295,7 +295,7 @@ var generateSVGPathData = function (path) {
     path.svgPathData;
     return path;
 };
-exports.generateShape = function (frameParams, groups) {
+var generateShape = function (frameParams, groups) {
     var frame = exports.generateFrame(frameParams);
     // frame.vertexes = scaleToOne(frame.vertexes);
     var vertexes = exports.generateVertexes(frame, groups);
@@ -311,3 +311,4 @@ exports.generateShape = function (frameParams, groups) {
     path = generateD(path);
     return path;
 };
+exports.default = generateShape;
