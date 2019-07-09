@@ -131,11 +131,8 @@ export const generateVertexes = (
     type: "C",
     group: 0
   }));
-  console.log(vertexes);
-  console.log(frame.vertexes);
   for (let group = 1; group < numOfGroups; group++) {
     var numOfNewVertexes = vertexes.length;
-    console.log("num of new vertexes", numOfNewVertexes);
     for (let i = 1; i < numOfNewVertexes * 2; i += 2) {
       let protoVertex = {
         type: "C",
@@ -248,7 +245,6 @@ const setControlPoints = (
 const setCenter = (frameParams: FrameParameters, path: PathData): PathData => {
   var factorX = 1 - frameParams.centerX / (frameParams.width / 2);
   var factorY = 1 - frameParams.centerY / (frameParams.height / 2);
-  console.log("factors", factorX, factorY);
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x += factorX;
     vertex.y += factorY;

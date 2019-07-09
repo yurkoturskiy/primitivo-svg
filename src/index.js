@@ -72,11 +72,8 @@ exports.generateVertexes = function (frame, groups) {
     var numOfVertexesPerSide = numOfPoints / frame.numOfVertexes;
     // Init root group from frame vertexes
     var vertexes = frame.vertexes.map(function (vertex) { return (__assign({}, vertex, { type: "C", group: 0 })); });
-    console.log(vertexes);
-    console.log(frame.vertexes);
     for (var group = 1; group < numOfGroups; group++) {
         var numOfNewVertexes = vertexes.length;
-        console.log("num of new vertexes", numOfNewVertexes);
         for (var i = 1; i < numOfNewVertexes * 2; i += 2) {
             var protoVertex = {
                 type: "C",
@@ -179,7 +176,6 @@ var setControlPoints = function (vertexes, groups) {
 var setCenter = function (frameParams, path) {
     var factorX = 1 - frameParams.centerX / (frameParams.width / 2);
     var factorY = 1 - frameParams.centerY / (frameParams.height / 2);
-    console.log("factors", factorX, factorY);
     path.vertexes = path.vertexes.map(function (vertex) {
         vertex.x += factorX;
         vertex.y += factorY;
