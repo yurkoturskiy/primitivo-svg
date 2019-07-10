@@ -102,29 +102,6 @@ const generateFrame = (parameters: FrameParameters): Frame => {
   return frameObj;
 };
 
-const scaleToOne = (path: PathData): PathData => {
-  var maxX = 0;
-  var maxY = 0;
-  path.vertexes.forEach(vertex => {
-    if (vertex.x > maxX) maxX = vertex.x;
-    if (vertex.y > maxY) maxY = vertex.y;
-  });
-  var factorX = 1 / maxX;
-  var factorY = 1 / maxY;
-  path.vertexes = path.vertexes.map(vertex => {
-    vertex.x *= factorX;
-    vertex.y *= factorY;
-    if (vertex.type === "C") {
-      vertex.x1 *= factorX;
-      vertex.x2 *= factorX;
-      vertex.y1 *= factorY;
-      vertex.y2 *= factorY;
-    }
-    return vertex;
-  });
-  return path;
-};
-
 const generateVertexes = (
   frame: Frame,
   groups: GroupParameters[]
@@ -213,6 +190,29 @@ const setControlPoints = (
     };
   }
   return vertexes;
+};
+
+const scaleToOne = (path: PathData): PathData => {
+  var maxX = 0;
+  var maxY = 0;
+  path.vertexes.forEach(vertex => {
+    if (vertex.x > maxX) maxX = vertex.x;
+    if (vertex.y > maxY) maxY = vertex.y;
+  });
+  var factorX = 1 / maxX;
+  var factorY = 1 / maxY;
+  path.vertexes = path.vertexes.map(vertex => {
+    vertex.x *= factorX;
+    vertex.y *= factorY;
+    if (vertex.type === "C") {
+      vertex.x1 *= factorX;
+      vertex.x2 *= factorX;
+      vertex.y1 *= factorY;
+      vertex.y2 *= factorY;
+    }
+    return vertex;
+  });
+  return path;
 };
 
 const setCenter = (frameParams: FrameParameters, path: PathData): PathData => {
