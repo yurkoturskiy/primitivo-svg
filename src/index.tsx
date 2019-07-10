@@ -65,9 +65,9 @@ interface PathData {
 
 interface GroupParameters {
   rounding: number;
-  roundingRandomizer: number;
+  roundRandomRange?: number[];
   distanceFromCenter: number;
-  distanceRandomizer: number;
+  distanceRandomRange?: number[];
 }
 
 /***********
@@ -215,6 +215,17 @@ const scaleToOne = (path: PathData): PathData => {
   return path;
 };
 
+const setRandomDistance = (path: PathData): PathData => {
+  path.groups.forEach(group => {
+    if (group.distanceRandomRange) {
+      path.vertexes = path.vertexes.map(vertex => {
+        return vertex;
+      });
+    }
+  });
+  return path;
+};
+
 const setCenter = (frameParams: FrameParameters, path: PathData): PathData => {
   var factorX = 1 - frameParams.centerX / (frameParams.width / 2);
   var factorY = 1 - frameParams.centerY / (frameParams.height / 2);
@@ -233,17 +244,36 @@ const setCenter = (frameParams: FrameParameters, path: PathData): PathData => {
 };
 
 const setDistance = (path: PathData): PathData => {
+  var distanceFactors: number[] = [];
+  const randomFactor = (min: number, max: number): number =>
+    Math.random() * (max - min) + min;
   var { vertexes, groups } = path;
-  path.vertexes = path.vertexes.map((vertex, i) => {
-    vertex.x *= groups[vertex.group].distanceFromCenter;
-    vertex.y *= groups[vertex.group].distanceFromCenter;
-    if (vertex.type === "C") {
-      vertex.x1 *= groups[vertexes[i - 1].group].distanceFromCenter;
-      vertex.y1 *= groups[vertexes[i - 1].group].distanceFromCenter;
-      vertex.x2 *= groups[vertex.group].distanceFromCenter;
-      vertex.y2 *= groups[vertex.group].distanceFromCenter;
+  path.vertexes = path.vertexes.map((ver, i) => {
+    // Calc factor
+    var group = groups[ver.group];
+    console.log("random", group.distanceRandomRange);
+    var factor = group.distanceRandomRange
+      ? randomFactor(group.distanceRandomRange[0], group.distanceRandomRange[1])
+      : group.distanceFromCenter;
+    factor = i === vertexes.length - 1 ? distanceFactors[0] : factor;
+    // Setup distance
+    distanceFactors[i] = factor;
+    ver.x *= factor;
+    ver.y *= factor;
+    console.log("factor", factor);
+
+    if (ver.type === "C") {
+      // Calc factor
+      let prevGroup = groups[vertexes[i - 1].group];
+      let prevFactor = distanceFactors[i - 1];
+      // Setup distance
+      ver.x1 *= prevFactor;
+      ver.y1 *= prevFactor;
+      ver.x2 *= factor;
+      ver.y2 *= factor;
     }
-    return vertex;
+    console.log("vertex", ver);
+    return ver;
   });
   return path;
 };
@@ -386,9 +416,7 @@ let defaults = {
   },
   group: {
     rounding: 0.5,
-    roundingRandomizer: 0,
-    distanceFromCenter: 1,
-    distanceRandomizer: 0
+    distanceFromCenter: 1
   }
 };
 

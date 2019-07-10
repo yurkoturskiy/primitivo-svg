@@ -44,30 +44,6 @@ var generateFrame = function (parameters) {
     };
     return frameObj;
 };
-var scaleToOne = function (path) {
-    var maxX = 0;
-    var maxY = 0;
-    path.vertexes.forEach(function (vertex) {
-        if (vertex.x > maxX)
-            maxX = vertex.x;
-        if (vertex.y > maxY)
-            maxY = vertex.y;
-    });
-    var factorX = 1 / maxX;
-    var factorY = 1 / maxY;
-    path.vertexes = path.vertexes.map(function (vertex) {
-        vertex.x *= factorX;
-        vertex.y *= factorY;
-        if (vertex.type === "C") {
-            vertex.x1 *= factorX;
-            vertex.x2 *= factorX;
-            vertex.y1 *= factorY;
-            vertex.y2 *= factorY;
-        }
-        return vertex;
-    });
-    return path;
-};
 var generateVertexes = function (frame, groups) {
     var subdivisionDepth = groups.length - 1;
     var numOfPoints = 4 * Math.pow(2, subdivisionDepth);
@@ -141,6 +117,40 @@ var setControlPoints = function (vertexes, groups) {
     }
     return vertexes;
 };
+var scaleToOne = function (path) {
+    var maxX = 0;
+    var maxY = 0;
+    path.vertexes.forEach(function (vertex) {
+        if (vertex.x > maxX)
+            maxX = vertex.x;
+        if (vertex.y > maxY)
+            maxY = vertex.y;
+    });
+    var factorX = 1 / maxX;
+    var factorY = 1 / maxY;
+    path.vertexes = path.vertexes.map(function (vertex) {
+        vertex.x *= factorX;
+        vertex.y *= factorY;
+        if (vertex.type === "C") {
+            vertex.x1 *= factorX;
+            vertex.x2 *= factorX;
+            vertex.y1 *= factorY;
+            vertex.y2 *= factorY;
+        }
+        return vertex;
+    });
+    return path;
+};
+var setRandomDistance = function (path) {
+    path.groups.forEach(function (group) {
+        if (group.distanceRandomRange) {
+            path.vertexes = path.vertexes.map(function (vertex) {
+                return vertex;
+            });
+        }
+    });
+    return path;
+};
 var setCenter = function (frameParams, path) {
     var factorX = 1 - frameParams.centerX / (frameParams.width / 2);
     var factorY = 1 - frameParams.centerY / (frameParams.height / 2);
@@ -158,17 +168,36 @@ var setCenter = function (frameParams, path) {
     return path;
 };
 var setDistance = function (path) {
+    var distanceFactors = [];
+    var randomFactor = function (min, max) {
+        return Math.random() * (max - min) + min;
+    };
     var vertexes = path.vertexes, groups = path.groups;
-    path.vertexes = path.vertexes.map(function (vertex, i) {
-        vertex.x *= groups[vertex.group].distanceFromCenter;
-        vertex.y *= groups[vertex.group].distanceFromCenter;
-        if (vertex.type === "C") {
-            vertex.x1 *= groups[vertexes[i - 1].group].distanceFromCenter;
-            vertex.y1 *= groups[vertexes[i - 1].group].distanceFromCenter;
-            vertex.x2 *= groups[vertex.group].distanceFromCenter;
-            vertex.y2 *= groups[vertex.group].distanceFromCenter;
+    path.vertexes = path.vertexes.map(function (ver, i) {
+        // Calc factor
+        var group = groups[ver.group];
+        console.log("random", group.distanceRandomRange);
+        var factor = group.distanceRandomRange
+            ? randomFactor(group.distanceRandomRange[0], group.distanceRandomRange[1])
+            : group.distanceFromCenter;
+        factor = i === vertexes.length - 1 ? distanceFactors[0] : factor;
+        // Setup distance
+        distanceFactors[i] = factor;
+        ver.x *= factor;
+        ver.y *= factor;
+        console.log("factor", factor);
+        if (ver.type === "C") {
+            // Calc factor
+            var prevGroup = groups[vertexes[i - 1].group];
+            var prevFactor = distanceFactors[i - 1];
+            // Setup distance
+            ver.x1 *= prevFactor;
+            ver.y1 *= prevFactor;
+            ver.x2 *= factor;
+            ver.y2 *= factor;
         }
-        return vertex;
+        console.log("vertex", ver);
+        return ver;
     });
     return path;
 };
@@ -296,9 +325,7 @@ var defaults = {
     },
     group: {
         rounding: 0.5,
-        roundingRandomizer: 0,
-        distanceFromCenter: 1,
-        distanceRandomizer: 0
+        distanceFromCenter: 1
     }
 };
 exports.default = generateShape;
