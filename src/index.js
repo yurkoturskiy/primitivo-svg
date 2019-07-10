@@ -14,6 +14,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var round = function (number) { return Math.round(number * 1e6) / 1e6; };
 var radToAngle = function (rad) { return (rad * 180) / Math.PI; };
 var angleToRad = function (angle) { return (angle * Math.PI) / 180; };
+var randomFromRange = function (min, max) {
+    return Math.random() * (max - min) + min;
+};
 /***********
  * Methods *
  ***********/
@@ -87,19 +90,16 @@ var remapVertexes = function (vertexes) {
     return vertexes;
 };
 var setControlPoints = function (vertexes, groups) {
-    var randomFactor = function (min, max) {
-        return Math.random() * (max - min) + min;
-    };
     var numOfPoints = vertexes.length - 1; // Minus "M" vertex
     for (var i = 1; i < vertexes.length; i++) {
         // Set arms length factor
         var group = groups[vertexes[i].group];
         var prevGroup = groups[vertexes[i - 1].group];
         var prevFactor = prevGroup.roundRandomRange
-            ? randomFactor(prevGroup.roundRandomRange[0], prevGroup.roundRandomRange[1])
+            ? randomFromRange(prevGroup.roundRandomRange[0], prevGroup.roundRandomRange[1])
             : prevGroup.round;
         var factor = group.roundRandomRange
-            ? randomFactor(group.roundRandomRange[0], group.roundRandomRange[1])
+            ? randomFromRange(group.roundRandomRange[0], group.roundRandomRange[1])
             : group.round;
         // Set arms length
         var firstArmLength = void 0, secondArmLength = void 0;
@@ -176,23 +176,18 @@ var setCenter = function (frameParams, path) {
 };
 var setDistance = function (path) {
     var distanceFactors = [];
-    var randomFactor = function (min, max) {
-        return Math.random() * (max - min) + min;
-    };
     var vertexes = path.vertexes, groups = path.groups;
     path.vertexes = path.vertexes.map(function (ver, i) {
         // Calc factor
         var group = groups[ver.group];
-        console.log("random", group.distanceRandomRange);
         var factor = group.distanceRandomRange
-            ? randomFactor(group.distanceRandomRange[0], group.distanceRandomRange[1])
+            ? randomFromRange(group.distanceRandomRange[0], group.distanceRandomRange[1])
             : group.distance;
         factor = i === vertexes.length - 1 ? distanceFactors[0] : factor;
         // Setup distance
         distanceFactors[i] = factor;
         ver.x *= factor;
         ver.y *= factor;
-        console.log("factor", factor);
         if (ver.type === "C") {
             // Calc factor
             var prevGroup = groups[vertexes[i - 1].group];
@@ -203,7 +198,6 @@ var setDistance = function (path) {
             ver.x2 *= factor;
             ver.y2 *= factor;
         }
-        console.log("vertex", ver);
         return ver;
     });
     return path;

@@ -1,6 +1,8 @@
 const round = (number: number): number => Math.round(number * 1e6) / 1e6;
 const radToAngle = (rad: number): number => (rad * 180) / Math.PI;
 const angleToRad = (angle: number): number => (angle * Math.PI) / 180;
+const randomFromRange = (min: number, max: number): number =>
+  Math.random() * (max - min) + min;
 
 /*****************
  * TS Interfaces *
@@ -158,21 +160,19 @@ const setControlPoints = (
   vertexes: Vertex[],
   groups: GroupParameters[]
 ): Vertex[] => {
-  const randomFactor = (min: number, max: number): number =>
-    Math.random() * (max - min) + min;
   var numOfPoints = vertexes.length - 1; // Minus "M" vertex
   for (let i = 1; i < vertexes.length; i++) {
     // Set arms length factor
     let group = groups[vertexes[i].group];
     let prevGroup = groups[vertexes[i - 1].group];
     let prevFactor = prevGroup.roundRandomRange
-      ? randomFactor(
+      ? randomFromRange(
           prevGroup.roundRandomRange[0],
           prevGroup.roundRandomRange[1]
         )
       : prevGroup.round;
     let factor = group.roundRandomRange
-      ? randomFactor(group.roundRandomRange[0], group.roundRandomRange[1])
+      ? randomFromRange(group.roundRandomRange[0], group.roundRandomRange[1])
       : group.round;
     // Set arms length
     let firstArmLength, secondArmLength;
@@ -253,22 +253,21 @@ const setCenter = (frameParams: FrameParameters, path: PathData): PathData => {
 
 const setDistance = (path: PathData): PathData => {
   var distanceFactors: number[] = [];
-  const randomFactor = (min: number, max: number): number =>
-    Math.random() * (max - min) + min;
   var { vertexes, groups } = path;
   path.vertexes = path.vertexes.map((ver, i) => {
     // Calc factor
     var group = groups[ver.group];
-    console.log("random", group.distanceRandomRange);
     var factor = group.distanceRandomRange
-      ? randomFactor(group.distanceRandomRange[0], group.distanceRandomRange[1])
+      ? randomFromRange(
+          group.distanceRandomRange[0],
+          group.distanceRandomRange[1]
+        )
       : group.distance;
     factor = i === vertexes.length - 1 ? distanceFactors[0] : factor;
     // Setup distance
     distanceFactors[i] = factor;
     ver.x *= factor;
     ver.y *= factor;
-    console.log("factor", factor);
 
     if (ver.type === "C") {
       // Calc factor
@@ -280,7 +279,6 @@ const setDistance = (path: PathData): PathData => {
       ver.x2 *= factor;
       ver.y2 *= factor;
     }
-    console.log("vertex", ver);
     return ver;
   });
   return path;
