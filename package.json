@@ -22,8 +22,5 @@
   "bugs": {
     "url": "https://github.com/guandjoy/svg-curveto/issues"
   },
-  "homepage": "https://github.com/guandjoy/svg-curveto#readme",
-  "devDependencies": {
-    "typescript": "^3.5.3"
-  }
+  "homepage": "https://github.com/guandjoy/svg-curveto#readme"
 }
