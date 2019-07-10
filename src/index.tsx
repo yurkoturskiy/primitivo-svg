@@ -33,7 +33,7 @@ interface PathData {
 }
 
 interface FrameParameters {
-  depthOfVertexes: number;
+  depth: number;
   x: number;
   y: number;
   width: number;
@@ -64,9 +64,9 @@ interface PathData {
 }
 
 interface GroupParameters {
-  rounding: number;
+  round: number;
   roundRandomRange?: number[];
-  distanceFromCenter: number;
+  distance: number;
   distanceRandomRange?: number[];
 }
 
@@ -75,8 +75,8 @@ interface GroupParameters {
  ***********/
 
 const generateFrame = (parameters: FrameParameters): Frame => {
-  const { depthOfVertexes, rotate } = parameters;
-  var numOfVertexes: number = 4 * Math.pow(2, depthOfVertexes);
+  const { depth, rotate } = parameters;
+  var numOfVertexes: number = 4 * Math.pow(2, depth);
   var vertexes = [];
   for (let i = 0; i < numOfVertexes; i++) {
     let radians = ((Math.PI * 2) / numOfVertexes) * i;
@@ -163,8 +163,8 @@ const setControlPoints = (
     let firstArmLength, secondArmLength;
     firstArmLength = secondArmLength =
       (4 / 3) * Math.tan(Math.PI / (2 * numOfPoints));
-    firstArmLength *= groups[vertexes[i - 1].group].rounding;
-    secondArmLength *= groups[vertexes[i].group].rounding;
+    firstArmLength *= groups[vertexes[i - 1].group].round;
+    secondArmLength *= groups[vertexes[i].group].round;
     let firstArmRadians = vertexes[i - 1].radians + Math.PI / 2; // angle + 90 from the previous point angle
     let firstArmAngle = radToAngle(firstArmRadians);
     let secondArmRadians = vertexes[i].radians - Math.PI / 2; // angle + 90 from cur point
@@ -254,7 +254,7 @@ const setDistance = (path: PathData): PathData => {
     console.log("random", group.distanceRandomRange);
     var factor = group.distanceRandomRange
       ? randomFactor(group.distanceRandomRange[0], group.distanceRandomRange[1])
-      : group.distanceFromCenter;
+      : group.distance;
     factor = i === vertexes.length - 1 ? distanceFactors[0] : factor;
     // Setup distance
     distanceFactors[i] = factor;
@@ -405,7 +405,7 @@ const generateShape = (
 
 let defaults = {
   frameParams: {
-    depthOfVertexes: 0,
+    depth: 0,
     x: 0,
     y: 0,
     width: 100,
@@ -415,8 +415,8 @@ let defaults = {
     rotate: 0
   },
   group: {
-    rounding: 0.5,
-    distanceFromCenter: 1
+    round: 0.5,
+    distance: 1
   }
 };
 
