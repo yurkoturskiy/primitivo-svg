@@ -215,17 +215,6 @@ const scaleToOne = (path: PathData): PathData => {
   return path;
 };
 
-const setRandomDistance = (path: PathData): PathData => {
-  path.groups.forEach(group => {
-    if (group.distanceRandomRange) {
-      path.vertexes = path.vertexes.map(vertex => {
-        return vertex;
-      });
-    }
-  });
-  return path;
-};
-
 const setCenter = (frameParams: FrameParameters, path: PathData): PathData => {
   var factorX = 1 - frameParams.centerX / (frameParams.width / 2);
   var factorY = 1 - frameParams.centerY / (frameParams.height / 2);

@@ -141,16 +141,6 @@ var scaleToOne = function (path) {
     });
     return path;
 };
-var setRandomDistance = function (path) {
-    path.groups.forEach(function (group) {
-        if (group.distanceRandomRange) {
-            path.vertexes = path.vertexes.map(function (vertex) {
-                return vertex;
-            });
-        }
-    });
-    return path;
-};
 var setCenter = function (frameParams, path) {
     var factorX = 1 - frameParams.centerX / (frameParams.width / 2);
     var factorY = 1 - frameParams.centerY / (frameParams.height / 2);
