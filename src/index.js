@@ -18,8 +18,8 @@ var angleToRad = function (angle) { return (angle * Math.PI) / 180; };
  * Methods *
  ***********/
 var generateFrame = function (parameters) {
-    var depthOfVertexes = parameters.depthOfVertexes, rotate = parameters.rotate;
-    var numOfVertexes = 4 * Math.pow(2, depthOfVertexes);
+    var depth = parameters.depth, rotate = parameters.rotate;
+    var numOfVertexes = 4 * Math.pow(2, depth);
     var vertexes = [];
     for (var i = 0; i < numOfVertexes; i++) {
         var radians = ((Math.PI * 2) / numOfVertexes) * i;
@@ -92,8 +92,8 @@ var setControlPoints = function (vertexes, groups) {
         var firstArmLength = void 0, secondArmLength = void 0;
         firstArmLength = secondArmLength =
             (4 / 3) * Math.tan(Math.PI / (2 * numOfPoints));
-        firstArmLength *= groups[vertexes[i - 1].group].rounding;
-        secondArmLength *= groups[vertexes[i].group].rounding;
+        firstArmLength *= groups[vertexes[i - 1].group].round;
+        secondArmLength *= groups[vertexes[i].group].round;
         var firstArmRadians = vertexes[i - 1].radians + Math.PI / 2; // angle + 90 from the previous point angle
         var firstArmAngle = radToAngle(firstArmRadians);
         var secondArmRadians = vertexes[i].radians - Math.PI / 2; // angle + 90 from cur point
@@ -179,7 +179,7 @@ var setDistance = function (path) {
         console.log("random", group.distanceRandomRange);
         var factor = group.distanceRandomRange
             ? randomFactor(group.distanceRandomRange[0], group.distanceRandomRange[1])
-            : group.distanceFromCenter;
+            : group.distance;
         factor = i === vertexes.length - 1 ? distanceFactors[0] : factor;
         // Setup distance
         distanceFactors[i] = factor;
@@ -314,7 +314,7 @@ var generateShape = function (frameParams, groups) {
 };
 var defaults = {
     frameParams: {
-        depthOfVertexes: 0,
+        depth: 0,
         x: 0,
         y: 0,
         width: 100,
@@ -324,8 +324,8 @@ var defaults = {
         rotate: 0
     },
     group: {
-        rounding: 0.5,
-        distanceFromCenter: 1
+        round: 0.5,
+        distance: 1
     }
 };
 exports.default = generateShape;
