@@ -87,21 +87,38 @@ var remapVertexes = function (vertexes) {
     return vertexes;
 };
 var setControlPoints = function (vertexes, groups) {
+    var randomFactor = function (min, max) {
+        return Math.random() * (max - min) + min;
+    };
     var numOfPoints = vertexes.length - 1; // Minus "M" vertex
     for (var i = 1; i < vertexes.length; i++) {
+        // Set arms length factor
+        var group = groups[vertexes[i].group];
+        var prevGroup = groups[vertexes[i - 1].group];
+        var prevFactor = prevGroup.roundRandomRange
+            ? randomFactor(prevGroup.roundRandomRange[0], prevGroup.roundRandomRange[1])
+            : prevGroup.round;
+        var factor = group.roundRandomRange
+            ? randomFactor(group.roundRandomRange[0], group.roundRandomRange[1])
+            : group.round;
+        // Set arms length
         var firstArmLength = void 0, secondArmLength = void 0;
         firstArmLength = secondArmLength =
             (4 / 3) * Math.tan(Math.PI / (2 * numOfPoints));
-        firstArmLength *= groups[vertexes[i - 1].group].round;
-        secondArmLength *= groups[vertexes[i].group].round;
+        firstArmLength *= prevFactor;
+        secondArmLength *= factor;
+        // Set arms angle
         var firstArmRadians = vertexes[i - 1].radians + Math.PI / 2; // angle + 90 from the previous point angle
         var firstArmAngle = radToAngle(firstArmRadians);
         var secondArmRadians = vertexes[i].radians - Math.PI / 2; // angle + 90 from cur point
         var secondArmAngle = radToAngle(secondArmRadians);
+        // Set cos
         var cosx1 = round(Math.cos(firstArmRadians));
         var cosx2 = round(Math.cos(secondArmRadians));
+        // Set sin
         var siny1 = round(Math.sin(firstArmRadians));
         var siny2 = round(Math.sin(secondArmRadians));
+        // Set coordinates
         var x1 = cosx1 * firstArmLength + vertexes[i - 1].x;
         var x2 = cosx2 * secondArmLength + vertexes[i].x;
         var y1 = siny1 * firstArmLength + vertexes[i - 1].y;
