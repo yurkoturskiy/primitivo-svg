@@ -2,6 +2,10 @@ const round = (number: number): number => Math.round(number * 1e6) / 1e6;
 const radToAngle = (rad: number): number => (rad * 180) / Math.PI;
 const angleToRad = (angle: number): number => (angle * Math.PI) / 180;
 
+/*****************
+ * TS Interfaces *
+ *****************/
+
 interface Vertex {
   type?: string;
   group?: number;
@@ -36,7 +40,7 @@ interface FrameParameters {
   height: number;
   centerX: number;
   centerY: number;
-  angleRotation: number;
+  rotate: number;
 }
 
 interface FrameVertex {
@@ -66,13 +70,17 @@ interface GroupParameters {
   distanceRandomizer: number;
 }
 
-export const generateFrame = (parameters: FrameParameters): Frame => {
-  const { depthOfVertexes, angleRotation } = parameters;
+/***********
+ * Methods *
+ ***********/
+
+const generateFrame = (parameters: FrameParameters): Frame => {
+  const { depthOfVertexes, rotate } = parameters;
   var numOfVertexes: number = 4 * Math.pow(2, depthOfVertexes);
   var vertexes = [];
   for (let i = 0; i < numOfVertexes; i++) {
     let radians = ((Math.PI * 2) / numOfVertexes) * i;
-    radians += angleToRad(angleRotation);
+    radians += angleToRad(rotate);
     let angle = radToAngle(radians);
     let cosx = round(Math.cos(radians));
     let siny = round(Math.sin(radians));
@@ -117,7 +125,7 @@ const scaleToOne = (path: PathData): PathData => {
   return path;
 };
 
-export const generateVertexes = (
+const generateVertexes = (
   frame: Frame,
   groups: GroupParameters[]
 ): Vertex[] => {
@@ -155,41 +163,6 @@ export const generateVertexes = (
   }
 
   return vertexes;
-  // Create vertexes
-  // for (let i = 0; i < numOfPoints; i++) {
-  //   let side = i / numOfVertexesPerSide - ((i / numOfVertexesPerSide) % 1) + 1;
-  //   let group = i / numOfVertexesPerSide;
-  //   let indexPerSide = i % numOfVertexesPerSide;
-  //   group = indexPerSide;
-  //   let ratioOfVertexCornerIndexes = i / numOfVertexesPerSide;
-  //   let moduloOfRatio = ratioOfVertexCornerIndexes % 1;
-  //   console.log(moduloOfRatio);
-  //   let startFrameVertexIndex = ratioOfVertexCornerIndexes - moduloOfRatio;
-  //   let lastIndexOfCornersArray = frame.numOfVertexes;
-  //   let endFrameVertexIndex =
-  //     startFrameVertexIndex +
-  //     1 -
-  //     ((startFrameVertexIndex + 1) / lastIndexOfCornersArray -
-  //       (((startFrameVertexIndex + 1) / lastIndexOfCornersArray) % 1)) *
-  //       lastIndexOfCornersArray;
-  //   let xBorderVector =
-  //     frame.vertexes[startFrameVertexIndex].x -
-  //     frame.vertexes[endFrameVertexIndex].x;
-  //   let yBorderVector =
-  //     frame.vertexes[startFrameVertexIndex].y -
-  //     frame.vertexes[endFrameVertexIndex].y;
-  //   let xVertexDistance = xBorderVector - xBorderVector * moduloOfRatio;
-  //   let yVertexDistance = yBorderVector - yBorderVector * moduloOfRatio;
-  //   console.log("end frame index", endFrameVertexIndex);
-  //   let x = xVertexDistance + frame.vertexes[endFrameVertexIndex].x;
-  //   let y = yVertexDistance + frame.vertexes[endFrameVertexIndex].y;
-  //   console.log(`${i}, group: ${group}, side: ${side} pos: ${x},${y}`);
-  //   // console.log(i, "lenth of border", xBorderVector, yBorderVector);
-  //   // console.log(i, "vertex distance", xVertexDistance, yVertexDistance);
-  //   // console.log(i, "startCornerIndex", startCornerIndex);
-  //   // console.log(i, "end corner index", endCornerIndex);
-  //   // console.log(i, "modulo ratio", moduloOfRatio);
-  // }
 };
 
 const remapVertexes = (vertexes: Vertex[]): Vertex[] => {
@@ -372,12 +345,19 @@ const generateSVGPathData = (path: PathData): PathData => {
   return path;
 };
 
+/********
+ * Root *
+ ********/
+
 const generateShape = (
-  frameParams: FrameParameters,
-  groups: GroupParameters[]
+  frameParams: FrameParameters = defaults.frameParams,
+  groups: GroupParameters[] = [defaults.group]
 ): PathData => {
+  // Setup defaults
+  frameParams = { ...defaults.frameParams, ...frameParams };
+  groups = groups.map(group => ({ ...defaults.group, ...group }));
+  // Generate shape
   var frame: Frame = generateFrame(frameParams);
-  // frame.vertexes = scaleToOne(frame.vertexes);
   var vertexes: Vertex[] = generateVertexes(frame, groups);
   vertexes = remapVertexes(vertexes);
   vertexes = setControlPoints(vertexes, groups);
@@ -391,6 +371,25 @@ const generateShape = (
   path = shift(path, frameParams);
   path = generateD(path);
   return path;
+};
+
+let defaults = {
+  frameParams: {
+    depthOfVertexes: 0,
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100,
+    centerX: 50,
+    centerY: 50,
+    rotate: 0
+  },
+  group: {
+    rounding: 0.5,
+    roundingRandomizer: 0,
+    distanceFromCenter: 1,
+    distanceRandomizer: 0
+  }
 };
 
 export default generateShape;

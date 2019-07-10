@@ -14,13 +14,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var round = function (number) { return Math.round(number * 1e6) / 1e6; };
 var radToAngle = function (rad) { return (rad * 180) / Math.PI; };
 var angleToRad = function (angle) { return (angle * Math.PI) / 180; };
-exports.generateFrame = function (parameters) {
-    var depthOfVertexes = parameters.depthOfVertexes, angleRotation = parameters.angleRotation;
+/***********
+ * Methods *
+ ***********/
+var generateFrame = function (parameters) {
+    var depthOfVertexes = parameters.depthOfVertexes, rotate = parameters.rotate;
     var numOfVertexes = 4 * Math.pow(2, depthOfVertexes);
     var vertexes = [];
     for (var i = 0; i < numOfVertexes; i++) {
         var radians = ((Math.PI * 2) / numOfVertexes) * i;
-        radians += angleToRad(angleRotation);
+        radians += angleToRad(rotate);
         var angle = radToAngle(radians);
         var cosx = round(Math.cos(radians));
         var siny = round(Math.sin(radians));
@@ -65,7 +68,7 @@ var scaleToOne = function (path) {
     });
     return path;
 };
-exports.generateVertexes = function (frame, groups) {
+var generateVertexes = function (frame, groups) {
     var subdivisionDepth = groups.length - 1;
     var numOfPoints = 4 * Math.pow(2, subdivisionDepth);
     var numOfGroups = groups.length;
@@ -96,41 +99,6 @@ exports.generateVertexes = function (frame, groups) {
         }
     }
     return vertexes;
-    // Create vertexes
-    // for (let i = 0; i < numOfPoints; i++) {
-    //   let side = i / numOfVertexesPerSide - ((i / numOfVertexesPerSide) % 1) + 1;
-    //   let group = i / numOfVertexesPerSide;
-    //   let indexPerSide = i % numOfVertexesPerSide;
-    //   group = indexPerSide;
-    //   let ratioOfVertexCornerIndexes = i / numOfVertexesPerSide;
-    //   let moduloOfRatio = ratioOfVertexCornerIndexes % 1;
-    //   console.log(moduloOfRatio);
-    //   let startFrameVertexIndex = ratioOfVertexCornerIndexes - moduloOfRatio;
-    //   let lastIndexOfCornersArray = frame.numOfVertexes;
-    //   let endFrameVertexIndex =
-    //     startFrameVertexIndex +
-    //     1 -
-    //     ((startFrameVertexIndex + 1) / lastIndexOfCornersArray -
-    //       (((startFrameVertexIndex + 1) / lastIndexOfCornersArray) % 1)) *
-    //       lastIndexOfCornersArray;
-    //   let xBorderVector =
-    //     frame.vertexes[startFrameVertexIndex].x -
-    //     frame.vertexes[endFrameVertexIndex].x;
-    //   let yBorderVector =
-    //     frame.vertexes[startFrameVertexIndex].y -
-    //     frame.vertexes[endFrameVertexIndex].y;
-    //   let xVertexDistance = xBorderVector - xBorderVector * moduloOfRatio;
-    //   let yVertexDistance = yBorderVector - yBorderVector * moduloOfRatio;
-    //   console.log("end frame index", endFrameVertexIndex);
-    //   let x = xVertexDistance + frame.vertexes[endFrameVertexIndex].x;
-    //   let y = yVertexDistance + frame.vertexes[endFrameVertexIndex].y;
-    //   console.log(`${i}, group: ${group}, side: ${side} pos: ${x},${y}`);
-    //   // console.log(i, "lenth of border", xBorderVector, yBorderVector);
-    //   // console.log(i, "vertex distance", xVertexDistance, yVertexDistance);
-    //   // console.log(i, "startCornerIndex", startCornerIndex);
-    //   // console.log(i, "end corner index", endCornerIndex);
-    //   // console.log(i, "modulo ratio", moduloOfRatio);
-    // }
 };
 var remapVertexes = function (vertexes) {
     /*
@@ -291,10 +259,18 @@ var generateSVGPathData = function (path) {
     path.svgPathData;
     return path;
 };
+/********
+ * Root *
+ ********/
 var generateShape = function (frameParams, groups) {
-    var frame = exports.generateFrame(frameParams);
-    // frame.vertexes = scaleToOne(frame.vertexes);
-    var vertexes = exports.generateVertexes(frame, groups);
+    if (frameParams === void 0) { frameParams = defaults.frameParams; }
+    if (groups === void 0) { groups = [defaults.group]; }
+    // Setup defaults
+    frameParams = __assign({}, defaults.frameParams, frameParams);
+    groups = groups.map(function (group) { return (__assign({}, defaults.group, group)); });
+    // Generate shape
+    var frame = generateFrame(frameParams);
+    var vertexes = generateVertexes(frame, groups);
     vertexes = remapVertexes(vertexes);
     vertexes = setControlPoints(vertexes, groups);
     var path = { frame: frame, vertexes: vertexes, groups: groups };
@@ -306,5 +282,23 @@ var generateShape = function (frameParams, groups) {
     path = shift(path, frameParams);
     path = generateD(path);
     return path;
+};
+var defaults = {
+    frameParams: {
+        depthOfVertexes: 0,
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 100,
+        centerX: 50,
+        centerY: 50,
+        rotate: 0
+    },
+    group: {
+        rounding: 0.5,
+        roundingRandomizer: 0,
+        distanceFromCenter: 1,
+        distanceRandomizer: 0
+    }
 };
 exports.default = generateShape;
