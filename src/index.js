@@ -255,7 +255,17 @@ var setScale = function (path, frameParams) {
     });
     return path;
 };
+var calcLength = function (frameParams, path) {
+    path.vertexes = path.vertexes.map(function (vertex) {
+        var x = vertex.x - frameParams.centerX;
+        var y = vertex.y - frameParams.centerY;
+        vertex.length = Math.sqrt(x * x + y * y);
+        return vertex;
+    });
+    return path;
+};
 var shift = function (path, frameParams) {
+    // Apply x and y position parameters
     var x = frameParams.x, y = frameParams.y;
     path.vertexes = path.vertexes.map(function (vertex) {
         vertex.x += x;
@@ -322,6 +332,7 @@ var generateShape = function (frameParams, groups) {
     path = setDistance(path);
     path = setPosition(frameParams, path);
     path = setScale(path, frameParams);
+    path = calcLength(frameParams, path);
     path = shift(path, frameParams);
     path = generateD(path);
     return path;

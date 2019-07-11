@@ -24,6 +24,7 @@ interface Vertex {
   y2?: number;
   cosx2?: number;
   siny2?: number;
+  length?: number;
   d?: string;
 }
 
@@ -342,7 +343,18 @@ const setScale = (path: PathData, frameParams: FrameParameters): PathData => {
   return path;
 };
 
+const calcLength = (frameParams: FrameParameters, path: PathData): PathData => {
+  path.vertexes = path.vertexes.map(vertex => {
+    let x = vertex.x - frameParams.centerX;
+    let y = vertex.y - frameParams.centerY;
+    vertex.length = Math.sqrt(x * x + y * y);
+    return vertex;
+  });
+  return path;
+};
+
 const shift = (path: PathData, frameParams: FrameParameters): PathData => {
+  // Apply x and y position parameters
   const { x, y } = frameParams;
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x += x;
@@ -417,6 +429,7 @@ const generateShape = (
   path = setDistance(path);
   path = setPosition(frameParams, path);
   path = setScale(path, frameParams);
+  path = calcLength(frameParams, path);
   path = shift(path, frameParams);
   path = generateD(path);
   return path;
