@@ -30,6 +30,7 @@ interface Vertex {
 
 interface PathData {
   frame: Frame;
+  frameParams: FrameParameters;
   vertexes: Vertex[];
   groups: GroupParameters[];
   svgPathData?: string;
@@ -73,6 +74,19 @@ interface GroupParameters {
   distance: number;
   distanceRandomRange?: number[];
   distancePerVertex?: number[];
+  radius?: number;
+  radiusRandomRange?: number[];
+  radiusPerVertex?: number[];
+}
+
+interface Keyframe {
+  vertexes: Vertex[];
+  keyTime: number;
+  keySpline?: number;
+}
+
+interface Animate {
+  keyframes: Keyframe[];
 }
 
 /***********
@@ -246,7 +260,8 @@ const scaleToOne = (path: PathData): PathData => {
   return path;
 };
 
-const setCenter = (frameParams: FrameParameters, path: PathData): PathData => {
+const setCenter = (path: PathData): PathData => {
+  const { frameParams } = path;
   var factorX = 1 - frameParams.centerX / (frameParams.width / 2);
   var factorY = 1 - frameParams.centerY / (frameParams.height / 2);
   path.vertexes = path.vertexes.map(vertex => {
@@ -298,10 +313,8 @@ const setDistance = (path: PathData): PathData => {
   return path;
 };
 
-const setPosition = (
-  frameParams: FrameParameters,
-  path: PathData
-): PathData => {
+const setPosition = (path: PathData): PathData => {
+  const { frameParams } = path;
   var factorX = frameParams.centerX / (frameParams.width / 2);
   var factorY = frameParams.centerY / (frameParams.height / 2);
   path.frame.vertexes = path.frame.vertexes.map(vertex => {
@@ -323,7 +336,8 @@ const setPosition = (
   return path;
 };
 
-const setScale = (path: PathData, frameParams: FrameParameters): PathData => {
+const setScale = (path: PathData): PathData => {
+  const { frameParams } = path;
   path.frame.vertexes = path.frame.vertexes.map(vertex => {
     vertex.x *= frameParams.width / 2;
     vertex.y *= frameParams.height / 2;
@@ -343,7 +357,8 @@ const setScale = (path: PathData, frameParams: FrameParameters): PathData => {
   return path;
 };
 
-const calcLength = (frameParams: FrameParameters, path: PathData): PathData => {
+const calcLength = (path: PathData): PathData => {
+  const { frameParams } = path;
   path.vertexes = path.vertexes.map(vertex => {
     let x = vertex.x - frameParams.centerX;
     let y = vertex.y - frameParams.centerY;
@@ -353,7 +368,49 @@ const calcLength = (frameParams: FrameParameters, path: PathData): PathData => {
   return path;
 };
 
-const shift = (path: PathData, frameParams: FrameParameters): PathData => {
+const setLength = (path: PathData): PathData => {
+  const { frameParams, groups } = path;
+
+  var lengthFactors: number[] = [];
+  const calcFactor = (newRadius: number, radius: number): number => {
+    if (newRadius === 0 || radius === 0) return 0;
+    return newRadius / radius;
+  };
+  path.vertexes = path.vertexes.map((vertex, i) => {
+    let group = groups[vertex.group];
+    // Calc factor
+    let factor;
+    if (group.radiusPerVertex)
+      factor = calcFactor(group.radiusPerVertex[i], vertex.length);
+    else if (group.radiusRandomRange)
+      factor = calcFactor(
+        randomFromRange(group.radiusRandomRange[0], group.radiusRandomRange[1]),
+        vertex.length
+      );
+    else if (group.radius) factor = calcFactor(group.radius, vertex.length);
+    else factor = 1;
+    lengthFactors[i] = factor;
+    // Set length
+    vertex.x = (vertex.x - frameParams.centerX) * factor + frameParams.centerX;
+    vertex.y = (vertex.y - frameParams.centerY) * factor + frameParams.centerY;
+    if (vertex.type === "C") {
+      let prevFactor = lengthFactors[i - 1];
+      vertex.x1 =
+        (vertex.x1 - frameParams.centerX) * prevFactor + frameParams.centerX;
+      vertex.y1 =
+        (vertex.y1 - frameParams.centerY) * prevFactor + frameParams.centerY;
+      vertex.x2 =
+        (vertex.x2 - frameParams.centerX) * factor + frameParams.centerX;
+      vertex.y2 =
+        (vertex.y2 - frameParams.centerY) * factor + frameParams.centerY;
+    }
+    return vertex;
+  });
+  return path;
+};
+
+const shift = (path: PathData): PathData => {
+  const { frameParams } = path;
   // Apply x and y position parameters
   const { x, y } = frameParams;
   path.vertexes = path.vertexes.map(vertex => {
@@ -423,14 +480,15 @@ const generateShape = (
   vertexes = remapVertexes(vertexes);
   vertexes = setControlPoints(vertexes, groups);
 
-  var path: PathData = { frame, vertexes, groups };
+  var path: PathData = { frame, frameParams, vertexes, groups };
   path = scaleToOne(path);
-  path = setCenter(frameParams, path);
+  path = setCenter(path);
   path = setDistance(path);
-  path = setPosition(frameParams, path);
-  path = setScale(path, frameParams);
-  path = calcLength(frameParams, path);
-  path = shift(path, frameParams);
+  path = setPosition(path);
+  path = setScale(path);
+  path = calcLength(path);
+  path = setLength(path);
+  path = shift(path);
   path = generateD(path);
   return path;
 };

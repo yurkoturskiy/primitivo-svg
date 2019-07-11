@@ -168,7 +168,8 @@ var scaleToOne = function (path) {
     });
     return path;
 };
-var setCenter = function (frameParams, path) {
+var setCenter = function (path) {
+    var frameParams = path.frameParams;
     var factorX = 1 - frameParams.centerX / (frameParams.width / 2);
     var factorY = 1 - frameParams.centerY / (frameParams.height / 2);
     path.vertexes = path.vertexes.map(function (vertex) {
@@ -215,7 +216,8 @@ var setDistance = function (path) {
     });
     return path;
 };
-var setPosition = function (frameParams, path) {
+var setPosition = function (path) {
+    var frameParams = path.frameParams;
     var factorX = frameParams.centerX / (frameParams.width / 2);
     var factorY = frameParams.centerY / (frameParams.height / 2);
     path.frame.vertexes = path.frame.vertexes.map(function (vertex) {
@@ -236,7 +238,8 @@ var setPosition = function (frameParams, path) {
     });
     return path;
 };
-var setScale = function (path, frameParams) {
+var setScale = function (path) {
+    var frameParams = path.frameParams;
     path.frame.vertexes = path.frame.vertexes.map(function (vertex) {
         vertex.x *= frameParams.width / 2;
         vertex.y *= frameParams.height / 2;
@@ -255,7 +258,8 @@ var setScale = function (path, frameParams) {
     });
     return path;
 };
-var calcLength = function (frameParams, path) {
+var calcLength = function (path) {
+    var frameParams = path.frameParams;
     path.vertexes = path.vertexes.map(function (vertex) {
         var x = vertex.x - frameParams.centerX;
         var y = vertex.y - frameParams.centerY;
@@ -264,7 +268,47 @@ var calcLength = function (frameParams, path) {
     });
     return path;
 };
-var shift = function (path, frameParams) {
+var setLength = function (path) {
+    var frameParams = path.frameParams, groups = path.groups;
+    var lengthFactors = [];
+    var calcFactor = function (newRadius, radius) {
+        if (newRadius === 0 || radius === 0)
+            return 0;
+        return newRadius / radius;
+    };
+    path.vertexes = path.vertexes.map(function (vertex, i) {
+        var group = groups[vertex.group];
+        // Calc factor
+        var factor;
+        if (group.radiusPerVertex)
+            factor = calcFactor(group.radiusPerVertex[i], vertex.length);
+        else if (group.radiusRandomRange)
+            factor = calcFactor(randomFromRange(group.radiusRandomRange[0], group.radiusRandomRange[1]), vertex.length);
+        else if (group.radius)
+            factor = calcFactor(group.radius, vertex.length);
+        else
+            factor = 1;
+        lengthFactors[i] = factor;
+        // Set length
+        vertex.x = (vertex.x - frameParams.centerX) * factor + frameParams.centerX;
+        vertex.y = (vertex.y - frameParams.centerY) * factor + frameParams.centerY;
+        if (vertex.type === "C") {
+            var prevFactor = lengthFactors[i - 1];
+            vertex.x1 =
+                (vertex.x1 - frameParams.centerX) * prevFactor + frameParams.centerX;
+            vertex.y1 =
+                (vertex.y1 - frameParams.centerY) * prevFactor + frameParams.centerY;
+            vertex.x2 =
+                (vertex.x2 - frameParams.centerX) * factor + frameParams.centerX;
+            vertex.y2 =
+                (vertex.y2 - frameParams.centerY) * factor + frameParams.centerY;
+        }
+        return vertex;
+    });
+    return path;
+};
+var shift = function (path) {
+    var frameParams = path.frameParams;
     // Apply x and y position parameters
     var x = frameParams.x, y = frameParams.y;
     path.vertexes = path.vertexes.map(function (vertex) {
@@ -326,14 +370,15 @@ var generateShape = function (frameParams, groups) {
     var vertexes = generateVertexes(frame, groups);
     vertexes = remapVertexes(vertexes);
     vertexes = setControlPoints(vertexes, groups);
-    var path = { frame: frame, vertexes: vertexes, groups: groups };
+    var path = { frame: frame, frameParams: frameParams, vertexes: vertexes, groups: groups };
     path = scaleToOne(path);
-    path = setCenter(frameParams, path);
+    path = setCenter(path);
     path = setDistance(path);
-    path = setPosition(frameParams, path);
-    path = setScale(path, frameParams);
-    path = calcLength(frameParams, path);
-    path = shift(path, frameParams);
+    path = setPosition(path);
+    path = setScale(path);
+    path = calcLength(path);
+    path = setLength(path);
+    path = shift(path);
     path = generateD(path);
     return path;
 };
