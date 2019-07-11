@@ -95,12 +95,22 @@ var setControlPoints = function (vertexes, groups) {
         // Set arms length factor
         var group = groups[vertexes[i].group];
         var prevGroup = groups[vertexes[i - 1].group];
-        var prevFactor = prevGroup.roundRandomRange
-            ? randomFromRange(prevGroup.roundRandomRange[0], prevGroup.roundRandomRange[1])
-            : prevGroup.round;
-        var factor = group.roundRandomRange
-            ? randomFromRange(group.roundRandomRange[0], group.roundRandomRange[1])
-            : group.round;
+        // Factor for first control point
+        var prevFactor = void 0;
+        if (prevGroup.roundPerVertex)
+            prevFactor = prevGroup.roundPerVertex[i - 1];
+        else if (prevGroup.roundRandomRange)
+            prevFactor = randomFromRange(prevGroup.roundRandomRange[0], prevGroup.roundRandomRange[1]);
+        else
+            prevFactor = prevGroup.round;
+        // Factor for second control point
+        var factor = void 0;
+        if (group.roundPerVertex)
+            factor = group.roundPerVertex[i];
+        else if (group.roundRandomRange)
+            factor = randomFromRange(group.roundRandomRange[0], group.roundRandomRange[1]);
+        else
+            factor = group.round;
         // Set arms length
         var firstArmLength = void 0, secondArmLength = void 0;
         firstArmLength = secondArmLength =
@@ -180,17 +190,20 @@ var setDistance = function (path) {
     path.vertexes = path.vertexes.map(function (ver, i) {
         // Calc factor
         var group = groups[ver.group];
-        var factor = group.distanceRandomRange
-            ? randomFromRange(group.distanceRandomRange[0], group.distanceRandomRange[1])
-            : group.distance;
-        factor = i === vertexes.length - 1 ? distanceFactors[0] : factor;
-        // Setup distance
+        var factor;
+        if (group.distancePerVertex)
+            factor = group.distancePerVertex[i];
+        else if (group.distanceRandomRange)
+            factor = randomFromRange(group.distanceRandomRange[0], group.distanceRandomRange[1]);
+        else
+            factor = group.distance;
+        factor = i === vertexes.length - 1 ? distanceFactors[0] : factor; // Set distance same as M for the last C
         distanceFactors[i] = factor;
+        // Setup distance
         ver.x *= factor;
         ver.y *= factor;
         if (ver.type === "C") {
             // Calc factor
-            var prevGroup = groups[vertexes[i - 1].group];
             var prevFactor = distanceFactors[i - 1];
             // Setup distance
             ver.x1 *= prevFactor;
