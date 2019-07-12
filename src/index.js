@@ -20,6 +20,12 @@ var randomFromRange = function (min, max) {
 /***********
  * Methods *
  ***********/
+var setDefaults = function (path) {
+    defaults.frameParams.numOfGroups = path.groups.length; // Set num of groups if not exist
+    path.frameParams = __assign({}, defaults.frameParams, path.frameParams);
+    path.groups = path.groups.map(function (group) { return (__assign({}, defaults.group, group)); });
+    return path;
+};
 var generateFrame = function (parameters) {
     var depth = parameters.depth, rotate = parameters.rotate;
     var numOfVertexes = 4 * Math.pow(2, depth);
@@ -47,10 +53,11 @@ var generateFrame = function (parameters) {
     };
     return frameObj;
 };
-var generateVertexes = function (frame, groups) {
-    var subdivisionDepth = groups.length - 1;
+var generateVertexes = function (path) {
+    var frame = path.frame, groups = path.groups;
+    var numOfGroups = path.frameParams.numOfGroups;
+    var subdivisionDepth = numOfGroups - 1;
     var numOfPoints = 4 * Math.pow(2, subdivisionDepth);
-    var numOfGroups = groups.length;
     var numOfVertexesPerSide = numOfPoints / frame.numOfVertexes;
     // Init root group from frame vertexes
     var vertexes = frame.vertexes.map(function (vertex) { return (__assign({}, vertex, { type: "C", group: 0 })); });
@@ -307,6 +314,9 @@ var setLength = function (path) {
     });
     return path;
 };
+var setKeyframes = function (path) {
+    return path;
+};
 var shift = function (path) {
     var frameParams = path.frameParams;
     // Apply x and y position parameters
@@ -363,14 +373,13 @@ var generateShape = function (frameParams, groups) {
     if (frameParams === void 0) { frameParams = defaults.frameParams; }
     if (groups === void 0) { groups = [defaults.group]; }
     // Setup defaults
-    frameParams = __assign({}, defaults.frameParams, frameParams);
-    groups = groups.map(function (group) { return (__assign({}, defaults.group, group)); });
+    var path = { frameParams: frameParams, groups: groups };
+    path = setDefaults(path);
     // Generate shape
-    var frame = generateFrame(frameParams);
-    var vertexes = generateVertexes(frame, groups);
-    vertexes = remapVertexes(vertexes);
-    vertexes = setControlPoints(vertexes, groups);
-    var path = { frame: frame, frameParams: frameParams, vertexes: vertexes, groups: groups };
+    path.frame = generateFrame(path.frameParams);
+    path.vertexes = generateVertexes(path);
+    path.vertexes = remapVertexes(path.vertexes); // Add M point
+    path.vertexes = setControlPoints(path.vertexes, path.groups);
     path = scaleToOne(path);
     path = setCenter(path);
     path = setDistance(path);
@@ -378,6 +387,7 @@ var generateShape = function (frameParams, groups) {
     path = setScale(path);
     path = calcLength(path);
     path = setLength(path);
+    path = setKeyframes(path);
     path = shift(path);
     path = generateD(path);
     return path;
@@ -391,7 +401,8 @@ var defaults = {
         height: 100,
         centerX: 50,
         centerY: 50,
-        rotate: 0
+        rotate: 0,
+        numOfGroups: 1
     },
     group: {
         round: 0.5,

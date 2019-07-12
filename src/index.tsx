@@ -29,10 +29,11 @@ interface Vertex {
 }
 
 interface PathData {
-  frame: Frame;
+  frame?: Frame;
   frameParams: FrameParameters;
-  vertexes: Vertex[];
+  vertexes?: Vertex[];
   groups: GroupParameters[];
+  keyframes?: Keyframe[];
   svgPathData?: string;
 }
 
@@ -45,6 +46,7 @@ interface FrameParameters {
   centerX: number;
   centerY: number;
   rotate: number;
+  numOfGroups: number;
 }
 
 interface FrameVertex {
@@ -61,12 +63,6 @@ interface Frame {
   numOfVertexes: number;
 }
 
-interface PathData {
-  frame: Frame;
-  vertexes: Vertex[];
-  svgPathData?: string;
-}
-
 interface GroupParameters {
   round: number;
   roundRandomRange?: number[];
@@ -77,21 +73,34 @@ interface GroupParameters {
   radius?: number;
   radiusRandomRange?: number[];
   radiusPerVertex?: number[];
+  animate?: AnimateParameters;
+}
+
+interface AnimateParameters {
+  type: string;
+  distance: number[];
+  round: number[];
+  duration: number[];
 }
 
 interface Keyframe {
   vertexes: Vertex[];
   keyTime: number;
   keySpline?: number;
-}
-
-interface Animate {
-  keyframes: Keyframe[];
+  d: string;
 }
 
 /***********
  * Methods *
  ***********/
+
+const setDefaults = (path: PathData): PathData => {
+  defaults.frameParams.numOfGroups = path.groups.length; // Set num of groups if not exist
+  path.frameParams = { ...defaults.frameParams, ...path.frameParams };
+
+  path.groups = path.groups.map(group => ({ ...defaults.group, ...group }));
+  return path;
+};
 
 const generateFrame = (parameters: FrameParameters): Frame => {
   const { depth, rotate } = parameters;
@@ -121,13 +130,11 @@ const generateFrame = (parameters: FrameParameters): Frame => {
   return frameObj;
 };
 
-const generateVertexes = (
-  frame: Frame,
-  groups: GroupParameters[]
-): Vertex[] => {
-  const subdivisionDepth = groups.length - 1;
+const generateVertexes = (path: PathData): Vertex[] => {
+  const { frame, groups } = path;
+  const { numOfGroups } = path.frameParams;
+  const subdivisionDepth = numOfGroups - 1;
   const numOfPoints = 4 * Math.pow(2, subdivisionDepth);
-  const numOfGroups = groups.length;
   var numOfVertexesPerSide = numOfPoints / frame.numOfVertexes;
   // Init root group from frame vertexes
   var vertexes: Vertex[] = frame.vertexes.map(vertex => ({
@@ -284,7 +291,7 @@ const setDistance = (path: PathData): PathData => {
   path.vertexes = path.vertexes.map((ver, i) => {
     // Calc factor
     var group = groups[ver.group];
-    var factor;
+    let factor;
     if (group.distancePerVertex) factor = group.distancePerVertex[i];
     else if (group.distanceRandomRange)
       factor = randomFromRange(
@@ -409,6 +416,10 @@ const setLength = (path: PathData): PathData => {
   return path;
 };
 
+const setKeyframes = (path: PathData): PathData => {
+  return path;
+};
+
 const shift = (path: PathData): PathData => {
   const { frameParams } = path;
   // Apply x and y position parameters
@@ -472,15 +483,15 @@ const generateShape = (
   groups: GroupParameters[] = [defaults.group]
 ): PathData => {
   // Setup defaults
-  frameParams = { ...defaults.frameParams, ...frameParams };
-  groups = groups.map(group => ({ ...defaults.group, ...group }));
-  // Generate shape
-  var frame: Frame = generateFrame(frameParams);
-  var vertexes: Vertex[] = generateVertexes(frame, groups);
-  vertexes = remapVertexes(vertexes);
-  vertexes = setControlPoints(vertexes, groups);
+  var path: PathData = { frameParams, groups };
+  path = setDefaults(path);
 
-  var path: PathData = { frame, frameParams, vertexes, groups };
+  // Generate shape
+  path.frame = generateFrame(path.frameParams);
+  path.vertexes = generateVertexes(path);
+  path.vertexes = remapVertexes(path.vertexes); // Add M point
+  path.vertexes = setControlPoints(path.vertexes, path.groups);
+
   path = scaleToOne(path);
   path = setCenter(path);
   path = setDistance(path);
@@ -488,12 +499,13 @@ const generateShape = (
   path = setScale(path);
   path = calcLength(path);
   path = setLength(path);
+  path = setKeyframes(path);
   path = shift(path);
   path = generateD(path);
   return path;
 };
 
-let defaults = {
+var defaults = {
   frameParams: {
     depth: 0,
     x: 0,
@@ -502,7 +514,8 @@ let defaults = {
     height: 100,
     centerX: 50,
     centerY: 50,
-    rotate: 0
+    rotate: 0,
+    numOfGroups: 1
   },
   group: {
     round: 0.5,
