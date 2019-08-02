@@ -27,8 +27,8 @@ var setDefaults = function (path) {
     return path;
 };
 var generateFrame = function (parameters) {
-    var depth = parameters.depth, rotate = parameters.rotate;
-    var numOfVertexes = 4 * Math.pow(2, depth);
+    var depth = parameters.depth, rotate = parameters.rotate, numOfSegments = parameters.numOfSegments;
+    var numOfVertexes = numOfSegments * Math.pow(2, depth);
     var vertexes = [];
     for (var i = 0; i < numOfVertexes; i++) {
         var radians = ((Math.PI * 2) / numOfVertexes) * i;
@@ -55,9 +55,9 @@ var generateFrame = function (parameters) {
 };
 var generateVertexes = function (path) {
     var frame = path.frame, groups = path.groups;
-    var numOfGroups = path.frameParams.numOfGroups;
+    var _a = path.frameParams, numOfGroups = _a.numOfGroups, numOfSegments = _a.numOfSegments;
     var subdivisionDepth = numOfGroups - 1;
-    var numOfPoints = 4 * Math.pow(2, subdivisionDepth);
+    var numOfPoints = numOfSegments * Math.pow(2, subdivisionDepth);
     var numOfVertexesPerSide = numOfPoints / frame.numOfVertexes;
     // Init root group from frame vertexes
     var vertexes = frame.vertexes.map(function (vertex) { return (__assign({}, vertex, { type: "C", group: 0 })); });
@@ -153,23 +153,31 @@ var setControlPoints = function (vertexes, groups) {
 };
 var scaleToOne = function (path) {
     var maxX = 0;
+    var minX = 0;
     var maxY = 0;
+    var minY = 0;
     path.vertexes.forEach(function (vertex) {
         if (vertex.x > maxX)
             maxX = vertex.x;
+        if (vertex.x < minX)
+            minX = vertex.x;
         if (vertex.y > maxY)
             maxY = vertex.y;
+        if (vertex.y < minY)
+            minY = vertex.y;
     });
-    var factorX = 1 / maxX;
-    var factorY = 1 / maxY;
+    var factorX = 2 / (Math.abs(minX) + maxX);
+    var factorY = 2 / (Math.abs(minY) + maxY);
+    var shiftX = factorX * maxX - 1;
+    var shiftY = factorY * maxY - 1;
     path.vertexes = path.vertexes.map(function (vertex) {
-        vertex.x *= factorX;
-        vertex.y *= factorY;
+        vertex.x = vertex.x * factorX - shiftX;
+        vertex.y = vertex.y * factorY - shiftY;
         if (vertex.type === "C") {
-            vertex.x1 *= factorX;
-            vertex.x2 *= factorX;
-            vertex.y1 *= factorY;
-            vertex.y2 *= factorY;
+            vertex.x1 = vertex.x1 * factorX - shiftX;
+            vertex.x2 = vertex.x2 * factorX - shiftX;
+            vertex.y1 = vertex.y1 * factorY - shiftY;
+            vertex.y2 = vertex.y2 * factorY - shiftY;
         }
         return vertex;
     });
@@ -380,7 +388,8 @@ var generateShape = function (frameParams, groups) {
     path.vertexes = generateVertexes(path);
     path.vertexes = remapVertexes(path.vertexes); // Add M point
     path.vertexes = setControlPoints(path.vertexes, path.groups);
-    path = scaleToOne(path);
+    if (!frameParams.incircle)
+        path = scaleToOne(path);
     path = setCenter(path);
     path = setDistance(path);
     path = setPosition(path);
@@ -394,6 +403,7 @@ var generateShape = function (frameParams, groups) {
 };
 var defaults = {
     frameParams: {
+        numOfSegments: 4,
         depth: 0,
         x: 0,
         y: 0,
@@ -402,7 +412,8 @@ var defaults = {
         centerX: 50,
         centerY: 50,
         rotate: 0,
-        numOfGroups: 1
+        numOfGroups: 1,
+        incircle: false
     },
     group: {
         round: 0.5,

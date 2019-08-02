@@ -38,6 +38,7 @@ interface PathData {
 }
 
 interface FrameParameters {
+  numOfSegments: number;
   depth: number;
   x: number;
   y: number;
@@ -47,6 +48,7 @@ interface FrameParameters {
   centerY: number;
   rotate: number;
   numOfGroups: number;
+  incircle: boolean;
 }
 
 interface FrameVertex {
@@ -103,8 +105,8 @@ const setDefaults = (path: PathData): PathData => {
 };
 
 const generateFrame = (parameters: FrameParameters): Frame => {
-  const { depth, rotate } = parameters;
-  var numOfVertexes: number = 4 * Math.pow(2, depth);
+  const { depth, rotate, numOfSegments } = parameters;
+  var numOfVertexes: number = numOfSegments * Math.pow(2, depth);
   var vertexes = [];
   for (let i = 0; i < numOfVertexes; i++) {
     let radians = ((Math.PI * 2) / numOfVertexes) * i;
@@ -132,9 +134,9 @@ const generateFrame = (parameters: FrameParameters): Frame => {
 
 const generateVertexes = (path: PathData): Vertex[] => {
   const { frame, groups } = path;
-  const { numOfGroups } = path.frameParams;
+  const { numOfGroups, numOfSegments } = path.frameParams;
   const subdivisionDepth = numOfGroups - 1;
-  const numOfPoints = 4 * Math.pow(2, subdivisionDepth);
+  const numOfPoints = numOfSegments * Math.pow(2, subdivisionDepth);
   var numOfVertexesPerSide = numOfPoints / frame.numOfVertexes;
   // Init root group from frame vertexes
   var vertexes: Vertex[] = frame.vertexes.map(vertex => ({
@@ -246,21 +248,27 @@ const setControlPoints = (
 
 const scaleToOne = (path: PathData): PathData => {
   var maxX = 0;
+  var minX = 0;
   var maxY = 0;
+  var minY = 0;
   path.vertexes.forEach(vertex => {
     if (vertex.x > maxX) maxX = vertex.x;
+    if (vertex.x < minX) minX = vertex.x;
     if (vertex.y > maxY) maxY = vertex.y;
+    if (vertex.y < minY) minY = vertex.y;
   });
-  var factorX = 1 / maxX;
-  var factorY = 1 / maxY;
+  let factorX = 2 / (Math.abs(minX) + maxX);
+  let factorY = 2 / (Math.abs(minY) + maxY);
+  let shiftX = factorX * maxX - 1;
+  let shiftY = factorY * maxY - 1;
   path.vertexes = path.vertexes.map(vertex => {
-    vertex.x *= factorX;
-    vertex.y *= factorY;
+    vertex.x = vertex.x * factorX - shiftX;
+    vertex.y = vertex.y * factorY - shiftY;
     if (vertex.type === "C") {
-      vertex.x1 *= factorX;
-      vertex.x2 *= factorX;
-      vertex.y1 *= factorY;
-      vertex.y2 *= factorY;
+      vertex.x1 = vertex.x1 * factorX - shiftX;
+      vertex.x2 = vertex.x2 * factorX - shiftX;
+      vertex.y1 = vertex.y1 * factorY - shiftY;
+      vertex.y2 = vertex.y2 * factorY - shiftY;
     }
     return vertex;
   });
@@ -492,7 +500,7 @@ const generateShape = (
   path.vertexes = remapVertexes(path.vertexes); // Add M point
   path.vertexes = setControlPoints(path.vertexes, path.groups);
 
-  path = scaleToOne(path);
+  if (!frameParams.incircle) path = scaleToOne(path);
   path = setCenter(path);
   path = setDistance(path);
   path = setPosition(path);
@@ -507,6 +515,7 @@ const generateShape = (
 
 var defaults = {
   frameParams: {
+    numOfSegments: 4,
     depth: 0,
     x: 0,
     y: 0,
@@ -515,7 +524,8 @@ var defaults = {
     centerX: 50,
     centerY: 50,
     rotate: 0,
-    numOfGroups: 1
+    numOfGroups: 1,
+    incircle: false
   },
   group: {
     round: 0.5,
