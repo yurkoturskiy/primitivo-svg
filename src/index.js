@@ -21,9 +21,9 @@ var randomFromRange = function (min, max) {
  * Methods *
  ***********/
 var setDefaults = function (path) {
-    defaults.parameters.numOfGroups = path.parameters.groups.length; // Set num of groups if not exist
-    path.parameters = __assign({}, defaults.parameters, path.parameters);
-    path.parameters.groups = path.parameters.groups.map(function (group) { return (__assign({}, defaults.parameters.groups, group)); });
+    defaultParameters.numOfGroups = path.parameters.groups.length; // Set num of groups if not exist
+    path.parameters = __assign({}, defaultParameters, path.parameters);
+    path.parameters.groups = path.parameters.groups.map(function (group) { return (__assign({}, defaultParameters.groups, group)); });
     return path;
 };
 var generateFrame = function (parameters) {
@@ -380,7 +380,7 @@ var generateSVGPathData = function (path) {
  * Root *
  ********/
 var generateShape = function (parameters) {
-    if (parameters === void 0) { parameters = defaults.parameters; }
+    if (parameters === void 0) { parameters = defaultParameters; }
     // Setup defaults
     var path = { parameters: parameters };
     path = setDefaults(path);
@@ -402,25 +402,23 @@ var generateShape = function (parameters) {
     path = generateD(path);
     return path;
 };
-var defaults = {
-    parameters: {
-        numOfSegments: 4,
-        depth: 0,
-        x: 0,
-        y: 0,
-        width: 100,
-        height: 100,
-        centerX: 50,
-        centerY: 50,
-        rotate: 0,
-        numOfGroups: 1,
-        incircle: false,
-        groups: [
-            {
-                round: 0.5,
-                distance: 1
-            }
-        ]
-    }
+var defaultParameters = {
+    numOfSegments: 4,
+    depth: 0,
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100,
+    centerX: 50,
+    centerY: 50,
+    rotate: 0,
+    numOfGroups: 1,
+    incircle: false,
+    groups: [
+        {
+            round: 0.5,
+            distance: 1
+        }
+    ]
 };
 exports.default = generateShape;

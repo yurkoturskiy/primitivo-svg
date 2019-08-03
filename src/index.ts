@@ -21,11 +21,11 @@ const randomFromRange = (min: number, max: number): number =>
  ***********/
 
 const setDefaults = (path: PathData): PathData => {
-  defaults.parameters.numOfGroups = path.parameters.groups.length; // Set num of groups if not exist
-  path.parameters = { ...defaults.parameters, ...path.parameters };
+  defaultParameters.numOfGroups = path.parameters.groups.length; // Set num of groups if not exist
+  path.parameters = { ...defaultParameters, ...path.parameters };
 
   path.parameters.groups = path.parameters.groups.map(group => ({
-    ...defaults.parameters.groups,
+    ...defaultParameters.groups,
     ...group
   }));
   return path;
@@ -416,7 +416,7 @@ const generateSVGPathData = (path: PathData): PathData => {
  ********/
 
 const generateShape = (
-  parameters: Parameters = defaults.parameters
+  parameters: Parameters = defaultParameters
 ): PathData => {
   // Setup defaults
   var path: PathData = { parameters };
@@ -441,26 +441,24 @@ const generateShape = (
   return path;
 };
 
-var defaults = {
-  parameters: {
-    numOfSegments: 4,
-    depth: 0,
-    x: 0,
-    y: 0,
-    width: 100,
-    height: 100,
-    centerX: 50,
-    centerY: 50,
-    rotate: 0,
-    numOfGroups: 1,
-    incircle: false,
-    groups: [
-      {
-        round: 0.5,
-        distance: 1
-      }
-    ]
-  }
+var defaultParameters = {
+  numOfSegments: 4,
+  depth: 0,
+  x: 0,
+  y: 0,
+  width: 100,
+  height: 100,
+  centerX: 50,
+  centerY: 50,
+  rotate: 0,
+  numOfGroups: 1,
+  incircle: false,
+  groups: [
+    {
+      round: 0.5,
+      distance: 1
+    }
+  ]
 };
 
 export default generateShape;
