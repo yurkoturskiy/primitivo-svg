@@ -33,37 +33,6 @@ const setDefaults = (path: PathData): PathData => {
   return path;
 };
 
-// const setTypeOfRound = (groups: GroupParameters[]): GroupParameters[] => {
-//   return groups.map(group => {
-//     if (typeof group.round === "object") {
-//       if (group.round.length === group.numOfVertexes)
-//         return { ...group, typeOfRound: "vertex" };
-//       if (group.round.length === 2) return { ...group, typeOfRound: "range" };
-//     } else return { ...group, typeOfRound: "global" };
-//   });
-// };
-
-// const setTypeOfDistance = (groups: GroupParameters[]): GroupParameters[] => {
-//   return groups.map(group => {
-//     if (typeof group.distance === "object") {
-//       if (group.distance.length === group.numOfVertexes)
-//         return { ...group, typeOfDistance: "vertex" };
-//       if (group.distance.length === 2)
-//         return { ...group, typeOfDistance: "range" };
-//     } else return { ...group, typeOfDistance: "global" };
-//   });
-// };
-
-// const setTypeOfRadius = (groups: GroupParameters[]): GroupParameters[] => {
-//   return groups.map(group => {
-//     if (typeof group.radius === "object") {
-//       if (group.radius.length === group.numOfVertexes)
-//         return { ...group, typeOfRadius: "vertex" };
-//       if (group.radius.length === 2) return { ...group, typeOfRadius: "range" };
-//     } else return { ...group, typeOfRadius: "global" };
-//   });
-// };
-
 const generateFrame = (path: PathData): PathData => {
   const { depth, rotate, numOfSegments, groups } = path.parameters;
   var numOfVertexes: number = numOfSegments * Math.pow(2, depth);
@@ -119,20 +88,6 @@ const getRadiusValue = (group: GroupParameters, index: number): number => {
   log.debug(`radius for ${index} vertex is ${value}`);
   return value;
 };
-
-// const getRadiusValue = (group: GroupParameters, index: number): number => {
-//   let value;
-
-//   if (group.radiusPerVertex) value = group.radiusPerVertex[index];
-//   else if (group.radius) value = group.radius;
-
-//   if (value)
-//     value =
-//       typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
-//   else value = 1;
-
-//   return value;
-// };
 
 const generateVertexes = (path: PathData): PathData => {
   log.info("generate vertexes");
