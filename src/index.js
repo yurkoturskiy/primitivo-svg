@@ -10,7 +10,15 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var log = __importStar(require("loglevel"));
 var round = function (number) { return Math.round(number * 1e6) / 1e6; };
 var radToAngle = function (rad) { return (rad * 180) / Math.PI; };
 var angleToRad = function (angle) { return (angle * Math.PI) / 180; };
@@ -26,9 +34,38 @@ var setDefaults = function (path) {
     path.parameters.groups = path.parameters.groups.map(function (group) { return (__assign({}, defaultParameters.groups, group)); });
     return path;
 };
-var generateFrame = function (parameters) {
-    var depth = parameters.depth, rotate = parameters.rotate, numOfSegments = parameters.numOfSegments;
+// const setTypeOfRound = (groups: GroupParameters[]): GroupParameters[] => {
+//   return groups.map(group => {
+//     if (typeof group.round === "object") {
+//       if (group.round.length === group.numOfVertexes)
+//         return { ...group, typeOfRound: "vertex" };
+//       if (group.round.length === 2) return { ...group, typeOfRound: "range" };
+//     } else return { ...group, typeOfRound: "global" };
+//   });
+// };
+// const setTypeOfDistance = (groups: GroupParameters[]): GroupParameters[] => {
+//   return groups.map(group => {
+//     if (typeof group.distance === "object") {
+//       if (group.distance.length === group.numOfVertexes)
+//         return { ...group, typeOfDistance: "vertex" };
+//       if (group.distance.length === 2)
+//         return { ...group, typeOfDistance: "range" };
+//     } else return { ...group, typeOfDistance: "global" };
+//   });
+// };
+// const setTypeOfRadius = (groups: GroupParameters[]): GroupParameters[] => {
+//   return groups.map(group => {
+//     if (typeof group.radius === "object") {
+//       if (group.radius.length === group.numOfVertexes)
+//         return { ...group, typeOfRadius: "vertex" };
+//       if (group.radius.length === 2) return { ...group, typeOfRadius: "range" };
+//     } else return { ...group, typeOfRadius: "global" };
+//   });
+// };
+var generateFrame = function (path) {
+    var _a = path.parameters, depth = _a.depth, rotate = _a.rotate, numOfSegments = _a.numOfSegments, groups = _a.groups;
     var numOfVertexes = numOfSegments * Math.pow(2, depth);
+    groups[0].numOfVertexes = numOfVertexes;
     var vertexes = [];
     for (var i = 0; i < numOfVertexes; i++) {
         var radians = ((Math.PI * 2) / numOfVertexes) * i;
@@ -47,22 +84,60 @@ var generateFrame = function (parameters) {
             angle: angle
         };
     }
-    var frameObj = {
+    path.frame = {
         vertexes: vertexes,
         numOfVertexes: vertexes.length
     };
-    return frameObj;
+    return path;
 };
+var getRoundValue = function (group, index) {
+    var value = group.roundPerVertex ? group.roundPerVertex[index] : group.round;
+    value =
+        typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
+    log.debug("round for " + index + " vertex is " + value);
+    return value;
+};
+var getDistanceValue = function (group, index) {
+    var value = group.distancePerVertex
+        ? group.distancePerVertex[index]
+        : group.distance;
+    value =
+        typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
+    return value;
+};
+var getRadiusValue = function (group, index) {
+    var value = group.radiusPerVertex
+        ? group.radiusPerVertex[index]
+        : group.radius;
+    value =
+        typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
+    log.debug("radius for " + index + " vertex is " + value);
+    return value;
+};
+// const getRadiusValue = (group: GroupParameters, index: number): number => {
+//   let value;
+//   if (group.radiusPerVertex) value = group.radiusPerVertex[index];
+//   else if (group.radius) value = group.radius;
+//   if (value)
+//     value =
+//       typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
+//   else value = 1;
+//   return value;
+// };
 var generateVertexes = function (path) {
+    log.info("generate vertexes");
     var frame = path.frame;
-    var _a = path.parameters, numOfGroups = _a.numOfGroups, numOfSegments = _a.numOfSegments;
+    var _a = path.parameters, numOfGroups = _a.numOfGroups, numOfSegments = _a.numOfSegments, groups = _a.groups;
     var subdivisionDepth = numOfGroups - 1;
     var numOfPoints = numOfSegments * Math.pow(2, subdivisionDepth);
     var numOfVertexesPerSide = numOfPoints / frame.numOfVertexes;
     // Init root group from frame vertexes
-    var vertexes = frame.vertexes.map(function (vertex) { return (__assign({}, vertex, { type: "C", group: 0 })); });
+    var vertexes = frame.vertexes.map(function (vertex, index) { return (__assign({}, vertex, { type: "C", group: 0, round: getRoundValue(groups[0], index), distance: getDistanceValue(groups[0], index), radius: getRadiusValue(groups[0], index) })); });
     for (var group = 1; group < numOfGroups; group++) {
+        log.debug("group number", group);
         var numOfNewVertexes = vertexes.length;
+        log.debug("number of vertexes", numOfNewVertexes);
+        groups[group].numOfVertexes = numOfNewVertexes;
         for (var i = 1; i < numOfNewVertexes * 2; i += 2) {
             var protoVertex = {
                 type: "C",
@@ -82,9 +157,16 @@ var generateVertexes = function (path) {
             vertexes[i].y *= 0.5;
             vertexes[i].y += vertexes[nextVertexInd].y;
             vertexes[i].radians = Math.atan2(vertexes[i].y, vertexes[i].x);
+            // Round
+            var indexWithingGroup = (i - 1) / 2;
+            log.debug("vertex index withing a group", indexWithingGroup);
+            vertexes[i].round = getRoundValue(groups[group], indexWithingGroup);
+            vertexes[i].distance = getDistanceValue(groups[group], indexWithingGroup);
+            vertexes[i].radius = getRadiusValue(groups[group], indexWithingGroup);
         }
     }
-    return vertexes;
+    path.vertexes = vertexes;
+    return path;
 };
 var remapVertexes = function (vertexes) {
     /*
@@ -98,32 +180,15 @@ var remapVertexes = function (vertexes) {
 };
 var setControlPoints = function (vertexes, groups) {
     var numOfPoints = vertexes.length - 1; // Minus "M" vertex
+    var firstArmFactors = [];
+    var secondArmFactors = [];
     for (var i = 1; i < vertexes.length; i++) {
-        // Set arms length factor
-        var group = groups[vertexes[i].group];
-        var prevGroup = groups[vertexes[i - 1].group];
-        // Factor for first control point
-        var prevFactor = void 0;
-        if (prevGroup.roundPerVertex)
-            prevFactor = prevGroup.roundPerVertex[i - 1];
-        else if (prevGroup.roundRandomRange)
-            prevFactor = randomFromRange(prevGroup.roundRandomRange[0], prevGroup.roundRandomRange[1]);
-        else
-            prevFactor = prevGroup.round;
-        // Factor for second control point
-        var factor = void 0;
-        if (group.roundPerVertex)
-            factor = group.roundPerVertex[i];
-        else if (group.roundRandomRange)
-            factor = randomFromRange(group.roundRandomRange[0], group.roundRandomRange[1]);
-        else
-            factor = group.round;
         // Set arms length
         var firstArmLength = void 0, secondArmLength = void 0;
         firstArmLength = secondArmLength =
             (4 / 3) * Math.tan(Math.PI / (2 * numOfPoints));
-        firstArmLength *= prevFactor;
-        secondArmLength *= factor;
+        firstArmLength *= vertexes[i - 1].round;
+        secondArmLength *= vertexes[i].round;
         // Set arms angle
         var firstArmRadians = vertexes[i - 1].radians + Math.PI / 2; // angle + 90 from the previous point angle
         var firstArmAngle = radToAngle(firstArmRadians);
@@ -201,34 +266,20 @@ var setCenter = function (path) {
     return path;
 };
 var setDistance = function (path) {
-    var distanceFactors = [];
     var vertexes = path.vertexes;
     var groups = path.parameters.groups;
-    path.vertexes = path.vertexes.map(function (ver, i) {
-        // Calc factor
-        var group = groups[ver.group];
-        var factor;
-        if (group.distancePerVertex)
-            factor = group.distancePerVertex[i];
-        else if (group.distanceRandomRange)
-            factor = randomFromRange(group.distanceRandomRange[0], group.distanceRandomRange[1]);
-        else
-            factor = group.distance;
-        factor = i === vertexes.length - 1 ? distanceFactors[0] : factor; // Set distance same as M for the last C
-        distanceFactors[i] = factor;
+    path.vertexes = path.vertexes.map(function (vertex, index) {
         // Setup distance
-        ver.x *= factor;
-        ver.y *= factor;
-        if (ver.type === "C") {
-            // Calc factor
-            var prevFactor = distanceFactors[i - 1];
+        vertex.x *= vertex.distance;
+        vertex.y *= vertex.distance;
+        if (vertex.type === "C") {
             // Setup distance
-            ver.x1 *= prevFactor;
-            ver.y1 *= prevFactor;
-            ver.x2 *= factor;
-            ver.y2 *= factor;
+            vertex.x1 *= vertexes[index - 1].distance;
+            vertex.y1 *= vertexes[index - 1].distance;
+            vertex.x2 *= vertex.distance;
+            vertex.y2 *= vertex.distance;
         }
-        return ver;
+        return vertex;
     });
     return path;
 };
@@ -285,32 +336,25 @@ var calcLength = function (path) {
     return path;
 };
 var setLength = function (path) {
-    var parameters = path.parameters;
+    log.info("set length");
+    var parameters = path.parameters, vertexes = path.vertexes;
     var groups = path.parameters.groups;
-    var lengthFactors = [];
     var calcFactor = function (newRadius, radius) {
         if (newRadius === 0 || radius === 0)
             return 0;
         return newRadius / radius;
     };
-    path.vertexes = path.vertexes.map(function (vertex, i) {
+    path.vertexes = vertexes.map(function (vertex, i) {
         var group = groups[vertex.group];
         // Calc factor
-        var factor;
-        if (group.radiusPerVertex)
-            factor = calcFactor(group.radiusPerVertex[i], vertex.length);
-        else if (group.radiusRandomRange)
-            factor = calcFactor(randomFromRange(group.radiusRandomRange[0], group.radiusRandomRange[1]), vertex.length);
-        else if (group.radius)
-            factor = calcFactor(group.radius, vertex.length);
-        else
-            factor = 1;
-        lengthFactors[i] = factor;
+        var factor = vertex.radius ? calcFactor(vertex.radius, vertex.length) : 1;
         // Set length
         vertex.x = (vertex.x - parameters.centerX) * factor + parameters.centerX;
         vertex.y = (vertex.y - parameters.centerY) * factor + parameters.centerY;
         if (vertex.type === "C") {
-            var prevFactor = lengthFactors[i - 1];
+            var prevFactor = vertexes[i - 1].radius
+                ? calcFactor(vertexes[i - 1].radius, vertexes[i - 1].length)
+                : 1;
             vertex.x1 =
                 (vertex.x1 - parameters.centerX) * prevFactor + parameters.centerX;
             vertex.y1 =
@@ -322,6 +366,7 @@ var setLength = function (path) {
         }
         return vertex;
     });
+    log.debug(path);
     return path;
 };
 var setKeyframes = function (path) {
@@ -385,8 +430,8 @@ var generateShape = function (parameters) {
     var path = { parameters: parameters };
     path = setDefaults(path);
     // Generate shape
-    path.frame = generateFrame(path.parameters);
-    path.vertexes = generateVertexes(path);
+    path = generateFrame(path);
+    path = generateVertexes(path);
     path.vertexes = remapVertexes(path.vertexes); // Add M point
     path.vertexes = setControlPoints(path.vertexes, path.parameters.groups);
     if (!parameters.incircle)

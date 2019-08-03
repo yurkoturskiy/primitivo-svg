@@ -29,21 +29,22 @@ export interface Parameters {
 
 export interface GroupParameters {
   // Part of Parameters
-  round: number;
-  roundRandomRange?: number[];
-  roundPerVertex?: number[];
-  distance: number;
-  distanceRandomRange?: number[];
-  distancePerVertex?: number[];
-  radius?: number;
-  radiusRandomRange?: number[];
-  radiusPerVertex?: number[];
+  round: number | number[];
+  roundPerVertex?: number[] | number[][];
+  distance: number | number[];
+  distancePerVertex?: number[] | number[][];
+  radius?: number | number[];
+  radiusPerVertex?: number[] | number[][];
   animate?: AnimateParameters;
+  numOfVertexes?: number;
 }
 
 export interface Vertex {
   type?: string;
   group?: number;
+  round?: number;
+  distance?: number;
+  radius?: number;
   radians?: number;
   x?: number;
   y?: number;
