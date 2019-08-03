@@ -2,6 +2,21 @@
  * TS Interfaces *
  *****************/
 
+export interface Parameters {
+  numOfSegments: number;
+  depth: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  centerX: number;
+  centerY: number;
+  rotate: number;
+  numOfGroups: number;
+  incircle: boolean;
+  groups: GroupParameters[];
+}
+
 export interface Vertex {
   type?: string;
   group?: number;
@@ -24,25 +39,10 @@ export interface Vertex {
 
 export interface PathData {
   frame?: Frame;
-  frameParams: FrameParameters;
+  parameters: Parameters;
   vertexes?: Vertex[];
-  groups: GroupParameters[];
   keyframes?: Keyframe[];
   svgPathData?: string;
-}
-
-export interface FrameParameters {
-  numOfSegments: number;
-  depth: number;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  centerX: number;
-  centerY: number;
-  rotate: number;
-  numOfGroups: number;
-  incircle: boolean;
 }
 
 export interface FrameVertex {

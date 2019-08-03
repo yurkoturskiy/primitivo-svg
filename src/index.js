@@ -21,9 +21,9 @@ var randomFromRange = function (min, max) {
  * Methods *
  ***********/
 var setDefaults = function (path) {
-    defaults.frameParams.numOfGroups = path.groups.length; // Set num of groups if not exist
-    path.frameParams = __assign({}, defaults.frameParams, path.frameParams);
-    path.groups = path.groups.map(function (group) { return (__assign({}, defaults.group, group)); });
+    defaults.parameters.numOfGroups = path.parameters.groups.length; // Set num of groups if not exist
+    path.parameters = __assign({}, defaults.parameters, path.parameters);
+    path.parameters.groups = path.parameters.groups.map(function (group) { return (__assign({}, defaults.parameters.groups, group)); });
     return path;
 };
 var generateFrame = function (parameters) {
@@ -54,8 +54,8 @@ var generateFrame = function (parameters) {
     return frameObj;
 };
 var generateVertexes = function (path) {
-    var frame = path.frame, groups = path.groups;
-    var _a = path.frameParams, numOfGroups = _a.numOfGroups, numOfSegments = _a.numOfSegments;
+    var frame = path.frame;
+    var _a = path.parameters, numOfGroups = _a.numOfGroups, numOfSegments = _a.numOfSegments;
     var subdivisionDepth = numOfGroups - 1;
     var numOfPoints = numOfSegments * Math.pow(2, subdivisionDepth);
     var numOfVertexesPerSide = numOfPoints / frame.numOfVertexes;
@@ -184,9 +184,9 @@ var scaleToOne = function (path) {
     return path;
 };
 var setCenter = function (path) {
-    var frameParams = path.frameParams;
-    var factorX = 1 - frameParams.centerX / (frameParams.width / 2);
-    var factorY = 1 - frameParams.centerY / (frameParams.height / 2);
+    var parameters = path.parameters;
+    var factorX = 1 - parameters.centerX / (parameters.width / 2);
+    var factorY = 1 - parameters.centerY / (parameters.height / 2);
     path.vertexes = path.vertexes.map(function (vertex) {
         vertex.x += factorX;
         vertex.y += factorY;
@@ -202,7 +202,8 @@ var setCenter = function (path) {
 };
 var setDistance = function (path) {
     var distanceFactors = [];
-    var vertexes = path.vertexes, groups = path.groups;
+    var vertexes = path.vertexes;
+    var groups = path.parameters.groups;
     path.vertexes = path.vertexes.map(function (ver, i) {
         // Calc factor
         var group = groups[ver.group];
@@ -232,9 +233,9 @@ var setDistance = function (path) {
     return path;
 };
 var setPosition = function (path) {
-    var frameParams = path.frameParams;
-    var factorX = frameParams.centerX / (frameParams.width / 2);
-    var factorY = frameParams.centerY / (frameParams.height / 2);
+    var parameters = path.parameters;
+    var factorX = parameters.centerX / (parameters.width / 2);
+    var factorY = parameters.centerY / (parameters.height / 2);
     path.frame.vertexes = path.frame.vertexes.map(function (vertex) {
         vertex.x += factorX;
         vertex.y += factorY;
@@ -254,37 +255,38 @@ var setPosition = function (path) {
     return path;
 };
 var setScale = function (path) {
-    var frameParams = path.frameParams;
+    var parameters = path.parameters;
     path.frame.vertexes = path.frame.vertexes.map(function (vertex) {
-        vertex.x *= frameParams.width / 2;
-        vertex.y *= frameParams.height / 2;
+        vertex.x *= parameters.width / 2;
+        vertex.y *= parameters.height / 2;
         return vertex;
     });
     path.vertexes = path.vertexes.map(function (vertex) {
-        vertex.x *= frameParams.width / 2;
-        vertex.y *= frameParams.height / 2;
+        vertex.x *= parameters.width / 2;
+        vertex.y *= parameters.height / 2;
         if (vertex.type === "C") {
-            vertex.x1 *= frameParams.width / 2;
-            vertex.y1 *= frameParams.height / 2;
-            vertex.x2 *= frameParams.width / 2;
-            vertex.y2 *= frameParams.height / 2;
+            vertex.x1 *= parameters.width / 2;
+            vertex.y1 *= parameters.height / 2;
+            vertex.x2 *= parameters.width / 2;
+            vertex.y2 *= parameters.height / 2;
         }
         return vertex;
     });
     return path;
 };
 var calcLength = function (path) {
-    var frameParams = path.frameParams;
+    var parameters = path.parameters;
     path.vertexes = path.vertexes.map(function (vertex) {
-        var x = vertex.x - frameParams.centerX;
-        var y = vertex.y - frameParams.centerY;
+        var x = vertex.x - parameters.centerX;
+        var y = vertex.y - parameters.centerY;
         vertex.length = Math.sqrt(x * x + y * y);
         return vertex;
     });
     return path;
 };
 var setLength = function (path) {
-    var frameParams = path.frameParams, groups = path.groups;
+    var parameters = path.parameters;
+    var groups = path.parameters.groups;
     var lengthFactors = [];
     var calcFactor = function (newRadius, radius) {
         if (newRadius === 0 || radius === 0)
@@ -305,18 +307,18 @@ var setLength = function (path) {
             factor = 1;
         lengthFactors[i] = factor;
         // Set length
-        vertex.x = (vertex.x - frameParams.centerX) * factor + frameParams.centerX;
-        vertex.y = (vertex.y - frameParams.centerY) * factor + frameParams.centerY;
+        vertex.x = (vertex.x - parameters.centerX) * factor + parameters.centerX;
+        vertex.y = (vertex.y - parameters.centerY) * factor + parameters.centerY;
         if (vertex.type === "C") {
             var prevFactor = lengthFactors[i - 1];
             vertex.x1 =
-                (vertex.x1 - frameParams.centerX) * prevFactor + frameParams.centerX;
+                (vertex.x1 - parameters.centerX) * prevFactor + parameters.centerX;
             vertex.y1 =
-                (vertex.y1 - frameParams.centerY) * prevFactor + frameParams.centerY;
+                (vertex.y1 - parameters.centerY) * prevFactor + parameters.centerY;
             vertex.x2 =
-                (vertex.x2 - frameParams.centerX) * factor + frameParams.centerX;
+                (vertex.x2 - parameters.centerX) * factor + parameters.centerX;
             vertex.y2 =
-                (vertex.y2 - frameParams.centerY) * factor + frameParams.centerY;
+                (vertex.y2 - parameters.centerY) * factor + parameters.centerY;
         }
         return vertex;
     });
@@ -326,9 +328,9 @@ var setKeyframes = function (path) {
     return path;
 };
 var shift = function (path) {
-    var frameParams = path.frameParams;
+    var parameters = path.parameters;
     // Apply x and y position parameters
-    var x = frameParams.x, y = frameParams.y;
+    var x = parameters.x, y = parameters.y;
     path.vertexes = path.vertexes.map(function (vertex) {
         vertex.x += x;
         vertex.y += y;
@@ -377,18 +379,17 @@ var generateSVGPathData = function (path) {
 /********
  * Root *
  ********/
-var generateShape = function (frameParams, groups) {
-    if (frameParams === void 0) { frameParams = defaults.frameParams; }
-    if (groups === void 0) { groups = [defaults.group]; }
+var generateShape = function (parameters) {
+    if (parameters === void 0) { parameters = defaults.parameters; }
     // Setup defaults
-    var path = { frameParams: frameParams, groups: groups };
+    var path = { parameters: parameters };
     path = setDefaults(path);
     // Generate shape
-    path.frame = generateFrame(path.frameParams);
+    path.frame = generateFrame(path.parameters);
     path.vertexes = generateVertexes(path);
     path.vertexes = remapVertexes(path.vertexes); // Add M point
-    path.vertexes = setControlPoints(path.vertexes, path.groups);
-    if (!frameParams.incircle)
+    path.vertexes = setControlPoints(path.vertexes, path.parameters.groups);
+    if (!parameters.incircle)
         path = scaleToOne(path);
     path = setCenter(path);
     path = setDistance(path);
@@ -402,7 +403,7 @@ var generateShape = function (frameParams, groups) {
     return path;
 };
 var defaults = {
-    frameParams: {
+    parameters: {
         numOfSegments: 4,
         depth: 0,
         x: 0,
@@ -413,11 +414,13 @@ var defaults = {
         centerY: 50,
         rotate: 0,
         numOfGroups: 1,
-        incircle: false
-    },
-    group: {
-        round: 0.5,
-        distance: 1
+        incircle: false,
+        groups: [
+            {
+                round: 0.5,
+                distance: 1
+            }
+        ]
     }
 };
 exports.default = generateShape;
