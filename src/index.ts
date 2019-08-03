@@ -63,6 +63,7 @@ const generateFrame = (path: PathData): PathData => {
 };
 
 const getRoundValue = (group: GroupParameters, index: number): number => {
+  /* Get round value for a vertex from given group parameters */
   let value = group.roundPerVertex ? group.roundPerVertex[index] : group.round;
   value =
     typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
@@ -71,6 +72,7 @@ const getRoundValue = (group: GroupParameters, index: number): number => {
 };
 
 const getDistanceValue = (group: GroupParameters, index: number): number => {
+  /* Get distance value for a vertex from given group parameters */
   let value = group.distancePerVertex
     ? group.distancePerVertex[index]
     : group.distance;
@@ -80,6 +82,7 @@ const getDistanceValue = (group: GroupParameters, index: number): number => {
 };
 
 const getRadiusValue = (group: GroupParameters, index: number): number => {
+  /* Get radius value for a vertex from given group parameters */
   let value = group.radiusPerVertex
     ? group.radiusPerVertex[index]
     : group.radius;
