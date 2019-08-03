@@ -1,8 +1,18 @@
-/*****************
- * TS Interfaces *
- *****************/
+///////////////////
+// TS Interfaces //
+///////////////////
+
+export interface PathData {
+  // Output object
+  frame?: Frame;
+  parameters: Parameters;
+  vertexes?: Vertex[];
+  keyframes?: Keyframe[];
+  svgPathData?: string;
+}
 
 export interface Parameters {
+  // Input object
   numOfSegments: number;
   depth: number;
   x: number;
@@ -15,6 +25,20 @@ export interface Parameters {
   numOfGroups: number;
   incircle: boolean;
   groups: GroupParameters[];
+}
+
+export interface GroupParameters {
+  // Part of Parameters
+  round: number;
+  roundRandomRange?: number[];
+  roundPerVertex?: number[];
+  distance: number;
+  distanceRandomRange?: number[];
+  distancePerVertex?: number[];
+  radius?: number;
+  radiusRandomRange?: number[];
+  radiusPerVertex?: number[];
+  animate?: AnimateParameters;
 }
 
 export interface Vertex {
@@ -37,14 +61,6 @@ export interface Vertex {
   d?: string;
 }
 
-export interface PathData {
-  frame?: Frame;
-  parameters: Parameters;
-  vertexes?: Vertex[];
-  keyframes?: Keyframe[];
-  svgPathData?: string;
-}
-
 export interface FrameVertex {
   cosx: number;
   siny: number;
@@ -57,19 +73,6 @@ export interface FrameVertex {
 export interface Frame {
   vertexes: FrameVertex[];
   numOfVertexes: number;
-}
-
-export interface GroupParameters {
-  round: number;
-  roundRandomRange?: number[];
-  roundPerVertex?: number[];
-  distance: number;
-  distanceRandomRange?: number[];
-  distancePerVertex?: number[];
-  radius?: number;
-  radiusRandomRange?: number[];
-  radiusPerVertex?: number[];
-  animate?: AnimateParameters;
 }
 
 export interface AnimateParameters {
