@@ -1,10 +1,48 @@
-/*****************
- * TS Interfaces *
- *****************/
+///////////////////
+// TS Interfaces //
+///////////////////
+
+export interface PathData {
+  // Output object
+  frame?: Frame;
+  parameters: Parameters;
+  vertexes?: Vertex[];
+  keyframes?: Keyframe[];
+  svgPathData?: string;
+}
+
+export interface Parameters {
+  // Input object
+  numOfSegments: number;
+  depth: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  centerX: number;
+  centerY: number;
+  rotate: number;
+  numOfGroups: number;
+  incircle: boolean;
+  groups: GroupParameters[];
+}
+
+export interface GroupParameters {
+  // Part of Parameters
+  pk?: number; // number of group
+  distance: number | number[] | number[][]; // for all | random range | per vertex
+  round: number | number[] | number[][]; // for all | random range | per vertex
+  radius?: number | number[] | number[][]; // for all | random range | per vertex
+  animate?: AnimateParameters;
+  numOfVertexes?: number;
+}
 
 export interface Vertex {
   type?: string;
   group?: number;
+  round?: number;
+  distance?: number;
+  radius?: number;
   radians?: number;
   x?: number;
   y?: number;
@@ -22,29 +60,6 @@ export interface Vertex {
   d?: string;
 }
 
-export interface PathData {
-  frame?: Frame;
-  frameParams: FrameParameters;
-  vertexes?: Vertex[];
-  groups: GroupParameters[];
-  keyframes?: Keyframe[];
-  svgPathData?: string;
-}
-
-export interface FrameParameters {
-  numOfSegments: number;
-  depth: number;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  centerX: number;
-  centerY: number;
-  rotate: number;
-  numOfGroups: number;
-  incircle: boolean;
-}
-
 export interface FrameVertex {
   cosx: number;
   siny: number;
@@ -57,19 +72,6 @@ export interface FrameVertex {
 export interface Frame {
   vertexes: FrameVertex[];
   numOfVertexes: number;
-}
-
-export interface GroupParameters {
-  round: number;
-  roundRandomRange?: number[];
-  roundPerVertex?: number[];
-  distance: number;
-  distanceRandomRange?: number[];
-  distancePerVertex?: number[];
-  radius?: number;
-  radiusRandomRange?: number[];
-  radiusPerVertex?: number[];
-  animate?: AnimateParameters;
 }
 
 export interface AnimateParameters {

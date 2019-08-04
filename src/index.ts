@@ -1,8 +1,10 @@
+import * as log from "loglevel";
+
 // Interfaces
 import {
   Vertex,
   PathData,
-  FrameParameters,
+  Parameters,
   FrameVertex,
   Frame,
   GroupParameters,
@@ -21,15 +23,23 @@ const randomFromRange = (min: number, max: number): number =>
  ***********/
 
 const setDefaults = (path: PathData): PathData => {
-  defaults.frameParams.numOfGroups = path.groups.length; // Set num of groups if not exist
-  path.frameParams = { ...defaults.frameParams, ...path.frameParams };
+  defaultParameters.numOfGroups = path.parameters.groups.length; // Set num of groups if not exist
+  path.parameters = { ...defaultParameters, ...path.parameters };
 
-  path.groups = path.groups.map(group => ({ ...defaults.group, ...group }));
+  path.parameters.groups = path.parameters.groups.map(group => ({
+    ...defaultParameters.groups[0],
+    ...group
+  }));
   return path;
 };
 
-const generateFrame = (parameters: FrameParameters): Frame => {
-  const { depth, rotate, numOfSegments } = parameters;
+const generateFrame = (path: PathData): PathData => {
+  /*
+   * Generate frame which is the base for a path and
+   * serve as the base for a 0-group vertexes.
+   */
+
+  const { depth, rotate, numOfSegments, groups } = path.parameters;
   var numOfVertexes: number = numOfSegments * Math.pow(2, depth);
   var vertexes = [];
   for (let i = 0; i < numOfVertexes; i++) {
@@ -49,31 +59,99 @@ const generateFrame = (parameters: FrameParameters): Frame => {
       angle
     };
   }
-  var frameObj = {
+  path.frame = {
     vertexes,
     numOfVertexes: vertexes.length
   };
-  return frameObj;
+  return path;
 };
 
-const generateVertexes = (path: PathData): Vertex[] => {
-  const { frame, groups } = path;
-  const { numOfGroups, numOfSegments } = path.frameParams;
+const parseGroupParameter = (
+  parameter: any,
+  group: GroupParameters,
+  vertexIndex: number
+): number => {
+  /* Parse distance, round, or radius group parameters */
+
+  // Number for all
+  if (typeof parameter === "number") return parameter;
+  // Random for all
+  if (typeof parameter === "object" && parameter.length === 2)
+    return randomFromRange(parameter[0], parameter[1]);
+  // Distance per vertex
+  if (typeof parameter === "object") {
+    parameter = parameter[vertexIndex];
+    // Number
+    if (typeof parameter === "number") return parameter;
+    // Random range
+    if (typeof parameter === "object" && parameter.length === 2)
+      return randomFromRange(parameter[0], parameter[1]);
+  }
+  return parameter;
+};
+
+const getRoundValue = (group: GroupParameters, vertexIndex: number): number => {
+  /* Get round value for a vertex from given group parameters */
+  let parameter: any = group.round;
+  parameter = parseGroupParameter(parameter, group, vertexIndex);
+  if (typeof parameter !== "number")
+    throw `Wrong 'round' parameters in group number ${group.pk}`;
+  else return parameter;
+};
+
+const getDistanceValue = (
+  group: GroupParameters,
+  vertexIndex: number
+): number => {
+  /* Get distance value for a vertex from given group parameters */
+  let parameter: any = group.distance;
+  parameter = parseGroupParameter(parameter, group, vertexIndex);
+  if (typeof parameter !== "number")
+    throw `Wrong 'distance' parameters in group number ${group.pk}`;
+  else return parameter;
+};
+
+const getRadiusValue = (
+  group: GroupParameters,
+  vertexIndex: number
+): number => {
+  /* Get radius value for a vertex from given group parameters */
+  let parameter: any = group.radius;
+  parameter = parseGroupParameter(parameter, group, vertexIndex);
+  if (!parameter) return parameter;
+  else if (typeof parameter !== "number")
+    throw `Wrong 'radius' parameters in group number ${group.pk}`;
+  else return parameter;
+};
+
+const generateVertexes = (path: PathData): PathData => {
+  log.info("generate vertexes");
+  const { frame } = path;
+  const { numOfGroups, numOfSegments, groups } = path.parameters;
   const subdivisionDepth = numOfGroups - 1;
   const numOfPoints = numOfSegments * Math.pow(2, subdivisionDepth);
   var numOfVertexesPerSide = numOfPoints / frame.numOfVertexes;
   // Init root group from frame vertexes
-  var vertexes: Vertex[] = frame.vertexes.map(vertex => ({
+  groups[0].numOfVertexes = frame.numOfVertexes;
+  groups[0].pk = 0;
+  var vertexes: Vertex[] = frame.vertexes.map((vertex, index) => ({
     ...vertex,
     type: "C",
-    group: 0
+    group: 0,
+    round: getRoundValue(groups[0], index),
+    distance: getDistanceValue(groups[0], index),
+    radius: getRadiusValue(groups[0], index)
   }));
-  for (let group = 1; group < numOfGroups; group++) {
+  for (let groupIndex = 1; groupIndex < numOfGroups; groupIndex++) {
+    log.debug("group number", groupIndex);
     var numOfNewVertexes = vertexes.length;
+    log.debug("number of vertexes", numOfNewVertexes);
+    groups[groupIndex].numOfVertexes = numOfNewVertexes;
+    groups[groupIndex].pk = groupIndex;
     for (let i = 1; i < numOfNewVertexes * 2; i += 2) {
       let protoVertex = {
         type: "C",
-        group
+        groupIndex
       };
       vertexes.splice(i, 0, protoVertex); // Inser proto vertex in array
       let lastIndex = vertexes.length - 1;
@@ -88,10 +166,22 @@ const generateVertexes = (path: PathData): Vertex[] => {
       vertexes[i].y *= 0.5;
       vertexes[i].y += vertexes[nextVertexInd].y;
       vertexes[i].radians = Math.atan2(vertexes[i].y, vertexes[i].x);
+      // Set distance, round, and radius values per vertex
+      let indexWithingGroup = (i - 1) / 2;
+      log.debug("vertex index withing a group", indexWithingGroup);
+      vertexes[i].distance = getDistanceValue(
+        groups[groupIndex],
+        indexWithingGroup
+      );
+      vertexes[i].round = getRoundValue(groups[groupIndex], indexWithingGroup);
+      vertexes[i].radius = getRadiusValue(
+        groups[groupIndex],
+        indexWithingGroup
+      );
     }
   }
-
-  return vertexes;
+  path.vertexes = vertexes;
+  return path;
 };
 
 const remapVertexes = (vertexes: Vertex[]): Vertex[] => {
@@ -111,34 +201,15 @@ const setControlPoints = (
   groups: GroupParameters[]
 ): Vertex[] => {
   var numOfPoints = vertexes.length - 1; // Minus "M" vertex
+  var firstArmFactors: number[] = [];
+  var secondArmFactors: number[] = [];
   for (let i = 1; i < vertexes.length; i++) {
-    // Set arms length factor
-    let group = groups[vertexes[i].group];
-    let prevGroup = groups[vertexes[i - 1].group];
-    // Factor for first control point
-    let prevFactor;
-    if (prevGroup.roundPerVertex) prevFactor = prevGroup.roundPerVertex[i - 1];
-    else if (prevGroup.roundRandomRange)
-      prevFactor = randomFromRange(
-        prevGroup.roundRandomRange[0],
-        prevGroup.roundRandomRange[1]
-      );
-    else prevFactor = prevGroup.round;
-    // Factor for second control point
-    let factor;
-    if (group.roundPerVertex) factor = group.roundPerVertex[i];
-    else if (group.roundRandomRange)
-      factor = randomFromRange(
-        group.roundRandomRange[0],
-        group.roundRandomRange[1]
-      );
-    else factor = group.round;
     // Set arms length
     let firstArmLength, secondArmLength;
     firstArmLength = secondArmLength =
       (4 / 3) * Math.tan(Math.PI / (2 * numOfPoints));
-    firstArmLength *= prevFactor;
-    secondArmLength *= factor;
+    firstArmLength *= vertexes[i - 1].round;
+    secondArmLength *= vertexes[i].round;
     // Set arms angle
     let firstArmRadians = vertexes[i - 1].radians + Math.PI / 2; // angle + 90 from the previous point angle
     let firstArmAngle = radToAngle(firstArmRadians);
@@ -200,9 +271,9 @@ const scaleToOne = (path: PathData): PathData => {
 };
 
 const setCenter = (path: PathData): PathData => {
-  const { frameParams } = path;
-  var factorX = 1 - frameParams.centerX / (frameParams.width / 2);
-  var factorY = 1 - frameParams.centerY / (frameParams.height / 2);
+  const { parameters } = path;
+  var factorX = 1 - parameters.centerX / (parameters.width / 2);
+  var factorY = 1 - parameters.centerY / (parameters.height / 2);
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x += factorX;
     vertex.y += factorY;
@@ -218,44 +289,29 @@ const setCenter = (path: PathData): PathData => {
 };
 
 const setDistance = (path: PathData): PathData => {
-  var distanceFactors: number[] = [];
-  var { vertexes, groups } = path;
-  path.vertexes = path.vertexes.map((ver, i) => {
-    // Calc factor
-    var group = groups[ver.group];
-    let factor;
-    if (group.distancePerVertex) factor = group.distancePerVertex[i];
-    else if (group.distanceRandomRange)
-      factor = randomFromRange(
-        group.distanceRandomRange[0],
-        group.distanceRandomRange[1]
-      );
-    else factor = group.distance;
-
-    factor = i === vertexes.length - 1 ? distanceFactors[0] : factor; // Set distance same as M for the last C
-    distanceFactors[i] = factor;
+  var { vertexes } = path;
+  var { groups } = path.parameters;
+  path.vertexes = path.vertexes.map((vertex, index) => {
     // Setup distance
-    ver.x *= factor;
-    ver.y *= factor;
+    vertex.x *= vertex.distance;
+    vertex.y *= vertex.distance;
 
-    if (ver.type === "C") {
-      // Calc factor
-      let prevFactor = distanceFactors[i - 1];
+    if (vertex.type === "C") {
       // Setup distance
-      ver.x1 *= prevFactor;
-      ver.y1 *= prevFactor;
-      ver.x2 *= factor;
-      ver.y2 *= factor;
+      vertex.x1 *= vertexes[index - 1].distance;
+      vertex.y1 *= vertexes[index - 1].distance;
+      vertex.x2 *= vertex.distance;
+      vertex.y2 *= vertex.distance;
     }
-    return ver;
+    return vertex;
   });
   return path;
 };
 
 const setPosition = (path: PathData): PathData => {
-  const { frameParams } = path;
-  var factorX = frameParams.centerX / (frameParams.width / 2);
-  var factorY = frameParams.centerY / (frameParams.height / 2);
+  const { parameters } = path;
+  var factorX = parameters.centerX / (parameters.width / 2);
+  var factorY = parameters.centerY / (parameters.height / 2);
   path.frame.vertexes = path.frame.vertexes.map(vertex => {
     vertex.x += factorX;
     vertex.y += factorY;
@@ -276,20 +332,20 @@ const setPosition = (path: PathData): PathData => {
 };
 
 const setScale = (path: PathData): PathData => {
-  const { frameParams } = path;
+  const { parameters } = path;
   path.frame.vertexes = path.frame.vertexes.map(vertex => {
-    vertex.x *= frameParams.width / 2;
-    vertex.y *= frameParams.height / 2;
+    vertex.x *= parameters.width / 2;
+    vertex.y *= parameters.height / 2;
     return vertex;
   });
   path.vertexes = path.vertexes.map(vertex => {
-    vertex.x *= frameParams.width / 2;
-    vertex.y *= frameParams.height / 2;
+    vertex.x *= parameters.width / 2;
+    vertex.y *= parameters.height / 2;
     if (vertex.type === "C") {
-      vertex.x1 *= frameParams.width / 2;
-      vertex.y1 *= frameParams.height / 2;
-      vertex.x2 *= frameParams.width / 2;
-      vertex.y2 *= frameParams.height / 2;
+      vertex.x1 *= parameters.width / 2;
+      vertex.y1 *= parameters.height / 2;
+      vertex.x2 *= parameters.width / 2;
+      vertex.y2 *= parameters.height / 2;
     }
     return vertex;
   });
@@ -297,10 +353,10 @@ const setScale = (path: PathData): PathData => {
 };
 
 const calcLength = (path: PathData): PathData => {
-  const { frameParams } = path;
+  const { parameters } = path;
   path.vertexes = path.vertexes.map(vertex => {
-    let x = vertex.x - frameParams.centerX;
-    let y = vertex.y - frameParams.centerY;
+    let x = vertex.x - parameters.centerX;
+    let y = vertex.y - parameters.centerY;
     vertex.length = Math.sqrt(x * x + y * y);
     return vertex;
   });
@@ -308,43 +364,37 @@ const calcLength = (path: PathData): PathData => {
 };
 
 const setLength = (path: PathData): PathData => {
-  const { frameParams, groups } = path;
+  log.info("set length");
+  const { parameters, vertexes } = path;
+  const { groups } = path.parameters;
 
-  var lengthFactors: number[] = [];
   const calcFactor = (newRadius: number, radius: number): number => {
     if (newRadius === 0 || radius === 0) return 0;
     return newRadius / radius;
   };
-  path.vertexes = path.vertexes.map((vertex, i) => {
+  path.vertexes = vertexes.map((vertex, i) => {
     let group = groups[vertex.group];
     // Calc factor
-    let factor;
-    if (group.radiusPerVertex)
-      factor = calcFactor(group.radiusPerVertex[i], vertex.length);
-    else if (group.radiusRandomRange)
-      factor = calcFactor(
-        randomFromRange(group.radiusRandomRange[0], group.radiusRandomRange[1]),
-        vertex.length
-      );
-    else if (group.radius) factor = calcFactor(group.radius, vertex.length);
-    else factor = 1;
-    lengthFactors[i] = factor;
+    let factor = vertex.radius ? calcFactor(vertex.radius, vertex.length) : 1;
     // Set length
-    vertex.x = (vertex.x - frameParams.centerX) * factor + frameParams.centerX;
-    vertex.y = (vertex.y - frameParams.centerY) * factor + frameParams.centerY;
+    vertex.x = (vertex.x - parameters.centerX) * factor + parameters.centerX;
+    vertex.y = (vertex.y - parameters.centerY) * factor + parameters.centerY;
     if (vertex.type === "C") {
-      let prevFactor = lengthFactors[i - 1];
+      let prevFactor = vertexes[i - 1].radius
+        ? calcFactor(vertexes[i - 1].radius, vertexes[i - 1].length)
+        : 1;
       vertex.x1 =
-        (vertex.x1 - frameParams.centerX) * prevFactor + frameParams.centerX;
+        (vertex.x1 - parameters.centerX) * prevFactor + parameters.centerX;
       vertex.y1 =
-        (vertex.y1 - frameParams.centerY) * prevFactor + frameParams.centerY;
+        (vertex.y1 - parameters.centerY) * prevFactor + parameters.centerY;
       vertex.x2 =
-        (vertex.x2 - frameParams.centerX) * factor + frameParams.centerX;
+        (vertex.x2 - parameters.centerX) * factor + parameters.centerX;
       vertex.y2 =
-        (vertex.y2 - frameParams.centerY) * factor + frameParams.centerY;
+        (vertex.y2 - parameters.centerY) * factor + parameters.centerY;
     }
     return vertex;
   });
+  log.debug(path);
   return path;
 };
 
@@ -353,9 +403,9 @@ const setKeyframes = (path: PathData): PathData => {
 };
 
 const shift = (path: PathData): PathData => {
-  const { frameParams } = path;
+  const { parameters } = path;
   // Apply x and y position parameters
-  const { x, y } = frameParams;
+  const { x, y } = parameters;
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x += x;
     vertex.y += y;
@@ -411,20 +461,19 @@ const generateSVGPathData = (path: PathData): PathData => {
  ********/
 
 const generateShape = (
-  frameParams: FrameParameters = defaults.frameParams,
-  groups: GroupParameters[] = [defaults.group]
+  parameters: Parameters = defaultParameters
 ): PathData => {
   // Setup defaults
-  var path: PathData = { frameParams, groups };
+  var path: PathData = { parameters };
   path = setDefaults(path);
 
   // Generate shape
-  path.frame = generateFrame(path.frameParams);
-  path.vertexes = generateVertexes(path);
+  path = generateFrame(path);
+  path = generateVertexes(path);
   path.vertexes = remapVertexes(path.vertexes); // Add M point
-  path.vertexes = setControlPoints(path.vertexes, path.groups);
+  path.vertexes = setControlPoints(path.vertexes, path.parameters.groups);
 
-  if (!frameParams.incircle) path = scaleToOne(path);
+  if (!parameters.incircle) path = scaleToOne(path);
   path = setCenter(path);
   path = setDistance(path);
   path = setPosition(path);
@@ -437,24 +486,24 @@ const generateShape = (
   return path;
 };
 
-var defaults = {
-  frameParams: {
-    numOfSegments: 4,
-    depth: 0,
-    x: 0,
-    y: 0,
-    width: 100,
-    height: 100,
-    centerX: 50,
-    centerY: 50,
-    rotate: 0,
-    numOfGroups: 1,
-    incircle: false
-  },
-  group: {
-    round: 0.5,
-    distance: 1
-  }
+var defaultParameters = {
+  numOfSegments: 4,
+  depth: 0,
+  x: 0,
+  y: 0,
+  width: 100,
+  height: 100,
+  centerX: 50,
+  centerY: 50,
+  rotate: 0,
+  numOfGroups: 1,
+  incircle: false,
+  groups: [
+    {
+      round: 0.5,
+      distance: 1
+    }
+  ]
 };
 
 export default generateShape;
