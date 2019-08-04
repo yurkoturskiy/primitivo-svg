@@ -166,6 +166,7 @@ const generateVertexes = (path: PathData): PathData => {
       vertexes[i].y *= 0.5;
       vertexes[i].y += vertexes[nextVertexInd].y;
       vertexes[i].radians = Math.atan2(vertexes[i].y, vertexes[i].x);
+      vertexes[i].angle = radToAngle(vertexes[i].radians);
       // Set distance, round, and radius values per vertex
       let indexWithingGroup = (i - 1) / 2;
       log.debug("vertex index withing a group", indexWithingGroup);
@@ -398,7 +399,17 @@ const setLength = (path: PathData): PathData => {
   return path;
 };
 
-const setKeyframes = (path: PathData): PathData => {
+const calcRadians = (path: PathData): PathData => {
+  log.info("calculate radians");
+  const { vertexes } = path;
+  const { centerX, centerY } = path.parameters;
+  path.vertexes = vertexes.map(vertex => {
+    let deltaX = vertex.x - centerX;
+    let deltaY = centerY - vertex.y;
+    vertex.radians = Math.atan2(deltaY, deltaX);
+    vertex.angle = radToAngle(vertex.radians);
+    return vertex;
+  });
   return path;
 };
 
@@ -480,7 +491,7 @@ const generateShape = (
   path = setScale(path);
   path = calcLength(path);
   path = setLength(path);
-  path = setKeyframes(path);
+  path = calcRadians(path);
   path = shift(path);
   path = generateD(path);
   return path;

@@ -44,6 +44,7 @@ export interface Vertex {
   distance?: number;
   radius?: number;
   radians?: number;
+  angle?: number;
   x?: number;
   y?: number;
   cosx?: number;

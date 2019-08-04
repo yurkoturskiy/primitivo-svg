@@ -150,6 +150,7 @@ var generateVertexes = function (path) {
             vertexes[i].y *= 0.5;
             vertexes[i].y += vertexes[nextVertexInd].y;
             vertexes[i].radians = Math.atan2(vertexes[i].y, vertexes[i].x);
+            vertexes[i].angle = radToAngle(vertexes[i].radians);
             // Set distance, round, and radius values per vertex
             var indexWithingGroup = (i - 1) / 2;
             log.debug("vertex index withing a group", indexWithingGroup);
@@ -362,7 +363,17 @@ var setLength = function (path) {
     log.debug(path);
     return path;
 };
-var setKeyframes = function (path) {
+var calcRadians = function (path) {
+    log.info("calculate radians");
+    var vertexes = path.vertexes;
+    var _a = path.parameters, centerX = _a.centerX, centerY = _a.centerY;
+    path.vertexes = vertexes.map(function (vertex) {
+        var deltaX = vertex.x - centerX;
+        var deltaY = centerY - vertex.y;
+        vertex.radians = Math.atan2(deltaY, deltaX);
+        vertex.angle = radToAngle(vertex.radians);
+        return vertex;
+    });
     return path;
 };
 var shift = function (path) {
@@ -435,7 +446,7 @@ var generateShape = function (parameters) {
     path = setScale(path);
     path = calcLength(path);
     path = setLength(path);
-    path = setKeyframes(path);
+    path = calcRadians(path);
     path = shift(path);
     path = generateD(path);
     return path;
