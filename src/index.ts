@@ -27,7 +27,7 @@ const setDefaults = (path: PathData): PathData => {
   path.parameters = { ...defaultParameters, ...path.parameters };
 
   path.parameters.groups = path.parameters.groups.map(group => ({
-    ...defaultParameters.groups,
+    ...defaultParameters.groups[0],
     ...group
   }));
   return path;

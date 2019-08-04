@@ -31,7 +31,7 @@ var randomFromRange = function (min, max) {
 var setDefaults = function (path) {
     defaultParameters.numOfGroups = path.parameters.groups.length; // Set num of groups if not exist
     path.parameters = __assign({}, defaultParameters, path.parameters);
-    path.parameters.groups = path.parameters.groups.map(function (group) { return (__assign({}, defaultParameters.groups, group)); });
+    path.parameters.groups = path.parameters.groups.map(function (group) { return (__assign({}, defaultParameters.groups[0], group)); });
     return path;
 };
 var generateFrame = function (path) {
@@ -62,6 +62,7 @@ var generateFrame = function (path) {
     return path;
 };
 var parseGroupParameter = function (parameter, group, vertexIndex) {
+    /* Parse distance, round, or radius group parameters */
     // Number for all
     if (typeof parameter === "number")
         return parameter;
@@ -145,11 +146,11 @@ var generateVertexes = function (path) {
             vertexes[i].y *= 0.5;
             vertexes[i].y += vertexes[nextVertexInd].y;
             vertexes[i].radians = Math.atan2(vertexes[i].y, vertexes[i].x);
-            // Round
+            // Set distance, round, and radius values per vertex
             var indexWithingGroup = (i - 1) / 2;
             log.debug("vertex index withing a group", indexWithingGroup);
-            vertexes[i].round = getRoundValue(groups[groupIndex], indexWithingGroup);
             vertexes[i].distance = getDistanceValue(groups[groupIndex], indexWithingGroup);
+            vertexes[i].round = getRoundValue(groups[groupIndex], indexWithingGroup);
             vertexes[i].radius = getRadiusValue(groups[groupIndex], indexWithingGroup);
         }
     }
