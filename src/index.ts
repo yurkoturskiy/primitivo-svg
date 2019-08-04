@@ -36,7 +36,6 @@ const setDefaults = (path: PathData): PathData => {
 const generateFrame = (path: PathData): PathData => {
   const { depth, rotate, numOfSegments, groups } = path.parameters;
   var numOfVertexes: number = numOfSegments * Math.pow(2, depth);
-  groups[0].numOfVertexes = numOfVertexes;
   var vertexes = [];
   for (let i = 0; i < numOfVertexes; i++) {
     let radians = ((Math.PI * 2) / numOfVertexes) * i;
@@ -62,34 +61,62 @@ const generateFrame = (path: PathData): PathData => {
   return path;
 };
 
-const getRoundValue = (group: GroupParameters, index: number): number => {
+const parseGroupParameter = (
+  parameter: any,
+  group: GroupParameters,
+  vertexIndex: number
+): number => {
+  /* Parse distance, round, or radius group parameters */
+
+  // Number for all
+  if (typeof parameter === "number") return parameter;
+  // Random for all
+  if (typeof parameter === "object" && parameter.length === 2)
+    return randomFromRange(parameter[0], parameter[1]);
+  // Distance per vertex
+  if (typeof parameter === "object") {
+    parameter = parameter[vertexIndex];
+    // Number
+    if (typeof parameter === "number") return parameter;
+    // Random range
+    if (typeof parameter === "object" && parameter.length === 2)
+      return randomFromRange(parameter[0], parameter[1]);
+  }
+  return parameter;
+};
+
+const getRoundValue = (group: GroupParameters, vertexIndex: number): number => {
   /* Get round value for a vertex from given group parameters */
-  let value = group.roundPerVertex ? group.roundPerVertex[index] : group.round;
-  value =
-    typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
-  log.debug(`round for ${index} vertex is ${value}`);
-  return value;
+  let parameter: any = group.round;
+  parameter = parseGroupParameter(parameter, group, vertexIndex);
+  if (typeof parameter !== "number")
+    throw `Wrong 'round' parameters in group number ${group.pk}`;
+  else return parameter;
 };
 
-const getDistanceValue = (group: GroupParameters, index: number): number => {
+const getDistanceValue = (
+  group: GroupParameters,
+  vertexIndex: number
+): number => {
   /* Get distance value for a vertex from given group parameters */
-  let value = group.distancePerVertex
-    ? group.distancePerVertex[index]
-    : group.distance;
-  value =
-    typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
-  return value;
+  let parameter: any = group.distance;
+  parameter = parseGroupParameter(parameter, group, vertexIndex);
+  if (typeof parameter !== "number")
+    throw `Wrong 'distance' parameters in group number ${group.pk}`;
+  else return parameter;
 };
 
-const getRadiusValue = (group: GroupParameters, index: number): number => {
+const getRadiusValue = (
+  group: GroupParameters,
+  vertexIndex: number
+): number => {
   /* Get radius value for a vertex from given group parameters */
-  let value = group.radiusPerVertex
-    ? group.radiusPerVertex[index]
-    : group.radius;
-  value =
-    typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
-  log.debug(`radius for ${index} vertex is ${value}`);
-  return value;
+  let parameter: any = group.radius;
+  parameter = parseGroupParameter(parameter, group, vertexIndex);
+  if (!parameter) return parameter;
+  else if (typeof parameter !== "number")
+    throw `Wrong 'radius' parameters in group number ${group.pk}`;
+  else return parameter;
 };
 
 const generateVertexes = (path: PathData): PathData => {
@@ -100,6 +127,8 @@ const generateVertexes = (path: PathData): PathData => {
   const numOfPoints = numOfSegments * Math.pow(2, subdivisionDepth);
   var numOfVertexesPerSide = numOfPoints / frame.numOfVertexes;
   // Init root group from frame vertexes
+  groups[0].numOfVertexes = frame.numOfVertexes;
+  groups[0].pk = 0;
   var vertexes: Vertex[] = frame.vertexes.map((vertex, index) => ({
     ...vertex,
     type: "C",
@@ -108,15 +137,16 @@ const generateVertexes = (path: PathData): PathData => {
     distance: getDistanceValue(groups[0], index),
     radius: getRadiusValue(groups[0], index)
   }));
-  for (let group = 1; group < numOfGroups; group++) {
-    log.debug("group number", group);
+  for (let groupIndex = 1; groupIndex < numOfGroups; groupIndex++) {
+    log.debug("group number", groupIndex);
     var numOfNewVertexes = vertexes.length;
     log.debug("number of vertexes", numOfNewVertexes);
-    groups[group].numOfVertexes = numOfNewVertexes;
+    groups[groupIndex].numOfVertexes = numOfNewVertexes;
+    groups[groupIndex].pk = groupIndex;
     for (let i = 1; i < numOfNewVertexes * 2; i += 2) {
       let protoVertex = {
         type: "C",
-        group
+        groupIndex
       };
       vertexes.splice(i, 0, protoVertex); // Inser proto vertex in array
       let lastIndex = vertexes.length - 1;
@@ -131,12 +161,18 @@ const generateVertexes = (path: PathData): PathData => {
       vertexes[i].y *= 0.5;
       vertexes[i].y += vertexes[nextVertexInd].y;
       vertexes[i].radians = Math.atan2(vertexes[i].y, vertexes[i].x);
-      // Round
+      // Set distance, round, and radius values per vertex
       let indexWithingGroup = (i - 1) / 2;
       log.debug("vertex index withing a group", indexWithingGroup);
-      vertexes[i].round = getRoundValue(groups[group], indexWithingGroup);
-      vertexes[i].distance = getDistanceValue(groups[group], indexWithingGroup);
-      vertexes[i].radius = getRadiusValue(groups[group], indexWithingGroup);
+      vertexes[i].distance = getDistanceValue(
+        groups[groupIndex],
+        indexWithingGroup
+      );
+      vertexes[i].round = getRoundValue(groups[groupIndex], indexWithingGroup);
+      vertexes[i].radius = getRadiusValue(
+        groups[groupIndex],
+        indexWithingGroup
+      );
     }
   }
   path.vertexes = vertexes;

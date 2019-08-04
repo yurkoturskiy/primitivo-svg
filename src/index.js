@@ -34,38 +34,9 @@ var setDefaults = function (path) {
     path.parameters.groups = path.parameters.groups.map(function (group) { return (__assign({}, defaultParameters.groups, group)); });
     return path;
 };
-// const setTypeOfRound = (groups: GroupParameters[]): GroupParameters[] => {
-//   return groups.map(group => {
-//     if (typeof group.round === "object") {
-//       if (group.round.length === group.numOfVertexes)
-//         return { ...group, typeOfRound: "vertex" };
-//       if (group.round.length === 2) return { ...group, typeOfRound: "range" };
-//     } else return { ...group, typeOfRound: "global" };
-//   });
-// };
-// const setTypeOfDistance = (groups: GroupParameters[]): GroupParameters[] => {
-//   return groups.map(group => {
-//     if (typeof group.distance === "object") {
-//       if (group.distance.length === group.numOfVertexes)
-//         return { ...group, typeOfDistance: "vertex" };
-//       if (group.distance.length === 2)
-//         return { ...group, typeOfDistance: "range" };
-//     } else return { ...group, typeOfDistance: "global" };
-//   });
-// };
-// const setTypeOfRadius = (groups: GroupParameters[]): GroupParameters[] => {
-//   return groups.map(group => {
-//     if (typeof group.radius === "object") {
-//       if (group.radius.length === group.numOfVertexes)
-//         return { ...group, typeOfRadius: "vertex" };
-//       if (group.radius.length === 2) return { ...group, typeOfRadius: "range" };
-//     } else return { ...group, typeOfRadius: "global" };
-//   });
-// };
 var generateFrame = function (path) {
     var _a = path.parameters, depth = _a.depth, rotate = _a.rotate, numOfSegments = _a.numOfSegments, groups = _a.groups;
     var numOfVertexes = numOfSegments * Math.pow(2, depth);
-    groups[0].numOfVertexes = numOfVertexes;
     var vertexes = [];
     for (var i = 0; i < numOfVertexes; i++) {
         var radians = ((Math.PI * 2) / numOfVertexes) * i;
@@ -90,40 +61,54 @@ var generateFrame = function (path) {
     };
     return path;
 };
-var getRoundValue = function (group, index) {
-    var value = group.roundPerVertex ? group.roundPerVertex[index] : group.round;
-    value =
-        typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
-    log.debug("round for " + index + " vertex is " + value);
-    return value;
+var parseGroupParameter = function (parameter, group, vertexIndex) {
+    // Number for all
+    if (typeof parameter === "number")
+        return parameter;
+    // Random for all
+    if (typeof parameter === "object" && parameter.length === 2)
+        return randomFromRange(parameter[0], parameter[1]);
+    // Distance per vertex
+    if (typeof parameter === "object") {
+        parameter = parameter[vertexIndex];
+        // Number
+        if (typeof parameter === "number")
+            return parameter;
+        // Random range
+        if (typeof parameter === "object" && parameter.length === 2)
+            return randomFromRange(parameter[0], parameter[1]);
+    }
+    return parameter;
 };
-var getDistanceValue = function (group, index) {
-    var value = group.distancePerVertex
-        ? group.distancePerVertex[index]
-        : group.distance;
-    value =
-        typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
-    return value;
+var getRoundValue = function (group, vertexIndex) {
+    /* Get round value for a vertex from given group parameters */
+    var parameter = group.round;
+    parameter = parseGroupParameter(parameter, group, vertexIndex);
+    if (typeof parameter !== "number")
+        throw "Wrong 'round' parameters in group number " + group.pk;
+    else
+        return parameter;
 };
-var getRadiusValue = function (group, index) {
-    var value = group.radiusPerVertex
-        ? group.radiusPerVertex[index]
-        : group.radius;
-    value =
-        typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
-    log.debug("radius for " + index + " vertex is " + value);
-    return value;
+var getDistanceValue = function (group, vertexIndex) {
+    /* Get distance value for a vertex from given group parameters */
+    var parameter = group.distance;
+    parameter = parseGroupParameter(parameter, group, vertexIndex);
+    if (typeof parameter !== "number")
+        throw "Wrong 'distance' parameters in group number " + group.pk;
+    else
+        return parameter;
 };
-// const getRadiusValue = (group: GroupParameters, index: number): number => {
-//   let value;
-//   if (group.radiusPerVertex) value = group.radiusPerVertex[index];
-//   else if (group.radius) value = group.radius;
-//   if (value)
-//     value =
-//       typeof value === "object" ? randomFromRange(value[0], value[1]) : value;
-//   else value = 1;
-//   return value;
-// };
+var getRadiusValue = function (group, vertexIndex) {
+    /* Get radius value for a vertex from given group parameters */
+    var parameter = group.radius;
+    parameter = parseGroupParameter(parameter, group, vertexIndex);
+    if (!parameter)
+        return parameter;
+    else if (typeof parameter !== "number")
+        throw "Wrong 'radius' parameters in group number " + group.pk;
+    else
+        return parameter;
+};
 var generateVertexes = function (path) {
     log.info("generate vertexes");
     var frame = path.frame;
@@ -132,16 +117,19 @@ var generateVertexes = function (path) {
     var numOfPoints = numOfSegments * Math.pow(2, subdivisionDepth);
     var numOfVertexesPerSide = numOfPoints / frame.numOfVertexes;
     // Init root group from frame vertexes
+    groups[0].numOfVertexes = frame.numOfVertexes;
+    groups[0].pk = 0;
     var vertexes = frame.vertexes.map(function (vertex, index) { return (__assign({}, vertex, { type: "C", group: 0, round: getRoundValue(groups[0], index), distance: getDistanceValue(groups[0], index), radius: getRadiusValue(groups[0], index) })); });
-    for (var group = 1; group < numOfGroups; group++) {
-        log.debug("group number", group);
+    for (var groupIndex = 1; groupIndex < numOfGroups; groupIndex++) {
+        log.debug("group number", groupIndex);
         var numOfNewVertexes = vertexes.length;
         log.debug("number of vertexes", numOfNewVertexes);
-        groups[group].numOfVertexes = numOfNewVertexes;
+        groups[groupIndex].numOfVertexes = numOfNewVertexes;
+        groups[groupIndex].pk = groupIndex;
         for (var i = 1; i < numOfNewVertexes * 2; i += 2) {
             var protoVertex = {
                 type: "C",
-                group: group
+                groupIndex: groupIndex
             };
             vertexes.splice(i, 0, protoVertex); // Inser proto vertex in array
             var lastIndex = vertexes.length - 1;
@@ -160,9 +148,9 @@ var generateVertexes = function (path) {
             // Round
             var indexWithingGroup = (i - 1) / 2;
             log.debug("vertex index withing a group", indexWithingGroup);
-            vertexes[i].round = getRoundValue(groups[group], indexWithingGroup);
-            vertexes[i].distance = getDistanceValue(groups[group], indexWithingGroup);
-            vertexes[i].radius = getRadiusValue(groups[group], indexWithingGroup);
+            vertexes[i].round = getRoundValue(groups[groupIndex], indexWithingGroup);
+            vertexes[i].distance = getDistanceValue(groups[groupIndex], indexWithingGroup);
+            vertexes[i].radius = getRadiusValue(groups[groupIndex], indexWithingGroup);
         }
     }
     path.vertexes = vertexes;

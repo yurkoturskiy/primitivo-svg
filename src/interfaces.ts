@@ -29,12 +29,10 @@ export interface Parameters {
 
 export interface GroupParameters {
   // Part of Parameters
-  round: number | number[];
-  roundPerVertex?: number[] | number[][];
-  distance: number | number[];
-  distancePerVertex?: number[] | number[][];
-  radius?: number | number[];
-  radiusPerVertex?: number[] | number[][];
+  pk?: number; // number of group
+  distance: number | number[] | number[][]; // for all | random range | per vertex
+  round: number | number[] | number[][]; // for all | random range | per vertex
+  radius?: number | number[] | number[][]; // for all | random range | per vertex
   animate?: AnimateParameters;
   numOfVertexes?: number;
 }
