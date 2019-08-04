@@ -35,6 +35,10 @@ var setDefaults = function (path) {
     return path;
 };
 var generateFrame = function (path) {
+    /*
+     * Generate frame which is the base for a path and
+     * serve as the base for a 0-group vertexes.
+     */
     var _a = path.parameters, depth = _a.depth, rotate = _a.rotate, numOfSegments = _a.numOfSegments, groups = _a.groups;
     var numOfVertexes = numOfSegments * Math.pow(2, depth);
     var vertexes = [];
