@@ -34,6 +34,11 @@ const setDefaults = (path: PathData): PathData => {
 };
 
 const generateFrame = (path: PathData): PathData => {
+  /*
+   * Generate frame which is the base for a path and
+   * serve as the base for a 0-group vertexes.
+   */
+
   const { depth, rotate, numOfSegments, groups } = path.parameters;
   var numOfVertexes: number = numOfSegments * Math.pow(2, depth);
   var vertexes = [];
