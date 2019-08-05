@@ -25,6 +25,12 @@ var angleToRad = function (angle) { return (angle * Math.PI) / 180; };
 var randomFromRange = function (min, max) {
     return Math.random() * (max - min) + min;
 };
+var radiansDelta = function (a, b) {
+    var delta = Math.abs(a - b);
+    if (delta > Math.PI)
+        delta = 2 * Math.PI - delta;
+    return delta;
+};
 /***********
  * Methods *
  ***********/
@@ -121,6 +127,27 @@ var getRadiusValue = function (group, vertexIndex) {
     else
         return parameter;
 };
+var generateLinearVertexCoordinates = function (vertexes, vertex, prevVertex, nextVertex) {
+    // Calc X Y coords
+    vertex.x = prevVertex.x - nextVertex.x; // Substract adjacent points to get x
+    vertex.x *= 0.5; // Make x twice closer to center
+    vertex.x += nextVertex.x; // Position x inbetween of adjacent points
+    vertex.y = prevVertex.y - nextVertex.y; // Make the same with Y
+    vertex.y *= 0.5;
+    vertex.y += nextVertex.y;
+    vertex.radians = Math.atan2(vertex.y, vertex.x);
+    vertex.angle = radToAngle(vertex.radians);
+    return vertex;
+};
+var generateRadialVertexCoordinates = function (vertexes, vertex, prevVertex, nextVertex) {
+    var radiansStep = radiansDelta(prevVertex.radians, nextVertex.radians) / 2;
+    vertex.radians = prevVertex.radians + radiansStep;
+    vertex.cosx = round(Math.cos(vertex.radians));
+    vertex.siny = round(Math.sin(vertex.radians));
+    vertex.x = vertex.cosx;
+    vertex.y = vertex.siny;
+    return vertex;
+};
 var generateVertexes = function (path) {
     log.info("generate vertexes");
     var frame = path.frame;
@@ -149,15 +176,20 @@ var generateVertexes = function (path) {
             var nextVertexInd = i + 1;
             if (nextVertexInd > lastIndex)
                 nextVertexInd = 0;
-            // Calc X Y coords
-            vertexes[i].x = vertexes[prevVertexInd].x - vertexes[nextVertexInd].x; // Substract adjacent points to get x
-            vertexes[i].x *= 0.5; // Make x twice closer to center
-            vertexes[i].x += vertexes[nextVertexInd].x; // Position x inbetween of adjacent points
-            vertexes[i].y = vertexes[prevVertexInd].y - vertexes[nextVertexInd].y; // Make the same with Y
-            vertexes[i].y *= 0.5;
-            vertexes[i].y += vertexes[nextVertexInd].y;
-            vertexes[i].radians = Math.atan2(vertexes[i].y, vertexes[i].x);
-            vertexes[i].angle = radToAngle(vertexes[i].radians);
+            var vertex = vertexes[i];
+            var prevVertex = vertexes[prevVertexInd];
+            var nextVertex = vertexes[nextVertexInd];
+            switch (groups[groupIndex].type) {
+                case "linear":
+                    vertex = generateLinearVertexCoordinates(vertexes, vertex, prevVertex, nextVertex);
+                    break;
+                case "radial":
+                    vertex = generateRadialVertexCoordinates(vertexes, vertex, prevVertex, nextVertex);
+                    break;
+                default:
+                    throw "Type for group " + groupIndex + " seems to be wrong.";
+                    break;
+            }
             // Set distance, round, and radius values per vertex
             var indexWithingGroup = (i - 1) / 2;
             log.debug("vertex index withing a group", indexWithingGroup);
@@ -315,10 +347,8 @@ var setControlPoints = function (path) {
         var individualFactor = void 0;
         if (firstArmRoundMode === "individual" ||
             secondArmRoundMode === "individual") {
-            var radiansDelta = Math.abs(vertexes[i - 1].radians - vertexes[i].radians);
-            if (radiansDelta > Math.PI)
-                radiansDelta = 2 * Math.PI - radiansDelta;
-            individualFactor = (2 * Math.PI) / radiansDelta;
+            var distanceRadians = radiansDelta(vertexes[i - 1].radians, vertexes[i].radians);
+            individualFactor = (2 * Math.PI) / distanceRadians;
         }
         var firstArmFactor = firstArmRoundMode === "individual" ? individualFactor : numOfPoints;
         var secondArmFactor = secondArmRoundMode === "individual" ? individualFactor : numOfPoints;
@@ -449,6 +479,7 @@ var defaultParameters = {
     incircle: false,
     groups: [
         {
+            type: "linear",
             round: 0.5,
             distance: 1,
             roundMode: "general"

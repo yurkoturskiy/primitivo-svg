@@ -30,6 +30,7 @@ export interface Parameters {
 export interface GroupParameters {
   // Part of Parameters
   pk?: number; // number of group
+  type: string; // linear | radial | combined(not implemented)
   distance: number | number[] | number[][]; // for all | random range | per vertex
   round: number | number[] | number[][]; // for all | random range | per vertex
   roundMode?: string; // 'general' or 'individual'

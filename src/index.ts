@@ -18,6 +18,12 @@ const angleToRad = (angle: number): number => (angle * Math.PI) / 180;
 const randomFromRange = (min: number, max: number): number =>
   Math.random() * (max - min) + min;
 
+const radiansDelta = (a: number, b: number): number => {
+  let delta = Math.abs(a - b);
+  if (delta > Math.PI) delta = 2 * Math.PI - delta;
+  return delta;
+};
+
 /***********
  * Methods *
  ***********/
@@ -130,6 +136,39 @@ const getRadiusValue = (
   else return parameter;
 };
 
+const generateLinearVertexCoordinates = (
+  vertexes: Vertex[],
+  vertex: Vertex,
+  prevVertex: Vertex,
+  nextVertex: Vertex
+): Vertex => {
+  // Calc X Y coords
+  vertex.x = prevVertex.x - nextVertex.x; // Substract adjacent points to get x
+  vertex.x *= 0.5; // Make x twice closer to center
+  vertex.x += nextVertex.x; // Position x inbetween of adjacent points
+  vertex.y = prevVertex.y - nextVertex.y; // Make the same with Y
+  vertex.y *= 0.5;
+  vertex.y += nextVertex.y;
+  vertex.radians = Math.atan2(vertex.y, vertex.x);
+  vertex.angle = radToAngle(vertex.radians);
+  return vertex;
+};
+
+const generateRadialVertexCoordinates = (
+  vertexes: Vertex[],
+  vertex: Vertex,
+  prevVertex: Vertex,
+  nextVertex: Vertex
+): Vertex => {
+  let radiansStep = radiansDelta(prevVertex.radians, nextVertex.radians) / 2;
+  vertex.radians = prevVertex.radians + radiansStep;
+  vertex.cosx = round(Math.cos(vertex.radians));
+  vertex.siny = round(Math.sin(vertex.radians));
+  vertex.x = vertex.cosx;
+  vertex.y = vertex.siny;
+  return vertex;
+};
+
 const generateVertexes = (path: PathData): PathData => {
   log.info("generate vertexes");
   const { frame } = path;
@@ -164,15 +203,31 @@ const generateVertexes = (path: PathData): PathData => {
       let prevVertexInd = i - 1;
       let nextVertexInd = i + 1;
       if (nextVertexInd > lastIndex) nextVertexInd = 0;
-      // Calc X Y coords
-      vertexes[i].x = vertexes[prevVertexInd].x - vertexes[nextVertexInd].x; // Substract adjacent points to get x
-      vertexes[i].x *= 0.5; // Make x twice closer to center
-      vertexes[i].x += vertexes[nextVertexInd].x; // Position x inbetween of adjacent points
-      vertexes[i].y = vertexes[prevVertexInd].y - vertexes[nextVertexInd].y; // Make the same with Y
-      vertexes[i].y *= 0.5;
-      vertexes[i].y += vertexes[nextVertexInd].y;
-      vertexes[i].radians = Math.atan2(vertexes[i].y, vertexes[i].x);
-      vertexes[i].angle = radToAngle(vertexes[i].radians);
+
+      let vertex = vertexes[i];
+      let prevVertex = vertexes[prevVertexInd];
+      let nextVertex = vertexes[nextVertexInd];
+      switch (groups[groupIndex].type) {
+        case "linear":
+          vertex = generateLinearVertexCoordinates(
+            vertexes,
+            vertex,
+            prevVertex,
+            nextVertex
+          );
+          break;
+        case "radial":
+          vertex = generateRadialVertexCoordinates(
+            vertexes,
+            vertex,
+            prevVertex,
+            nextVertex
+          );
+          break;
+        default:
+          throw `Type for group ${groupIndex} seems to be wrong.`;
+          break;
+      }
       // Set distance, round, and radius values per vertex
       let indexWithingGroup = (i - 1) / 2;
       log.debug("vertex index withing a group", indexWithingGroup);
@@ -346,11 +401,11 @@ const setControlPoints = (path: PathData): PathData => {
       firstArmRoundMode === "individual" ||
       secondArmRoundMode === "individual"
     ) {
-      let radiansDelta = Math.abs(
-        vertexes[i - 1].radians - vertexes[i].radians
+      let distanceRadians = radiansDelta(
+        vertexes[i - 1].radians,
+        vertexes[i].radians
       );
-      if (radiansDelta > Math.PI) radiansDelta = 2 * Math.PI - radiansDelta;
-      individualFactor = (2 * Math.PI) / radiansDelta;
+      individualFactor = (2 * Math.PI) / distanceRadians;
     }
 
     let firstArmFactor =
@@ -499,6 +554,7 @@ var defaultParameters = {
   incircle: false,
   groups: [
     {
+      type: "linear",
       round: 0.5,
       distance: 1,
       roundMode: "general"
