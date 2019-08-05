@@ -32,7 +32,9 @@ export interface GroupParameters {
   pk?: number; // number of group
   distance: number | number[] | number[][]; // for all | random range | per vertex
   round: number | number[] | number[][]; // for all | random range | per vertex
+  roundMode?: string; // 'general' or 'individual'
   radius?: number | number[] | number[][]; // for all | random range | per vertex
+  radians?: number[]; // Custom radians for each point of a group
   animate?: AnimateParameters;
   numOfVertexes?: number;
 }

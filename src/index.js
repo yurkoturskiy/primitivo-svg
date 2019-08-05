@@ -43,8 +43,15 @@ var generateFrame = function (path) {
     var numOfVertexes = numOfSegments * Math.pow(2, depth);
     var vertexes = [];
     for (var i = 0; i < numOfVertexes; i++) {
-        var radians = ((Math.PI * 2) / numOfVertexes) * i;
-        radians += angleToRad(rotate);
+        var radians = void 0;
+        // If custom radians were provided
+        if (groups[0].radians)
+            radians = groups[0].radians[i];
+        // Generate own if not
+        else
+            radians = ((Math.PI * 2) / numOfVertexes) * i;
+        // Rotate
+        radians = radians + angleToRad(rotate);
         var angle = radToAngle(radians);
         var cosx = round(Math.cos(radians));
         var siny = round(Math.sin(radians));
@@ -134,7 +141,7 @@ var generateVertexes = function (path) {
         for (var i = 1; i < numOfNewVertexes * 2; i += 2) {
             var protoVertex = {
                 type: "C",
-                groupIndex: groupIndex
+                group: groupIndex
             };
             vertexes.splice(i, 0, protoVertex); // Inser proto vertex in array
             var lastIndex = vertexes.length - 1;
@@ -296,21 +303,28 @@ var calcRadians = function (path) {
 };
 var setControlPoints = function (path) {
     var vertexes = path.vertexes;
+    var groups = path.parameters.groups;
     var numOfPoints = vertexes.length - 1; // Minus "M" vertex
     var firstArmFactors = [];
     var secondArmFactors = [];
     for (var i = 1; i < vertexes.length; i++) {
         // Set arms length
         var firstArmLength = void 0, secondArmLength = void 0;
-        var radiansDelta = Math.abs(vertexes[i - 1].radians - vertexes[i].radians);
-        if (radiansDelta > Math.PI)
-            radiansDelta = 2 * Math.PI - radiansDelta;
-        var factor = (2 * Math.PI) / radiansDelta;
-        log.debug("num of point: " + numOfPoints + " Factor: " + factor);
-        factor = numOfPoints;
-        firstArmLength = (4 / 3) * Math.tan(Math.PI / (2 * factor));
+        var firstArmRoundMode = groups[vertexes[i - 1].group].roundMode;
+        var secondArmRoundMode = groups[vertexes[i].group].roundMode;
+        var individualFactor = void 0;
+        if (firstArmRoundMode === "individual" ||
+            secondArmRoundMode === "individual") {
+            var radiansDelta = Math.abs(vertexes[i - 1].radians - vertexes[i].radians);
+            if (radiansDelta > Math.PI)
+                radiansDelta = 2 * Math.PI - radiansDelta;
+            individualFactor = (2 * Math.PI) / radiansDelta;
+        }
+        var firstArmFactor = firstArmRoundMode === "individual" ? individualFactor : numOfPoints;
+        var secondArmFactor = secondArmRoundMode === "individual" ? individualFactor : numOfPoints;
+        firstArmLength = (4 / 3) * Math.tan(Math.PI / (2 * firstArmFactor));
         firstArmLength *= vertexes[i - 1].length;
-        secondArmLength = (4 / 3) * Math.tan(Math.PI / (2 * factor));
+        secondArmLength = (4 / 3) * Math.tan(Math.PI / (2 * secondArmFactor));
         secondArmLength *= vertexes[i].length;
         firstArmLength *= vertexes[i - 1].round;
         secondArmLength *= vertexes[i].round;
@@ -436,7 +450,8 @@ var defaultParameters = {
     groups: [
         {
             round: 0.5,
-            distance: 1
+            distance: 1,
+            roundMode: "general"
         }
     ]
 };
