@@ -393,14 +393,11 @@ const setControlPoints = (path: PathData): PathData => {
   for (let i = 1; i < vertexes.length; i++) {
     // Set arms length
     let firstArmLength, secondArmLength;
-    let firstArmRoundMode = groups[vertexes[i - 1].group].roundMode;
-    let secondArmRoundMode = groups[vertexes[i].group].roundMode;
+    let firstArmSmartRound = groups[vertexes[i - 1].group].smartRound;
+    let secondArmSmartRound = groups[vertexes[i].group].smartRound;
 
     let individualFactor;
-    if (
-      firstArmRoundMode === "individual" ||
-      secondArmRoundMode === "individual"
-    ) {
+    if (firstArmSmartRound || secondArmSmartRound) {
       let distanceRadians = radiansDelta(
         vertexes[i - 1].radians,
         vertexes[i].radians
@@ -408,11 +405,9 @@ const setControlPoints = (path: PathData): PathData => {
       individualFactor = (2 * Math.PI) / distanceRadians;
     }
 
-    let firstArmFactor =
-      firstArmRoundMode === "individual" ? individualFactor : numOfPoints;
+    let firstArmFactor = firstArmSmartRound ? individualFactor : numOfPoints;
 
-    let secondArmFactor =
-      secondArmRoundMode === "individual" ? individualFactor : numOfPoints;
+    let secondArmFactor = secondArmSmartRound ? individualFactor : numOfPoints;
 
     firstArmLength = (4 / 3) * Math.tan(Math.PI / (2 * firstArmFactor));
     firstArmLength *= vertexes[i - 1].length;
@@ -557,7 +552,8 @@ var defaultParameters = {
       type: "linear",
       round: 0.5,
       distance: 1,
-      roundMode: "general"
+      smartRound: false,
+      preserveRadians: false
     }
   ]
 };

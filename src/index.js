@@ -342,16 +342,15 @@ var setControlPoints = function (path) {
     for (var i = 1; i < vertexes.length; i++) {
         // Set arms length
         var firstArmLength = void 0, secondArmLength = void 0;
-        var firstArmRoundMode = groups[vertexes[i - 1].group].roundMode;
-        var secondArmRoundMode = groups[vertexes[i].group].roundMode;
+        var firstArmSmartRound = groups[vertexes[i - 1].group].smartRound;
+        var secondArmSmartRound = groups[vertexes[i].group].smartRound;
         var individualFactor = void 0;
-        if (firstArmRoundMode === "individual" ||
-            secondArmRoundMode === "individual") {
+        if (firstArmSmartRound || secondArmSmartRound) {
             var distanceRadians = radiansDelta(vertexes[i - 1].radians, vertexes[i].radians);
             individualFactor = (2 * Math.PI) / distanceRadians;
         }
-        var firstArmFactor = firstArmRoundMode === "individual" ? individualFactor : numOfPoints;
-        var secondArmFactor = secondArmRoundMode === "individual" ? individualFactor : numOfPoints;
+        var firstArmFactor = firstArmSmartRound ? individualFactor : numOfPoints;
+        var secondArmFactor = secondArmSmartRound ? individualFactor : numOfPoints;
         firstArmLength = (4 / 3) * Math.tan(Math.PI / (2 * firstArmFactor));
         firstArmLength *= vertexes[i - 1].length;
         secondArmLength = (4 / 3) * Math.tan(Math.PI / (2 * secondArmFactor));
@@ -482,7 +481,8 @@ var defaultParameters = {
             type: "linear",
             round: 0.5,
             distance: 1,
-            roundMode: "general"
+            smartRound: false,
+            preserveRadians: false
         }
     ]
 };

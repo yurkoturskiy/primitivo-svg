@@ -33,9 +33,10 @@ export interface GroupParameters {
   type: string; // linear | radial | combined(not implemented)
   distance: number | number[] | number[][]; // for all | random range | per vertex
   round: number | number[] | number[][]; // for all | random range | per vertex
-  roundMode?: string; // 'general' or 'individual'
+  smartRound?: boolean; // Round polygons with custom radians to circle
   radius?: number | number[] | number[][]; // for all | random range | per vertex
   radians?: number[]; // Custom radians for each point of a group
+  preserveRadians?: boolean; // Keep the angle on transformation (not implemented)
   animate?: AnimateParameters;
   numOfVertexes?: number;
 }
