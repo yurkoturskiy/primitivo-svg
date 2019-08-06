@@ -18,6 +18,12 @@ const angleToRad = (angle: number): number => (angle * Math.PI) / 180;
 const randomFromRange = (min: number, max: number): number =>
   Math.random() * (max - min) + min;
 
+const radiansDelta = (a: number, b: number): number => {
+  let delta = Math.abs(a - b);
+  if (delta > Math.PI) delta = 2 * Math.PI - delta;
+  return delta;
+};
+
 /***********
  * Methods *
  ***********/
@@ -43,8 +49,14 @@ const generateFrame = (path: PathData): PathData => {
   var numOfVertexes: number = numOfSegments * Math.pow(2, depth);
   var vertexes = [];
   for (let i = 0; i < numOfVertexes; i++) {
-    let radians = ((Math.PI * 2) / numOfVertexes) * i;
-    radians += angleToRad(rotate);
+    let radians: number;
+    // If custom radians were provided
+    if (groups[0].radians) radians = groups[0].radians[i];
+    // Generate own if not
+    else radians = ((Math.PI * 2) / numOfVertexes) * i;
+    // Rotate
+    radians = radians + angleToRad(rotate);
+
     let angle = radToAngle(radians);
     let cosx = round(Math.cos(radians));
     let siny = round(Math.sin(radians));
@@ -124,6 +136,39 @@ const getRadiusValue = (
   else return parameter;
 };
 
+const generateLinearVertexCoordinates = (
+  vertexes: Vertex[],
+  vertex: Vertex,
+  prevVertex: Vertex,
+  nextVertex: Vertex
+): Vertex => {
+  // Calc X Y coords
+  vertex.x = prevVertex.x - nextVertex.x; // Substract adjacent points to get x
+  vertex.x *= 0.5; // Make x twice closer to center
+  vertex.x += nextVertex.x; // Position x inbetween of adjacent points
+  vertex.y = prevVertex.y - nextVertex.y; // Make the same with Y
+  vertex.y *= 0.5;
+  vertex.y += nextVertex.y;
+  vertex.radians = Math.atan2(vertex.y, vertex.x);
+  vertex.angle = radToAngle(vertex.radians);
+  return vertex;
+};
+
+const generateRadialVertexCoordinates = (
+  vertexes: Vertex[],
+  vertex: Vertex,
+  prevVertex: Vertex,
+  nextVertex: Vertex
+): Vertex => {
+  let radiansStep = radiansDelta(prevVertex.radians, nextVertex.radians) / 2;
+  vertex.radians = prevVertex.radians + radiansStep;
+  vertex.cosx = round(Math.cos(vertex.radians));
+  vertex.siny = round(Math.sin(vertex.radians));
+  vertex.x = vertex.cosx;
+  vertex.y = vertex.siny;
+  return vertex;
+};
+
 const generateVertexes = (path: PathData): PathData => {
   log.info("generate vertexes");
   const { frame } = path;
@@ -151,21 +196,38 @@ const generateVertexes = (path: PathData): PathData => {
     for (let i = 1; i < numOfNewVertexes * 2; i += 2) {
       let protoVertex = {
         type: "C",
-        groupIndex
+        group: groupIndex
       };
       vertexes.splice(i, 0, protoVertex); // Inser proto vertex in array
       let lastIndex = vertexes.length - 1;
       let prevVertexInd = i - 1;
       let nextVertexInd = i + 1;
       if (nextVertexInd > lastIndex) nextVertexInd = 0;
-      // Calc X Y coords
-      vertexes[i].x = vertexes[prevVertexInd].x - vertexes[nextVertexInd].x; // Substract adjacent points to get x
-      vertexes[i].x *= 0.5; // Make x twice closer to center
-      vertexes[i].x += vertexes[nextVertexInd].x; // Position x inbetween of adjacent points
-      vertexes[i].y = vertexes[prevVertexInd].y - vertexes[nextVertexInd].y; // Make the same with Y
-      vertexes[i].y *= 0.5;
-      vertexes[i].y += vertexes[nextVertexInd].y;
-      vertexes[i].radians = Math.atan2(vertexes[i].y, vertexes[i].x);
+
+      let vertex = vertexes[i];
+      let prevVertex = vertexes[prevVertexInd];
+      let nextVertex = vertexes[nextVertexInd];
+      switch (groups[groupIndex].type) {
+        case "linear":
+          vertex = generateLinearVertexCoordinates(
+            vertexes,
+            vertex,
+            prevVertex,
+            nextVertex
+          );
+          break;
+        case "radial":
+          vertex = generateRadialVertexCoordinates(
+            vertexes,
+            vertex,
+            prevVertex,
+            nextVertex
+          );
+          break;
+        default:
+          throw `Type for group ${groupIndex} seems to be wrong.`;
+          break;
+      }
       // Set distance, round, and radius values per vertex
       let indexWithingGroup = (i - 1) / 2;
       log.debug("vertex index withing a group", indexWithingGroup);
@@ -196,51 +258,6 @@ const remapVertexes = (vertexes: Vertex[]): Vertex[] => {
   return vertexes;
 };
 
-const setControlPoints = (
-  vertexes: Vertex[],
-  groups: GroupParameters[]
-): Vertex[] => {
-  var numOfPoints = vertexes.length - 1; // Minus "M" vertex
-  var firstArmFactors: number[] = [];
-  var secondArmFactors: number[] = [];
-  for (let i = 1; i < vertexes.length; i++) {
-    // Set arms length
-    let firstArmLength, secondArmLength;
-    firstArmLength = secondArmLength =
-      (4 / 3) * Math.tan(Math.PI / (2 * numOfPoints));
-    firstArmLength *= vertexes[i - 1].round;
-    secondArmLength *= vertexes[i].round;
-    // Set arms angle
-    let firstArmRadians = vertexes[i - 1].radians + Math.PI / 2; // angle + 90 from the previous point angle
-    let firstArmAngle = radToAngle(firstArmRadians);
-    let secondArmRadians = vertexes[i].radians - Math.PI / 2; // angle + 90 from cur point
-    let secondArmAngle = radToAngle(secondArmRadians);
-    // Set cos
-    let cosx1 = round(Math.cos(firstArmRadians));
-    let cosx2 = round(Math.cos(secondArmRadians));
-    // Set sin
-    let siny1 = round(Math.sin(firstArmRadians));
-    let siny2 = round(Math.sin(secondArmRadians));
-    // Set coordinates
-    let x1 = cosx1 * firstArmLength + vertexes[i - 1].x;
-    let x2 = cosx2 * secondArmLength + vertexes[i].x;
-    let y1 = siny1 * firstArmLength + vertexes[i - 1].y;
-    let y2 = siny2 * secondArmLength + vertexes[i].y;
-    vertexes[i] = {
-      ...vertexes[i],
-      x1,
-      x2,
-      y1,
-      y2,
-      cosx1,
-      cosx2,
-      siny1,
-      siny2
-    };
-  }
-  return vertexes;
-};
-
 const scaleToOne = (path: PathData): PathData => {
   var maxX = 0;
   var minX = 0;
@@ -259,12 +276,6 @@ const scaleToOne = (path: PathData): PathData => {
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x = vertex.x * factorX - shiftX;
     vertex.y = vertex.y * factorY - shiftY;
-    if (vertex.type === "C") {
-      vertex.x1 = vertex.x1 * factorX - shiftX;
-      vertex.x2 = vertex.x2 * factorX - shiftX;
-      vertex.y1 = vertex.y1 * factorY - shiftY;
-      vertex.y2 = vertex.y2 * factorY - shiftY;
-    }
     return vertex;
   });
   return path;
@@ -277,12 +288,6 @@ const setCenter = (path: PathData): PathData => {
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x += factorX;
     vertex.y += factorY;
-    if (vertex.type === "C") {
-      vertex.x1 += factorX;
-      vertex.x2 += factorX;
-      vertex.y1 += factorY;
-      vertex.y2 += factorY;
-    }
     return vertex;
   });
   return path;
@@ -295,14 +300,6 @@ const setDistance = (path: PathData): PathData => {
     // Setup distance
     vertex.x *= vertex.distance;
     vertex.y *= vertex.distance;
-
-    if (vertex.type === "C") {
-      // Setup distance
-      vertex.x1 *= vertexes[index - 1].distance;
-      vertex.y1 *= vertexes[index - 1].distance;
-      vertex.x2 *= vertex.distance;
-      vertex.y2 *= vertex.distance;
-    }
     return vertex;
   });
   return path;
@@ -320,12 +317,6 @@ const setPosition = (path: PathData): PathData => {
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x += factorX;
     vertex.y += factorY;
-    if (vertex.type === "C") {
-      vertex.x1 += factorX;
-      vertex.y1 += factorY;
-      vertex.x2 += factorX;
-      vertex.y2 += factorY;
-    }
     return vertex;
   });
   return path;
@@ -341,12 +332,6 @@ const setScale = (path: PathData): PathData => {
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x *= parameters.width / 2;
     vertex.y *= parameters.height / 2;
-    if (vertex.type === "C") {
-      vertex.x1 *= parameters.width / 2;
-      vertex.y1 *= parameters.height / 2;
-      vertex.x2 *= parameters.width / 2;
-      vertex.y2 *= parameters.height / 2;
-    }
     return vertex;
   });
   return path;
@@ -379,26 +364,89 @@ const setLength = (path: PathData): PathData => {
     // Set length
     vertex.x = (vertex.x - parameters.centerX) * factor + parameters.centerX;
     vertex.y = (vertex.y - parameters.centerY) * factor + parameters.centerY;
-    if (vertex.type === "C") {
-      let prevFactor = vertexes[i - 1].radius
-        ? calcFactor(vertexes[i - 1].radius, vertexes[i - 1].length)
-        : 1;
-      vertex.x1 =
-        (vertex.x1 - parameters.centerX) * prevFactor + parameters.centerX;
-      vertex.y1 =
-        (vertex.y1 - parameters.centerY) * prevFactor + parameters.centerY;
-      vertex.x2 =
-        (vertex.x2 - parameters.centerX) * factor + parameters.centerX;
-      vertex.y2 =
-        (vertex.y2 - parameters.centerY) * factor + parameters.centerY;
-    }
     return vertex;
   });
   log.debug(path);
   return path;
 };
 
-const setKeyframes = (path: PathData): PathData => {
+const calcRadians = (path: PathData): PathData => {
+  log.info("calculate radians");
+  const { vertexes } = path;
+  const { centerX, centerY } = path.parameters;
+  path.vertexes = vertexes.map(vertex => {
+    let deltaX = vertex.x - centerX;
+    let deltaY = centerY - vertex.y;
+    vertex.radians = Math.atan2(deltaY, deltaX);
+    vertex.angle = radToAngle(vertex.radians);
+    return vertex;
+  });
+  return path;
+};
+
+const setControlPoints = (path: PathData): PathData => {
+  var { vertexes } = path;
+  var { groups } = path.parameters;
+  var numOfPoints = vertexes.length - 1; // Minus "M" vertex
+  var firstArmFactors: number[] = [];
+  var secondArmFactors: number[] = [];
+  for (let i = 1; i < vertexes.length; i++) {
+    // Set arms length
+    let firstArmLength, secondArmLength;
+    let firstArmSmartRound = groups[vertexes[i - 1].group].smartRound;
+    let secondArmSmartRound = groups[vertexes[i].group].smartRound;
+
+    let individualFactor;
+    if (firstArmSmartRound || secondArmSmartRound) {
+      let distanceRadians = radiansDelta(
+        vertexes[i - 1].radians,
+        vertexes[i].radians
+      );
+      individualFactor = (2 * Math.PI) / distanceRadians;
+    }
+
+    let firstArmFactor = firstArmSmartRound ? individualFactor : numOfPoints;
+
+    let secondArmFactor = secondArmSmartRound ? individualFactor : numOfPoints;
+
+    firstArmLength = (4 / 3) * Math.tan(Math.PI / (2 * firstArmFactor));
+    firstArmLength *= vertexes[i - 1].length;
+    secondArmLength = (4 / 3) * Math.tan(Math.PI / (2 * secondArmFactor));
+    secondArmLength *= vertexes[i].length;
+    firstArmLength *= vertexes[i - 1].round;
+    secondArmLength *= vertexes[i].round;
+    // Set arms angle
+    let firstArmRadians = vertexes[i - 1].radians + Math.PI / 2; // angle + 90 from the previous point angle
+    let firstArmAngle = radToAngle(firstArmRadians);
+    log.debug("first arm angle", firstArmAngle);
+    let secondArmRadians = vertexes[i].radians - Math.PI / 2; // angle + 90 from cur point
+    let secondArmAngle = radToAngle(secondArmRadians);
+    log.debug("second arm angle", secondArmAngle);
+    // Set cos
+    let cosx1 = round(Math.cos(firstArmRadians)) * -1;
+    let cosx2 = round(Math.cos(secondArmRadians)) * -1;
+    // Set sin
+    let siny1 = round(Math.sin(firstArmRadians));
+    let siny2 = round(Math.sin(secondArmRadians));
+    // Set coordinates
+    let x1 = cosx1 * firstArmLength + vertexes[i - 1].x;
+    let x2 = cosx2 * secondArmLength + vertexes[i].x;
+    let y1 = siny1 * firstArmLength + vertexes[i - 1].y;
+    let y2 = siny2 * secondArmLength + vertexes[i].y;
+    log.debug(`vertex ${i} first arm x: ${x1} y: ${y1}`);
+    log.debug(`vertex ${i} second arm x: ${x2} y: ${y2}`);
+    vertexes[i] = {
+      ...vertexes[i],
+      x1,
+      x2,
+      y1,
+      y2,
+      cosx1,
+      cosx2,
+      siny1,
+      siny2
+    };
+  }
   return path;
 };
 
@@ -471,7 +519,6 @@ const generateShape = (
   path = generateFrame(path);
   path = generateVertexes(path);
   path.vertexes = remapVertexes(path.vertexes); // Add M point
-  path.vertexes = setControlPoints(path.vertexes, path.parameters.groups);
 
   if (!parameters.incircle) path = scaleToOne(path);
   path = setCenter(path);
@@ -480,7 +527,9 @@ const generateShape = (
   path = setScale(path);
   path = calcLength(path);
   path = setLength(path);
-  path = setKeyframes(path);
+  path = calcLength(path);
+  path = calcRadians(path);
+  path = setControlPoints(path);
   path = shift(path);
   path = generateD(path);
   return path;
@@ -500,8 +549,11 @@ var defaultParameters = {
   incircle: false,
   groups: [
     {
+      type: "linear",
       round: 0.5,
-      distance: 1
+      distance: 1,
+      smartRound: false,
+      preserveRadians: false
     }
   ]
 };

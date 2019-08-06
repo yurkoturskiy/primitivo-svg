@@ -30,9 +30,13 @@ export interface Parameters {
 export interface GroupParameters {
   // Part of Parameters
   pk?: number; // number of group
+  type: string; // linear | radial | combined(not implemented)
   distance: number | number[] | number[][]; // for all | random range | per vertex
   round: number | number[] | number[][]; // for all | random range | per vertex
+  smartRound?: boolean; // Round polygons with custom radians to circle
   radius?: number | number[] | number[][]; // for all | random range | per vertex
+  radians?: number[]; // Custom radians for each point of a group
+  preserveRadians?: boolean; // Keep the angle on transformation (not implemented)
   animate?: AnimateParameters;
   numOfVertexes?: number;
 }
@@ -44,6 +48,7 @@ export interface Vertex {
   distance?: number;
   radius?: number;
   radians?: number;
+  angle?: number;
   x?: number;
   y?: number;
   cosx?: number;
