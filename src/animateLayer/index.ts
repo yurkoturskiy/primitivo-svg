@@ -18,12 +18,20 @@ const getValueFromRange = (
 export default function animateValue(
   numOfKeyPaths: number,
   keyPathsParameters: KeyPathParameters
-) {
+): string {
+  /*
+   * Generate paths and return string for values option of animate tag.
+   * Example:
+   *   <animate values={values} ... />
+   *
+   * Figure out first how pathLayer works.
+   */
+
   let inputKeyPathsParameters: any = keyPathsParameters; // Maybe need to refactor
   let paths = [];
+  let ds = [];
   for (let i = 0; i < numOfKeyPaths; i++) {
     var pathParameters: any = {};
-    log.debug("key path number", i);
     for (let key in inputKeyPathsParameters) {
       // Set parameters for 'i' key path
       if (typeof inputKeyPathsParameters[key] !== "object")
@@ -43,8 +51,10 @@ export default function animateValue(
         else throw `Wrong '${key}' parameter array at ${i} key path`;
       }
     }
-    log.debug("generated parameters", pathParameters);
-    paths[i] = generateShapes(pathParameters);
-    log.debug("generated path", paths[i]);
+    let path = generateShapes(pathParameters);
+    paths[i] = path;
+    ds[i] = path.d;
   }
+  var values: string = ds.join(";");
+  return values;
 }
