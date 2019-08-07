@@ -2,7 +2,12 @@ import * as log from "loglevel";
 // Layers
 import generateShapes from "../pathLayer/index";
 // Interfaces
-import { KeyPathParameters, GroupParameters, AnimateValue } from "./interfaces";
+import {
+  AnimateParameters,
+  KeyPathParameters,
+  GroupParameters,
+  AnimateValue
+} from "./interfaces";
 import { Parameters as PathParameters } from "../pathLayer/interfaces";
 
 const getValueFromRange = (
@@ -16,7 +21,7 @@ const getValueFromRange = (
 };
 
 export default function animateValue(
-  numOfKeyPaths: number,
+  parameters: AnimateParameters,
   keyPathsParameters: KeyPathParameters
 ): string {
   /*
@@ -26,7 +31,7 @@ export default function animateValue(
    *
    * Figure out first how pathLayer works.
    */
-
+  const { numOfKeyPaths, loop } = parameters;
   let inputKeyPathsParameters: any = keyPathsParameters; // Maybe need to refactor
   let paths = [];
   let ds = [];
@@ -54,6 +59,8 @@ export default function animateValue(
     let path = generateShapes(pathParameters);
     paths[i] = path;
     ds[i] = path.d;
+    if (loop && i !== numOfKeyPaths - 1)
+      ds[(numOfKeyPaths - 1) * 2 - i] = path.d;
   }
   var values: string = ds.join(";");
   return values;

@@ -9,4 +9,4 @@ var index_2 = __importDefault(require("./animateLayer/index"));
 exports.pathLayer = function (parameters) {
     return index_1.default(parameters);
 };
-exports.animateLayer = function (numOfKeyPaths, keyPathsParameters) { return index_2.default(numOfKeyPaths, keyPathsParameters); };
+exports.animateLayer = function (animateParameters, keyPathsParameters) { return index_2.default(animateParameters, keyPathsParameters); };

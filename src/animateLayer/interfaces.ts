@@ -1,3 +1,8 @@
+export interface AnimateParameters {
+  numOfKeyPaths: number;
+  loop: boolean;
+}
+
 export interface KeyPathParameters {
   // Input object
   numOfSegments: number | number[];

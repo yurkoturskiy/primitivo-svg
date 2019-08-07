@@ -8,7 +8,6 @@ import {
   FrameVertex,
   Frame,
   GroupParameters,
-  AnimateParameters,
   Keyframe
 } from "./interfaces";
 

@@ -10,7 +10,7 @@ var getValueFromRange = function (values, numOfKeyPaths, index) {
     var max = Math.max.apply(Math, values);
     return ((max - min) / numOfKeyPaths) * index + min;
 };
-function animateValue(numOfKeyPaths, keyPathsParameters) {
+function animateValue(parameters, keyPathsParameters) {
     /*
      * Generate paths and return string for values option of animate tag.
      * Example:
@@ -18,6 +18,7 @@ function animateValue(numOfKeyPaths, keyPathsParameters) {
      *
      * Figure out first how pathLayer works.
      */
+    var numOfKeyPaths = parameters.numOfKeyPaths, loop = parameters.loop;
     var inputKeyPathsParameters = keyPathsParameters; // Maybe need to refactor
     var paths = [];
     var ds = [];
@@ -42,6 +43,8 @@ function animateValue(numOfKeyPaths, keyPathsParameters) {
         var path = index_1.default(pathParameters);
         paths[i] = path;
         ds[i] = path.d;
+        if (loop && i !== numOfKeyPaths - 1)
+            ds[(numOfKeyPaths - 1) * 2 - i] = path.d;
     }
     var values = ds.join(";");
     return values;

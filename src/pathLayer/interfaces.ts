@@ -37,7 +37,6 @@ export interface GroupParameters {
   radius?: number | number[] | number[][]; // for all | random range | per vertex
   radians?: number[]; // Custom radians for each point of a group
   preserveRadians?: boolean; // Keep the angle on transformation (not implemented)
-  animate?: AnimateParameters;
   numOfVertexes?: number;
 }
 
@@ -77,13 +76,6 @@ export interface FrameVertex {
 export interface Frame {
   vertexes: FrameVertex[];
   numOfVertexes: number;
-}
-
-export interface AnimateParameters {
-  type: string;
-  distance: number[];
-  round: number[];
-  duration: number[];
 }
 
 export interface Keyframe {
