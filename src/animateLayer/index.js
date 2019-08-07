@@ -27,11 +27,14 @@ function animateValue(numOfKeyPaths, keyPathsParameters) {
         for (var key in inputKeyPathsParameters) {
             // Set parameters for 'i' key path
             if (typeof inputKeyPathsParameters[key] !== "object")
+                // if one value for all paths
                 pathParameters[key] = inputKeyPathsParameters[key];
             else {
                 if (inputKeyPathsParameters[key].length === numOfKeyPaths)
+                    // if individual values for each path
                     pathParameters[key] = inputKeyPathsParameters[key][i];
                 else if (typeof inputKeyPathsParameters[key][i] === "number")
+                    // calculate value from [min number, max number] range
                     pathParameters[key] = getValueFromRange(inputKeyPathsParameters[key], numOfKeyPaths, i);
                 else
                     throw "Wrong '" + key + "' parameter array at " + i + " key path";
