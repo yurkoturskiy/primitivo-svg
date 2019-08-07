@@ -484,12 +484,12 @@ const generateD = (path: PathData): PathData => {
     }
     return vertex;
   });
-  var svgPathData = "";
+  var d = "";
   path.vertexes.forEach((vertex, i) => {
-    svgPathData += "\n\n" + vertex.d;
+    d += "\n\n" + vertex.d;
   });
-  svgPathData += "\n\nZ";
-  path.svgPathData = svgPathData;
+  d += "\n\nZ";
+  path.d = d;
   return path;
 };
 
@@ -500,7 +500,7 @@ const generateSVGPathData = (path: PathData): PathData => {
       array[path.vertexes.length] = vertex;
     }
   });
-  path.svgPathData;
+  path.d;
   return path;
 };
 

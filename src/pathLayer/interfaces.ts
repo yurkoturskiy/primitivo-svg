@@ -8,7 +8,7 @@ export interface PathData {
   parameters: Parameters;
   vertexes?: Vertex[];
   keyframes?: Keyframe[];
-  svgPathData?: string;
+  d?: string;
 }
 
 export interface Parameters {
