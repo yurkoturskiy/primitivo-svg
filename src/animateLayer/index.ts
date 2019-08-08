@@ -10,6 +10,12 @@ import {
 } from "./interfaces";
 import { Parameters as PathParameters } from "../pathLayer/interfaces";
 
+const getType = (item: any): string => {
+  if (Array.isArray(item)) return "array";
+  if (typeof item === "object") return "object";
+  if (typeof item === "number") return "number";
+};
+
 const getValueFromRange = (
   values: number[],
   numOfKeyPaths: number,
@@ -40,10 +46,16 @@ export default function animateValue(
     var pathParameters: any = {};
     for (let key in inputKeyPathsParameters) {
       // Set parameters for 'i' key path
-      if (typeof inputKeyPathsParameters[key] !== "object")
+      if (key === "groups") {
+        if (getType(inputKeyPathsParameters[key][0] === "object"))
+          // One setup for all key paths groups
+          pathParameters[key] = inputKeyPathsParameters[key];
+        else pathParameters[key] = inputKeyPathsParameters[key];
+        console.log("group param", pathParameters[key]);
+      } else if (typeof inputKeyPathsParameters[key] !== "object") {
         // if one value for all paths
         pathParameters[key] = inputKeyPathsParameters[key];
-      else {
+      } else {
         if (inputKeyPathsParameters[key].length === numOfKeyPaths)
           // if individual values for each path
           pathParameters[key] = inputKeyPathsParameters[key][i];

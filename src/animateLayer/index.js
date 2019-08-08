@@ -5,6 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // Layers
 var index_1 = __importDefault(require("../pathLayer/index"));
+var getType = function (item) {
+    if (Array.isArray(item))
+        return "array";
+    if (typeof item === "object")
+        return "object";
+    if (typeof item === "number")
+        return "number";
+};
 var getValueFromRange = function (values, numOfKeyPaths, index) {
     var min = Math.min.apply(Math, values);
     var max = Math.max.apply(Math, values);
@@ -28,9 +36,18 @@ function animateValue(parameters, keyPathsParameters) {
         var pathParameters = {};
         for (var key in inputKeyPathsParameters) {
             // Set parameters for 'i' key path
-            if (typeof inputKeyPathsParameters[key] !== "object")
+            if (key === "groups") {
+                if (getType(inputKeyPathsParameters[key][0] === "object"))
+                    // One setup for all key paths groups
+                    pathParameters[key] = inputKeyPathsParameters[key];
+                else
+                    pathParameters[key] = inputKeyPathsParameters[key];
+                console.log("group param", pathParameters[key]);
+            }
+            else if (typeof inputKeyPathsParameters[key] !== "object") {
                 // if one value for all paths
                 pathParameters[key] = inputKeyPathsParameters[key];
+            }
             else {
                 if (inputKeyPathsParameters[key].length === numOfKeyPaths)
                     // if individual values for each path
