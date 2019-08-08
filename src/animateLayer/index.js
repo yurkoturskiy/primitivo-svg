@@ -18,6 +18,8 @@ function animateValue(parameters, keyPathsParameters) {
      *
      * Figure out first how pathLayer works.
      */
+    if (parameters === void 0) { parameters = defaults.parameters; }
+    if (keyPathsParameters === void 0) { keyPathsParameters = defaults.keyPathsParameters; }
     var numOfKeyPaths = parameters.numOfKeyPaths, loop = parameters.loop;
     var inputKeyPathsParameters = keyPathsParameters; // Maybe need to refactor
     var paths = [];
@@ -33,7 +35,7 @@ function animateValue(parameters, keyPathsParameters) {
                 if (inputKeyPathsParameters[key].length === numOfKeyPaths)
                     // if individual values for each path
                     pathParameters[key] = inputKeyPathsParameters[key][i];
-                else if (typeof inputKeyPathsParameters[key][i] === "number")
+                else if (inputKeyPathsParameters[key].length === 2)
                     // calculate value from [min number, max number] range
                     pathParameters[key] = getValueFromRange(inputKeyPathsParameters[key], numOfKeyPaths, i);
                 else
@@ -50,3 +52,60 @@ function animateValue(parameters, keyPathsParameters) {
     return values;
 }
 exports.default = animateValue;
+var defaults = {
+    parameters: {
+        loop: true,
+        numOfKeyPaths: 3
+    },
+    keyPathsParameters: {
+        numOfSegments: 3,
+        depth: 0,
+        x: 0,
+        y: 0,
+        width: 200,
+        height: 200,
+        centerX: 100,
+        centerY: 100,
+        rotate: 0,
+        numOfGroups: 2,
+        incircle: true,
+        groups: [
+            [
+                {
+                    type: "radial",
+                    distance: 1,
+                    round: 1
+                },
+                {
+                    type: "radial",
+                    distance: 1,
+                    round: 1
+                }
+            ],
+            [
+                {
+                    type: "radial",
+                    distance: 1,
+                    round: 0.4
+                },
+                {
+                    type: "linear",
+                    distance: 0.6,
+                    round: 3
+                }
+            ],
+            [
+                {
+                    type: "radial",
+                    distance: 1,
+                    round: 0.1
+                },
+                {
+                    type: "linear",
+                    distance: 1,
+                    round: 3
+                }
+            ]
+        ]
+    }
+};

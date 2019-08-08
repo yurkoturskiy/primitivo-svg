@@ -8,10 +8,8 @@ import {
   KeyPathParameters
 } from "./animateLayer/interfaces";
 
-export const pathLayer = (parameters: Parameters): PathData =>
+export const pathLayer = (parameters: any): PathData =>
   generateShapes(parameters);
 
-export const animateLayer = (
-  animateParameters: AnimateParameters,
-  keyPathsParameters: KeyPathParameters
-) => animate(animateParameters, keyPathsParameters);
+export const animateLayer = (animateParameters: any, keyPathsParameters: any) =>
+  animate(animateParameters, keyPathsParameters);
