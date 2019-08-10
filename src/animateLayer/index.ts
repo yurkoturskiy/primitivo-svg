@@ -41,7 +41,7 @@ export default function animateValue(
   const { numOfKeyPaths, loop } = parameters;
   let inputKeyPathsParameters: any = keyPathsParameters; // Maybe need to refactor
   let paths = [];
-  let dValues = [];
+  let dValues: string[] | string = [];
   for (let i = 0; i < numOfKeyPaths; i++) {
     var pathParameters: any = {};
     for (let key in inputKeyPathsParameters) {
@@ -75,8 +75,8 @@ export default function animateValue(
     if (loop && i !== numOfKeyPaths - 1)
       dValues[(numOfKeyPaths - 1) * 2 - i] = path.d;
   }
-  var values: string = dValues.join(";");
-  return values;
+  dValues = dValues.join(";");
+  return dValues;
 }
 
 const defaults = {
