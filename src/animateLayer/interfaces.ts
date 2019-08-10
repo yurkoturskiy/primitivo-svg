@@ -41,7 +41,7 @@ export interface AnimateValue {
 }
 
 export interface Output {
-  dValues: string;
+  dValues?: string;
   keyTimes?: string;
   keySplines?: string;
 }

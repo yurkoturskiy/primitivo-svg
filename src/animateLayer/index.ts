@@ -6,7 +6,8 @@ import {
   AnimateParameters,
   KeyPathParameters,
   GroupParameters,
-  AnimateValue
+  AnimateValue,
+  Output
 } from "./interfaces";
 import { Parameters as PathParameters } from "../pathLayer/interfaces";
 
@@ -29,7 +30,7 @@ const getValueFromRange = (
 export default function animateValue(
   parameters: AnimateParameters = defaults.parameters,
   keyPathsParameters: KeyPathParameters = defaults.keyPathsParameters
-): string {
+): Output {
   /*
    * Generate paths and return string for values option of animate tag.
    * Example:
@@ -38,45 +39,69 @@ export default function animateValue(
    * Figure out first how pathLayer works.
    */
 
-  const { numOfKeyPaths, loop } = parameters;
-  let inputKeyPathsParameters: any = keyPathsParameters; // Maybe need to refactor
-  let paths = [];
-  let dValues: string[] | string = [];
-  for (let i = 0; i < numOfKeyPaths; i++) {
-    var pathParameters: any = {};
-    for (let key in inputKeyPathsParameters) {
-      // Set parameters for 'i' key path
-      if (key === "groups") {
-        if (getType(inputKeyPathsParameters[key][0] === "object"))
-          // One setup for all key paths groups
+  const generateDValues = () => {
+    const { numOfKeyPaths, loop } = parameters;
+    let inputKeyPathsParameters: any = keyPathsParameters; // Maybe need to refactor
+    let paths = [];
+    let dValues: string[] | string = [];
+    for (let i = 0; i < numOfKeyPaths; i++) {
+      var pathParameters: any = {};
+      for (let key in inputKeyPathsParameters) {
+        // Set parameters for 'i' key path
+        if (key === "groups") {
+          if (getType(inputKeyPathsParameters[key][0] === "object"))
+            // One setup for all key paths groups
+            pathParameters[key] = inputKeyPathsParameters[key];
+          else pathParameters[key] = inputKeyPathsParameters[key];
+          console.log("group param", pathParameters[key]);
+        } else if (typeof inputKeyPathsParameters[key] !== "object") {
+          // if one value for all paths
           pathParameters[key] = inputKeyPathsParameters[key];
-        else pathParameters[key] = inputKeyPathsParameters[key];
-        console.log("group param", pathParameters[key]);
-      } else if (typeof inputKeyPathsParameters[key] !== "object") {
-        // if one value for all paths
-        pathParameters[key] = inputKeyPathsParameters[key];
-      } else {
-        if (inputKeyPathsParameters[key].length === numOfKeyPaths)
-          // if individual values for each path
-          pathParameters[key] = inputKeyPathsParameters[key][i];
-        else if (inputKeyPathsParameters[key].length === 2)
-          // calculate value from [min number, max number] range
-          pathParameters[key] = getValueFromRange(
-            inputKeyPathsParameters[key],
-            numOfKeyPaths,
-            i
-          );
-        else throw `Wrong '${key}' parameter array at ${i} key path`;
+        } else {
+          if (inputKeyPathsParameters[key].length === numOfKeyPaths)
+            // if individual values for each path
+            pathParameters[key] = inputKeyPathsParameters[key][i];
+          else if (inputKeyPathsParameters[key].length === 2)
+            // calculate value from [min number, max number] range
+            pathParameters[key] = getValueFromRange(
+              inputKeyPathsParameters[key],
+              numOfKeyPaths,
+              i
+            );
+          else throw `Wrong '${key}' parameter array at ${i} key path`;
+        }
+      }
+      let path = generateShapes(pathParameters);
+      paths[i] = path;
+      dValues[i] = path.d;
+      if (loop && i !== numOfKeyPaths - 1)
+        dValues[(numOfKeyPaths - 1) * 2 - i] = path.d;
+    }
+    dValues = dValues.join(";");
+    return dValues;
+  };
+
+  const setSpacing = () => {
+    const { keyTimes, keySplines } = parameters;
+    let prevKeyPoint: string;
+    let nextKeyPoint: string;
+    for (let i = 1; i > keySplines.length; i++) {
+      if (keySplines[i - 1] !== "pass") {
+        for (let start = i; keySplines[start] !== "pass"; start--)
+          // Find previous key spline
+          if (keySplines[start] !== "pass") prevKeyPoint = keySplines[start];
+        for (let end = i; keySplines[end] !== "pass"; end++)
+          // Find next key spline
+          if (keySplines[end] !== "pass") nextKeyPoint = keySplines[end];
       }
     }
-    let path = generateShapes(pathParameters);
-    paths[i] = path;
-    dValues[i] = path.d;
-    if (loop && i !== numOfKeyPaths - 1)
-      dValues[(numOfKeyPaths - 1) * 2 - i] = path.d;
-  }
-  dValues = dValues.join(";");
-  return dValues;
+    return keySplines.join(";");
+  };
+
+  var output: Output = {};
+  output.dValues = generateDValues();
+  output.keySplines = setSpacing();
+  return output;
 }
 
 const defaults = {
