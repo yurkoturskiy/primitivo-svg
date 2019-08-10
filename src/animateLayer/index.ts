@@ -41,7 +41,7 @@ export default function animateValue(
   const { numOfKeyPaths, loop } = parameters;
   let inputKeyPathsParameters: any = keyPathsParameters; // Maybe need to refactor
   let paths = [];
-  let ds = [];
+  let dValues = [];
   for (let i = 0; i < numOfKeyPaths; i++) {
     var pathParameters: any = {};
     for (let key in inputKeyPathsParameters) {
@@ -71,11 +71,11 @@ export default function animateValue(
     }
     let path = generateShapes(pathParameters);
     paths[i] = path;
-    ds[i] = path.d;
+    dValues[i] = path.d;
     if (loop && i !== numOfKeyPaths - 1)
-      ds[(numOfKeyPaths - 1) * 2 - i] = path.d;
+      dValues[(numOfKeyPaths - 1) * 2 - i] = path.d;
   }
-  var values: string = ds.join(";");
+  var values: string = dValues.join(";");
   return values;
 }
 
