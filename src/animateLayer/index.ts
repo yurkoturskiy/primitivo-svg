@@ -7,7 +7,9 @@ import {
   KeyPathParameters,
   GroupParameters,
   AnimateValue,
-  Output
+  Output,
+  CalcInterpolationInput,
+  CalcInterpolationOutput
 } from "./interfaces";
 import { Parameters as PathParameters } from "../pathLayer/interfaces";
 
@@ -81,21 +83,98 @@ export default function animateValue(
     return dValues;
   };
 
+  const pointToNumber = (point: string): number[] => {
+    console.log("point to number", point);
+    let p: string[] | number[] = point.split(",");
+    p = [Number(p[0]), Number(p[1])];
+    return p;
+  };
+
+  const pointToString = (point: number[]): string => point.join(",");
+
+  const calcInterpolation = (
+    parameters: CalcInterpolationInput
+  ): CalcInterpolationOutput => {
+    var { t, p1, p2, p3, p4 } = parameters;
+    log.debug("interpolation input parameters", parameters);
+    let p5: number[] = [
+      (1 - t) * p1[0] + t * p2[0],
+      (1 - t) * p1[1] + t * p2[1]
+    ];
+    let p6: number[] = [
+      (1 - t) * p2[0] + t * p3[0],
+      (1 - t) * p2[1] + t * p3[1]
+    ];
+    let p7: number[] = [
+      (1 - t) * p3[0] + t * p4[0],
+      (1 - t) * p3[1] + t * p4[1]
+    ];
+    let p8: number[] = [
+      (1 - t) * p5[0] + t * p6[0],
+      (1 - t) * p5[1] + t * p6[1]
+    ];
+    let p9: number[] = [
+      (1 - t) * p6[0] + t * p7[0],
+      (1 - t) * p6[1] + t * p7[1]
+    ];
+    let bz: number[] = [
+      (1 - t) * p8[0] + t * p9[0],
+      (1 - t) * p8[1] + t * p9[1]
+    ];
+    return { p5, p6, p7, p8, p9, bz };
+  };
+
   const setSpacing = () => {
     const { keyTimes, keySplines } = parameters;
-    let prevKeyPoint: string;
-    let nextKeyPoint: string;
-    for (let i = 1; i > keySplines.length; i++) {
-      if (keySplines[i - 1] !== "pass") {
-        for (let start = i; keySplines[start] !== "pass"; start--)
-          // Find previous key spline
-          if (keySplines[start] !== "pass") prevKeyPoint = keySplines[start];
-        for (let end = i; keySplines[end] !== "pass"; end++)
-          // Find next key spline
-          if (keySplines[end] !== "pass") nextKeyPoint = keySplines[end];
+
+    let splines: any = keySplines.concat();
+    for (let i = 0; i < splines.length; i++) {
+      if (splines[i] !== "pass") splines[i] = pointToNumber(splines[i]);
+    }
+    var bzs: number[][] = [[0, 0]];
+    var p4: number[] = [1, 1];
+    var p3Index: number;
+    let t: number;
+
+    for (let i = 1; i < splines.length; i += 2) {
+      console.log("p", i);
+      if (splines[i] === "pass") {
+        console.log(splines[i]);
+        if (!p3Index || i > p3Index) {
+          for (let end = i; i < splines.length; end++) {
+            // Find next key spline
+            if (splines[end] !== "pass") {
+              p3Index = end;
+              break;
+            }
+          }
+        }
+        t = keyTimes[(i + (i % 2)) / 2];
+        const interpolation = calcInterpolation({
+          t,
+          p1: bzs[(i + (i % 2)) / 2 - 1],
+          p2: splines[i - 1],
+          p3: splines[p3Index],
+          p4
+        });
+        console.log("interpolation", interpolation);
+        const { p5, p6, p7, p8, p9, bz } = interpolation;
+        splines[i - 1] = p5;
+        splines[i] = p8;
+        splines[i + 1] = p9;
+        splines[p3Index] = p7;
+        bzs[(i + (i % 2)) / 2] = bz;
       }
     }
-    return keySplines.join(";");
+    log.debug("bzs", bzs);
+    for (let i = 0; i < keyTimes.length - 1; i++) {
+      splines[i] = pointToString(splines[i]);
+      splines[i + 1] = pointToString(splines[i + 1]);
+      splines[i] = [splines[i], splines[i + 1]];
+      splines.splice(i + 1, 1);
+    }
+    console.log("splines", splines);
+    return splines.join(";");
   };
 
   var output: Output = {};
