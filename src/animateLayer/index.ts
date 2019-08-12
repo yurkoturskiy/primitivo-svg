@@ -131,7 +131,9 @@ export default function animateValue(
     for (let i = 0; i < splines.length; i++) {
       if (splines[i] !== "pass") splines[i] = pointToNumber(splines[i]);
     }
-    var bzs: number[][] = [[0, 0]];
+    var bzs: number[][] = [];
+    bzs[0] = [0, 0];
+    bzs[keyTimes.length - 1] = [1, 1];
     var p4: number[] = [1, 1];
     var p3Index: number;
     let t: number;
@@ -167,7 +169,21 @@ export default function animateValue(
       }
     }
     log.debug("bzs", bzs);
+    for (let i = 0; i < bzs.length - 1; i++) {}
     for (let i = 0; i < keyTimes.length - 1; i++) {
+      let factor = [
+        (1 + bzs[i][0]) / bzs[i + 1][0],
+        (1 + bzs[i][1]) / bzs[i + 1][1]
+      ];
+      log.debug("factor", factor);
+      splines[i] = [
+        splines[i][0] * factor[0] - bzs[i][0],
+        splines[i][1] * factor[1] - bzs[i][1]
+      ];
+      splines[i + 1] = [
+        splines[i + 1][0] * factor[0] - bzs[i][0],
+        splines[i + 1][1] * factor[1] - bzs[i][1]
+      ];
       splines[i] = pointToString(splines[i]);
       splines[i + 1] = pointToString(splines[i + 1]);
       splines[i] = [splines[i], splines[i + 1]];

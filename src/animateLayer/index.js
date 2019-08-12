@@ -120,7 +120,9 @@ function animateValue(parameters, keyPathsParameters) {
             if (splines[i] !== "pass")
                 splines[i] = pointToNumber(splines[i]);
         }
-        var bzs = [[0, 0]];
+        var bzs = [];
+        bzs[0] = [0, 0];
+        bzs[keyTimes.length - 1] = [1, 1];
         var p4 = [1, 1];
         var p3Index;
         var t;
@@ -155,7 +157,21 @@ function animateValue(parameters, keyPathsParameters) {
             }
         }
         log.debug("bzs", bzs);
+        for (var i = 0; i < bzs.length - 1; i++) { }
         for (var i = 0; i < keyTimes.length - 1; i++) {
+            var factor = [
+                (1 + bzs[i][0]) / bzs[i + 1][0],
+                (1 + bzs[i][1]) / bzs[i + 1][1]
+            ];
+            log.debug("factor", factor);
+            splines[i] = [
+                splines[i][0] * factor[0] - bzs[i][0],
+                splines[i][1] * factor[1] - bzs[i][1]
+            ];
+            splines[i + 1] = [
+                splines[i + 1][0] * factor[0] - bzs[i][0],
+                splines[i + 1][1] * factor[1] - bzs[i][1]
+            ];
             splines[i] = pointToString(splines[i]);
             splines[i + 1] = pointToString(splines[i + 1]);
             splines[i] = [splines[i], splines[i + 1]];
