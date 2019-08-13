@@ -182,7 +182,8 @@ function animateValue(parameters, keyPathsParameters) {
     };
     var output = {};
     output.dValues = generateDValues();
-    output.keySplines = setSpacing();
+    if ((parameters.keySplines, parameters.keyTimes))
+        output.keySplines = setSpacing();
     return output;
 }
 exports.default = animateValue;

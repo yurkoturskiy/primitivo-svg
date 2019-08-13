@@ -195,7 +195,8 @@ export default function animateValue(
 
   var output: Output = {};
   output.dValues = generateDValues();
-  output.keySplines = setSpacing();
+  if ((parameters.keySplines, parameters.keyTimes))
+    output.keySplines = setSpacing();
   return output;
 }
 
