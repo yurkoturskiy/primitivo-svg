@@ -1,5 +1,6 @@
 export interface AnimateParameters {
   numOfKeyPaths: number;
+  progression?: number[];
   keyTimes?: number[];
   keySplines?: string[];
   loop: boolean;
