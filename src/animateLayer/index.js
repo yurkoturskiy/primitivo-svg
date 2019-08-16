@@ -127,12 +127,6 @@ function animateValue(parameters, keyPathsParameters) {
         p = []; // proto bz
         p4 = [1, 1];
         var p3Index;
-        // Calc keyTimes
-        for (var i = 0; i < keyTimes.length; i++) {
-            if (keyTimes[i] == null)
-                keyTimes[i] = calcTime(bzs[0][1], splines[0][1], splines[splines.length - 1][1], p4[1], progression[i]);
-        }
-        console.log("key times", keyTimes);
         // Calc keySplines
         for (var i = 1; i < splines.length; i += 2) {
             console.log("p", i);
@@ -174,11 +168,13 @@ function animateValue(parameters, keyPathsParameters) {
                 splines[i + 1] = p9.concat();
                 splines[p3Index] = p7.concat();
                 bzs[(i + (i % 2)) / 2] = p.concat();
+                keyTimes[(i + (i % 2)) / 2] = p[0];
             }
         }
+        log.debug("key times", keyTimes);
         log.debug("bzs", bzs);
         log.debug("splines before transformation", splines.concat());
-        for (var i = 0; i < keyTimes.length - 1; i++) {
+        for (var i = 0; i < progression.length - 1; i++) {
             splines[i] = [splines[i][0] - bzs[i][0], splines[i][1] - bzs[i][1]];
             splines[i + 1] = [
                 splines[i + 1][0] - bzs[i][0],
