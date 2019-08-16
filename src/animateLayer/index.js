@@ -180,7 +180,10 @@ function animateValue(parameters, keyPathsParameters) {
                 splines[i + 1][0] - bzs[i][0],
                 splines[i + 1][1] - bzs[i][1]
             ];
-            var factor = [1 / bzs[i + 1][0], 1 / bzs[i + 1][1]];
+            var factor = [
+                1 / (bzs[i + 1][0] - bzs[i][0]),
+                1 / (bzs[i + 1][1] - bzs[i][1])
+            ];
             log.debug("factor", factor);
             splines[i] = [splines[i][0] * factor[0], splines[i][1] * factor[1]];
             splines[i + 1] = [
