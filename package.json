@@ -1,14 +1,14 @@
 {
-  "name": "svg-curveto",
-  "version": "0.1.3",
-  "description": "Generate SVG paths data using curveto points for animation purposes.",
+  "name": "primitivo",
+  "version": "0.1.4",
+  "description": "JS SVG library, which generates and animates SVG shapes. Create spinners, transition, and illustrations",
   "main": "src/index.js",
   "scripts": {
     "build": "tsc"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/guandjoy/svg-curveto.git"
+    "url": "git+https://github.com/guandjoy/primitivo.git"
   },
   "keywords": [
     "svg",
@@ -20,9 +20,9 @@
   "author": "Yurko Turskiy",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/guandjoy/svg-curveto/issues"
+    "url": "https://github.com/guandjoy/primitivo/issues"
   },
-  "homepage": "https://github.com/guandjoy/svg-curveto#readme",
+  "homepage": "https://github.com/guandjoy/primitivo#readme",
   "dependencies": {
     "loglevel": "^1.6.3"
   }
