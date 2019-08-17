@@ -1,3 +1,3 @@
-# svg-curveto
+# Primitivo - JavaScript SVG library
 
-Generate SVG paths data using C points for animation purposes.
+Primitivo is a JS SVG library, which generates and animates SVG shapes. You can use apply it for a wide variaty of things, like spinners, transitions effects, or as a part of illustrations.
