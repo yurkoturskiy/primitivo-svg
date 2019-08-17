@@ -1,15 +1,14 @@
 // Layers
-import generateShapes from "./pathLayer/index";
-import animate from "./animateLayer/index";
+import pathLayer from "./path/index";
+import morphingLayer from "./morphing/index";
+import spacingLayer from "./spacing/index";
 // Interfaces
-import { Parameters, PathData } from "./pathLayer/interfaces";
-import {
-  AnimateParameters,
-  KeyPathParameters
-} from "./animateLayer/interfaces";
+import { Parameters, PathData } from "./path/interfaces";
+import { AnimateParameters, KeyPathParameters } from "./morphing/interfaces";
 
-export const pathLayer = (parameters: any): PathData =>
-  generateShapes(parameters);
+export const path = (parameters: any): PathData => pathLayer(parameters);
 
-export const animateLayer = (animateParameters: any, keyPathsParameters: any) =>
-  animate(animateParameters, keyPathsParameters);
+export const morphing = (animateParameters: any, keyPathsParameters: any) =>
+  morphingLayer(animateParameters, keyPathsParameters);
+
+export const spacing = (parameters: any) => spacingLayer(parameters);

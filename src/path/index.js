@@ -440,7 +440,7 @@ var generateSVGPathData = function (path) {
 /********
  * Root *
  ********/
-var generateShape = function (parameters) {
+var pathLayer = function (parameters) {
     if (parameters === void 0) { parameters = defaultParameters; }
     // Setup defaults
     var path = { parameters: parameters };
@@ -486,4 +486,4 @@ var defaultParameters = {
         }
     ]
 };
-exports.default = generateShape;
+exports.default = pathLayer;

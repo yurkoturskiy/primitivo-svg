@@ -23,10 +23,7 @@ function solveCubic(a, b, c, d) {
         if (Math.abs(D) < 1e-8)
             return [-b / (2 * a)];
         else if (D > 0)
-            return [
-                (-b + Math.sqrt(D)) / (2 * a),
-                (-b - Math.sqrt(D)) / (2 * a)
-            ];
+            return [(-b + Math.sqrt(D)) / (2 * a), (-b - Math.sqrt(D)) / (2 * a)];
         return [];
     }
     // Convert to depressed cubic t^3+pt+q = 0 (subst x = t - b/3a)
@@ -57,11 +54,7 @@ function solveCubic(a, b, c, d) {
             var u = 2 * Math.sqrt(-p / 3);
             var t = Math.acos((3 * q) / p / u) / 3; // D < 0 implies p < 0 and acos argument in [-1..1]
             var k = (2 * Math.PI) / 3;
-            roots = [
-                u * Math.cos(t),
-                u * Math.cos(t - k),
-                u * Math.cos(t - 2 * k)
-            ];
+            roots = [u * Math.cos(t), u * Math.cos(t - k), u * Math.cos(t - 2 * k)];
         }
     }
     // Convert back from depressed cubic
