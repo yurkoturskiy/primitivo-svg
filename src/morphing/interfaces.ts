@@ -37,3 +37,26 @@ export interface AnimateValue {
   keyTimes: string;
   keySplines: string;
 }
+
+export interface Output {
+  dValues?: string;
+  keyTimes?: string;
+  keySplines?: string;
+}
+
+export interface CalcInterpolationInput {
+  t: number;
+  p1: number[];
+  p2: number[];
+  p3: number[];
+  p4: number[];
+}
+
+export interface CalcInterpolationOutput {
+  p5: number[];
+  p6: number[];
+  p7: number[];
+  p8: number[];
+  p9: number[];
+  bz: number[];
+}

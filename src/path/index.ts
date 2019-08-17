@@ -507,9 +507,7 @@ const generateSVGPathData = (path: PathData): PathData => {
  * Root *
  ********/
 
-const generateShape = (
-  parameters: Parameters = defaultParameters
-): PathData => {
+const pathLayer = (parameters: Parameters = defaultParameters): PathData => {
   // Setup defaults
   var path: PathData = { parameters };
   path = setDefaults(path);
@@ -557,4 +555,4 @@ var defaultParameters = {
   ]
 };
 
-export default generateShape;
+export default pathLayer;
