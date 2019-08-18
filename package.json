@@ -1,5 +1,5 @@
 {
-  "name": "@primitivo",
+  "name": "primitivo-svg",
   "version": "0.1.0-alpha.0",
   "description": "JS SVG library, which generates and animates SVG shapes. Create spinners, transition, and illustrations",
   "main": "src/index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/guandjoy/primitivo.git"
+    "url": "git+https://github.com/guandjoy/primitivo-svg.git"
   },
   "keywords": [
     "svg",
@@ -20,9 +20,9 @@
   "author": "Yurko Turskiy",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/guandjoy/primitivo/issues"
+    "url": "https://github.com/guandjoy/primitivo-svg/issues"
   },
-  "homepage": "https://github.com/guandjoy/primitivo#readme",
+  "homepage": "https://github.com/guandjoy/primitivo-svg#readme",
   "dependencies": {
     "loglevel": "^1.6.3"
   }
