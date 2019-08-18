@@ -41,12 +41,24 @@ function morphingLayer(
    * Figure out first how pathLayer works.
    */
 
+  const setDefaults = () => {
+    parameters = { ...defaults.parameters, ...parameters };
+    keyPathsParameters = {
+      ...defaults.keyPathsParameters,
+      ...keyPathsParameters
+    };
+  };
+
   const generateDValues = () => {
+    log.info("start generate d values");
+    log.debug("parameters", parameters);
+    log.debug("key path parameters", keyPathsParameters);
     const { numOfKeyPaths, loop } = parameters;
     let inputKeyPathsParameters: any = keyPathsParameters; // Maybe need to refactor
     let paths = [];
     let dValues: string[] | string = [];
     for (let i = 0; i < numOfKeyPaths; i++) {
+      log.info(`generate key path number ${i}`);
       var pathParameters: any = {};
       for (let key in inputKeyPathsParameters) {
         // Set parameters for 'i' key path
@@ -83,6 +95,7 @@ function morphingLayer(
     return dValues;
   };
 
+  setDefaults();
   var output: Output = {};
   output.dValues = generateDValues();
   return output;
@@ -106,42 +119,16 @@ const defaults = {
     numOfGroups: 2,
     incircle: true,
     groups: [
-      [
-        {
-          type: "radial",
-          distance: 1,
-          round: 1
-        },
-        {
-          type: "radial",
-          distance: 1,
-          round: 1
-        }
-      ],
-      [
-        {
-          type: "radial",
-          distance: 1,
-          round: 0.4
-        },
-        {
-          type: "linear",
-          distance: 0.6,
-          round: 3
-        }
-      ],
-      [
-        {
-          type: "radial",
-          distance: 1,
-          round: 0.1
-        },
-        {
-          type: "linear",
-          distance: 1,
-          round: 3
-        }
-      ]
+      {
+        type: "radial",
+        distance: [0.95, 1],
+        round: 1
+      },
+      {
+        type: "radial",
+        distance: [1.3, 1.4],
+        round: [0, 0.3]
+      }
     ]
   }
 };

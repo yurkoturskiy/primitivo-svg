@@ -1,8 +1,27 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var log = __importStar(require("loglevel"));
 // Layers
 var index_1 = __importDefault(require("../path/index"));
 var getType = function (item) {
@@ -28,12 +47,20 @@ function morphingLayer(parameters, keyPathsParameters) {
      */
     if (parameters === void 0) { parameters = defaults.parameters; }
     if (keyPathsParameters === void 0) { keyPathsParameters = defaults.keyPathsParameters; }
+    var setDefaults = function () {
+        parameters = __assign({}, defaults.parameters, parameters);
+        keyPathsParameters = __assign({}, defaults.keyPathsParameters, keyPathsParameters);
+    };
     var generateDValues = function () {
+        log.info("start generate d values");
+        log.debug("parameters", parameters);
+        log.debug("key path parameters", keyPathsParameters);
         var numOfKeyPaths = parameters.numOfKeyPaths, loop = parameters.loop;
         var inputKeyPathsParameters = keyPathsParameters; // Maybe need to refactor
         var paths = [];
         var dValues = [];
         for (var i = 0; i < numOfKeyPaths; i++) {
+            log.info("generate key path number " + i);
             var pathParameters = {};
             for (var key in inputKeyPathsParameters) {
                 // Set parameters for 'i' key path
@@ -69,6 +96,7 @@ function morphingLayer(parameters, keyPathsParameters) {
         dValues = dValues.join(";");
         return dValues;
     };
+    setDefaults();
     var output = {};
     output.dValues = generateDValues();
     return output;
@@ -91,42 +119,16 @@ var defaults = {
         numOfGroups: 2,
         incircle: true,
         groups: [
-            [
-                {
-                    type: "radial",
-                    distance: 1,
-                    round: 1
-                },
-                {
-                    type: "radial",
-                    distance: 1,
-                    round: 1
-                }
-            ],
-            [
-                {
-                    type: "radial",
-                    distance: 1,
-                    round: 0.4
-                },
-                {
-                    type: "linear",
-                    distance: 0.6,
-                    round: 3
-                }
-            ],
-            [
-                {
-                    type: "radial",
-                    distance: 1,
-                    round: 0.1
-                },
-                {
-                    type: "linear",
-                    distance: 1,
-                    round: 3
-                }
-            ]
+            {
+                type: "radial",
+                distance: [0.95, 1],
+                round: 1
+            },
+            {
+                type: "radial",
+                distance: [1.3, 1.4],
+                round: [0, 0.3]
+            }
         ]
     }
 };
