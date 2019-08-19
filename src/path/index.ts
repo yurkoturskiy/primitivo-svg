@@ -383,7 +383,7 @@ const calcRadians = (path: PathData): PathData => {
   return path;
 };
 
-const setControlPoints = (path: PathData): PathData => {
+const setArms = (path: PathData): PathData => {
   var { vertexes } = path;
   var { groups } = path.parameters;
   var numOfPoints = vertexes.length - 1; // Minus "M" vertex
@@ -526,7 +526,7 @@ const pathLayer = (parameters: Parameters = defaultParameters): PathData => {
   path = setLength(path);
   path = calcLength(path);
   path = calcRadians(path);
-  path = setControlPoints(path);
+  path = setArms(path);
   path = shift(path);
   path = generateD(path);
   return path;
