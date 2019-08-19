@@ -323,8 +323,8 @@ var setLength = function (path) {
     log.debug(path);
     return path;
 };
-var calcRadians = function (path) {
-    log.info("calculate radians");
+var recalcRadians = function (path) {
+    log.info("recalculate radians");
     var vertexes = path.vertexes;
     var _a = path.parameters, centerX = _a.centerX, centerY = _a.centerY;
     path.vertexes = vertexes.map(function (vertex) {
@@ -468,7 +468,7 @@ var pathLayer = function (parameters) {
     path = calcLength(path);
     path = setLength(path);
     path = calcLength(path);
-    path = calcRadians(path);
+    path = recalcRadians(path);
     path = setArms(path);
     path = shift(path);
     path = generateD(path);

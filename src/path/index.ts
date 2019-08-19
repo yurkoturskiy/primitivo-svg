@@ -372,8 +372,8 @@ const setLength = (path: PathData): PathData => {
   return path;
 };
 
-const calcRadians = (path: PathData): PathData => {
-  log.info("calculate radians");
+const recalcRadians = (path: PathData): PathData => {
+  log.info("recalculate radians");
   const { vertexes } = path;
   const { centerX, centerY } = path.parameters;
   path.vertexes = vertexes.map(vertex => {
@@ -535,7 +535,7 @@ const pathLayer = (parameters: Parameters = defaultParameters): PathData => {
   path = calcLength(path);
   path = setLength(path);
   path = calcLength(path);
-  path = calcRadians(path);
+  path = recalcRadians(path);
   path = setArms(path);
   path = shift(path);
   path = generateD(path);
