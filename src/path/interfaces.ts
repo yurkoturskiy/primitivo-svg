@@ -7,6 +7,7 @@ export interface PathData {
   frame?: Frame;
   parameters: Parameters;
   vertexes?: Vertex[];
+  averageLength?: number;
   keyframes?: Keyframe[];
   d?: string;
 }
