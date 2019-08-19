@@ -291,12 +291,15 @@ var setScale = function (path) {
 };
 var calcLength = function (path) {
     var parameters = path.parameters;
+    var averageLength = 0;
     path.vertexes = path.vertexes.map(function (vertex) {
         var x = vertex.x - parameters.centerX;
         var y = vertex.y - parameters.centerY;
         vertex.length = Math.sqrt(x * x + y * y);
+        averageLength += vertex.length;
         return vertex;
     });
+    path.averageLength = averageLength / path.vertexes.length;
     return path;
 };
 var setLength = function (path) {
@@ -333,12 +336,13 @@ var calcRadians = function (path) {
     });
     return path;
 };
-var setControlPoints = function (path) {
-    var vertexes = path.vertexes;
+var setArms = function (path) {
+    var vertexes = path.vertexes, averageLength = path.averageLength;
     var groups = path.parameters.groups;
     var numOfPoints = vertexes.length - 1; // Minus "M" vertex
     var firstArmFactors = [];
     var secondArmFactors = [];
+    var averageLength;
     for (var i = 1; i < vertexes.length; i++) {
         // Set arms length
         var firstArmLength = void 0, secondArmLength = void 0;
@@ -350,11 +354,17 @@ var setControlPoints = function (path) {
             individualFactor = (2 * Math.PI) / distanceRadians;
         }
         var firstArmFactor = firstArmSmartRound ? individualFactor : numOfPoints;
+        var firstArmScaleFactor = groups[vertexes[i - 1].group].lengthBasedRound
+            ? vertexes[i - 1].length
+            : averageLength;
         var secondArmFactor = secondArmSmartRound ? individualFactor : numOfPoints;
+        var secondArmScaleFactor = groups[vertexes[i].group].lengthBasedRound
+            ? vertexes[i].length
+            : averageLength;
         firstArmLength = (4 / 3) * Math.tan(Math.PI / (2 * firstArmFactor));
-        firstArmLength *= vertexes[i - 1].length;
+        firstArmLength *= firstArmScaleFactor;
         secondArmLength = (4 / 3) * Math.tan(Math.PI / (2 * secondArmFactor));
-        secondArmLength *= vertexes[i].length;
+        secondArmLength *= secondArmScaleFactor;
         firstArmLength *= vertexes[i - 1].round;
         secondArmLength *= vertexes[i].round;
         // Set arms angle
@@ -459,7 +469,7 @@ var pathLayer = function (parameters) {
     path = setLength(path);
     path = calcLength(path);
     path = calcRadians(path);
-    path = setControlPoints(path);
+    path = setArms(path);
     path = shift(path);
     path = generateD(path);
     return path;
@@ -480,6 +490,7 @@ var defaultParameters = {
         {
             type: "linear",
             round: 0.5,
+            lengthBasedRound: false,
             distance: 1,
             smartRound: false,
             preserveRadians: false

@@ -338,12 +338,15 @@ const setScale = (path: PathData): PathData => {
 
 const calcLength = (path: PathData): PathData => {
   const { parameters } = path;
+  var averageLength: number = 0;
   path.vertexes = path.vertexes.map(vertex => {
     let x = vertex.x - parameters.centerX;
     let y = vertex.y - parameters.centerY;
     vertex.length = Math.sqrt(x * x + y * y);
+    averageLength += vertex.length;
     return vertex;
   });
+  path.averageLength = averageLength / path.vertexes.length;
   return path;
 };
 
@@ -384,11 +387,12 @@ const calcRadians = (path: PathData): PathData => {
 };
 
 const setArms = (path: PathData): PathData => {
-  var { vertexes } = path;
+  var { vertexes, averageLength } = path;
   var { groups } = path.parameters;
   var numOfPoints = vertexes.length - 1; // Minus "M" vertex
   var firstArmFactors: number[] = [];
   var secondArmFactors: number[] = [];
+  var averageLength: number;
   for (let i = 1; i < vertexes.length; i++) {
     // Set arms length
     let firstArmLength, secondArmLength;
@@ -405,13 +409,19 @@ const setArms = (path: PathData): PathData => {
     }
 
     let firstArmFactor = firstArmSmartRound ? individualFactor : numOfPoints;
+    let firstArmScaleFactor = groups[vertexes[i - 1].group].lengthBasedRound
+      ? vertexes[i - 1].length
+      : averageLength;
 
     let secondArmFactor = secondArmSmartRound ? individualFactor : numOfPoints;
+    let secondArmScaleFactor = groups[vertexes[i].group].lengthBasedRound
+      ? vertexes[i].length
+      : averageLength;
 
     firstArmLength = (4 / 3) * Math.tan(Math.PI / (2 * firstArmFactor));
-    firstArmLength *= vertexes[i - 1].length;
+    firstArmLength *= firstArmScaleFactor;
     secondArmLength = (4 / 3) * Math.tan(Math.PI / (2 * secondArmFactor));
-    secondArmLength *= vertexes[i].length;
+    secondArmLength *= secondArmScaleFactor;
     firstArmLength *= vertexes[i - 1].round;
     secondArmLength *= vertexes[i].round;
     // Set arms angle
@@ -548,6 +558,7 @@ var defaultParameters = {
     {
       type: "linear",
       round: 0.5,
+      lengthBasedRound: false,
       distance: 1,
       smartRound: false,
       preserveRadians: false
