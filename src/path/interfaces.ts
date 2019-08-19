@@ -34,6 +34,7 @@ export interface GroupParameters {
   distance: number | number[] | number[][]; // for all | random range | per vertex
   round: number | number[] | number[][]; // for all | random range | per vertex
   smartRound?: boolean; // Able to create perfect circle from a polygon with custom radians
+  lengthBasedRound?: boolean; // The longer distance from center the bigger round factor is
   adaptArms?: boolean; // Keep arms always perpendicular to center
   radius?: number | number[] | number[][]; // for all | random range | per vertex
   radians?: number[]; // Custom radians for each point of a group
