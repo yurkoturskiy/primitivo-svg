@@ -257,6 +257,126 @@ const remapVertexes = (vertexes: Vertex[]): Vertex[] => {
   return vertexes;
 };
 
+const setArms = (path: PathData, mode: string): PathData => {
+  var { vertexes, averageLength } = path;
+  var { groups } = path.parameters;
+  var numOfPoints = vertexes.length - 1; // Minus "M" vertex
+  var firstArmFactors: number[] = [];
+  var secondArmFactors: number[] = [];
+  var averageLength: number;
+  for (let i = 1; i < vertexes.length; i++) {
+    // Adapt arms
+    let firstArmAdapt = groups[vertexes[i - 1].group].adaptArms;
+    let secondArmAdapt = groups[vertexes[i].group].adaptArms;
+
+    if (mode === "init" && firstArmAdapt && secondArmAdapt) continue;
+    else if (mode === "adapt" && !firstArmAdapt && !secondArmAdapt) continue;
+
+    // Prepare vars
+    let firstArmLength, secondArmLength;
+    // Smart round
+    let firstArmSmartRound = groups[vertexes[i - 1].group].smartRound;
+    let secondArmSmartRound = groups[vertexes[i].group].smartRound;
+    // Length based round
+    let firstArmLengthBasedRound =
+      groups[vertexes[i - 1].group].lengthBasedRound;
+    let secondArmLengthBasedRound = groups[vertexes[i].group].lengthBasedRound;
+
+    // Calc individual factor for smart round
+    let individualFactor;
+    if (firstArmSmartRound || secondArmSmartRound) {
+      let distanceRadians = radiansDelta(
+        vertexes[i - 1].radians,
+        vertexes[i].radians
+      );
+      individualFactor = (2 * Math.PI) / distanceRadians;
+    }
+
+    // First arm
+    if (
+      (mode === "adapt" && firstArmAdapt) ||
+      (mode === "init" && !firstArmAdapt)
+    ) {
+      // Calc first arm
+      log.info(`calc first arm. Mode: ${mode}`);
+      let firstArmFactor = firstArmSmartRound ? individualFactor : numOfPoints;
+      firstArmLength = (4 / 3) * Math.tan(Math.PI / (2 * firstArmFactor));
+      if (mode === "adapt") {
+        // Set scale
+        let firstArmScaleFactor = firstArmLengthBasedRound
+          ? vertexes[i - 1].length
+          : averageLength;
+        firstArmLength *= firstArmScaleFactor;
+      }
+      // Round
+      firstArmLength *= vertexes[i - 1].round;
+      // Set angle
+      let firstArmRadians = vertexes[i - 1].radians + Math.PI / 2; // angle + 90 from the previous point angle
+      let firstArmAngle = radToAngle(firstArmRadians);
+      log.debug("first arm angle", firstArmAngle);
+      // Set cos and sin
+      let cosx1 = round(Math.cos(firstArmRadians));
+      if (mode === "adapt") cosx1 *= -1;
+      let siny1 = round(Math.sin(firstArmRadians));
+      // Set coordinates
+      let x1 = cosx1 * firstArmLength + vertexes[i - 1].x;
+      let y1 = siny1 * firstArmLength + vertexes[i - 1].y;
+      log.debug(`vertex ${i} first arm x: ${x1} y: ${y1}`);
+      // Add to vertex
+      vertexes[i] = {
+        ...vertexes[i],
+        x1,
+        y1,
+        cosx1,
+        siny1
+      };
+    }
+
+    // Second arm
+    if (
+      (mode === "adapt" && secondArmAdapt) ||
+      (mode === "init" && !secondArmAdapt)
+    ) {
+      // Calc second arm
+      log.info(`calc second arm. Mode: ${mode}`);
+      let secondArmFactor = secondArmSmartRound
+        ? individualFactor
+        : numOfPoints;
+      secondArmLength = (4 / 3) * Math.tan(Math.PI / (2 * secondArmFactor));
+      if (mode === "adapt") {
+        // Set scale
+        let secondArmScaleFactor = secondArmLengthBasedRound
+          ? vertexes[i].length
+          : averageLength;
+        secondArmLength *= secondArmScaleFactor;
+      }
+      // Set round
+      secondArmLength *= vertexes[i].round;
+      // Set angle
+      let secondArmRadians = vertexes[i].radians - Math.PI / 2; // angle + 90 from cur point
+      let secondArmAngle = radToAngle(secondArmRadians);
+      log.debug("second arm angle", secondArmAngle);
+      // Set cos and sin
+      let cosx2 = round(Math.cos(secondArmRadians));
+      if (mode === "adapt") cosx2 *= -1;
+      let siny2 = round(Math.sin(secondArmRadians));
+      // Set coordinates
+      let x2 = cosx2 * secondArmLength + vertexes[i].x;
+      let y2 = siny2 * secondArmLength + vertexes[i].y;
+      log.debug(`vertex ${i} second arm x: ${x2} y: ${y2}`);
+      // Add to vertex
+      vertexes[i] = {
+        ...vertexes[i],
+        x2,
+        y2,
+        cosx2,
+        siny2
+      };
+    }
+  }
+  return path;
+};
+
 const scaleToOne = (path: PathData): PathData => {
   var maxX = 0;
   var minX = 0;
@@ -275,6 +395,12 @@ const scaleToOne = (path: PathData): PathData => {
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x = vertex.x * factorX - shiftX;
     vertex.y = vertex.y * factorY - shiftY;
+    if (vertex.type === "C") {
+      vertex.x1 = vertex.x1 * factorX - shiftX;
+      vertex.x2 = vertex.x2 * factorX - shiftX;
+      vertex.y1 = vertex.y1 * factorY - shiftY;
+      vertex.y2 = vertex.y2 * factorY - shiftY;
+    }
     return vertex;
   });
   return path;
@@ -287,6 +413,12 @@ const setCenter = (path: PathData): PathData => {
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x += factorX;
     vertex.y += factorY;
+    if (vertex.type === "C") {
+      vertex.x1 += factorX;
+      vertex.x2 += factorX;
+      vertex.y1 += factorY;
+      vertex.y2 += factorY;
+    }
     return vertex;
   });
   return path;
@@ -299,6 +431,13 @@ const setDistance = (path: PathData): PathData => {
     // Setup distance
     vertex.x *= vertex.distance;
     vertex.y *= vertex.distance;
+    if (vertex.type === "C") {
+      // Setup distance
+      vertex.x1 *= vertexes[index - 1].distance;
+      vertex.y1 *= vertexes[index - 1].distance;
+      vertex.x2 *= vertex.distance;
+      vertex.y2 *= vertex.distance;
+    }
     return vertex;
   });
   return path;
@@ -316,6 +455,12 @@ const setPosition = (path: PathData): PathData => {
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x += factorX;
     vertex.y += factorY;
+    if (vertex.type === "C") {
+      vertex.x1 += factorX;
+      vertex.y1 += factorY;
+      vertex.x2 += factorX;
+      vertex.y2 += factorY;
+    }
     return vertex;
   });
   return path;
@@ -331,6 +476,12 @@ const setScale = (path: PathData): PathData => {
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x *= parameters.width / 2;
     vertex.y *= parameters.height / 2;
+    if (vertex.type === "C") {
+      vertex.x1 *= parameters.width / 2;
+      vertex.y1 *= parameters.height / 2;
+      vertex.x2 *= parameters.width / 2;
+      vertex.y2 *= parameters.height / 2;
+    }
     return vertex;
   });
   return path;
@@ -366,6 +517,19 @@ const setLength = (path: PathData): PathData => {
     // Set length
     vertex.x = (vertex.x - parameters.centerX) * factor + parameters.centerX;
     vertex.y = (vertex.y - parameters.centerY) * factor + parameters.centerY;
+    if (vertex.type === "C") {
+      let prevFactor = vertexes[i - 1].radius
+        ? calcFactor(vertexes[i - 1].radius, vertexes[i - 1].length)
+        : 1;
+      vertex.x1 =
+        (vertex.x1 - parameters.centerX) * prevFactor + parameters.centerX;
+      vertex.y1 =
+        (vertex.y1 - parameters.centerY) * prevFactor + parameters.centerY;
+      vertex.x2 =
+        (vertex.x2 - parameters.centerX) * factor + parameters.centerX;
+      vertex.y2 =
+        (vertex.y2 - parameters.centerY) * factor + parameters.centerY;
+    }
     return vertex;
   });
   log.debug(path);
@@ -383,79 +547,6 @@ const recalcRadians = (path: PathData): PathData => {
     vertex.angle = radToAngle(vertex.radians);
     return vertex;
   });
-  return path;
-};
-
-const setArms = (path: PathData): PathData => {
-  var { vertexes, averageLength } = path;
-  var { groups } = path.parameters;
-  var numOfPoints = vertexes.length - 1; // Minus "M" vertex
-  var firstArmFactors: number[] = [];
-  var secondArmFactors: number[] = [];
-  var averageLength: number;
-  for (let i = 1; i < vertexes.length; i++) {
-    // Set arms length
-    let firstArmLength, secondArmLength;
-    let firstArmSmartRound = groups[vertexes[i - 1].group].smartRound;
-    let secondArmSmartRound = groups[vertexes[i].group].smartRound;
-
-    let individualFactor;
-    if (firstArmSmartRound || secondArmSmartRound) {
-      let distanceRadians = radiansDelta(
-        vertexes[i - 1].radians,
-        vertexes[i].radians
-      );
-      individualFactor = (2 * Math.PI) / distanceRadians;
-    }
-
-    let firstArmFactor = firstArmSmartRound ? individualFactor : numOfPoints;
-    let firstArmScaleFactor = groups[vertexes[i - 1].group].lengthBasedRound
-      ? vertexes[i - 1].length
-      : averageLength;
-
-    let secondArmFactor = secondArmSmartRound ? individualFactor : numOfPoints;
-    let secondArmScaleFactor = groups[vertexes[i].group].lengthBasedRound
-      ? vertexes[i].length
-      : averageLength;
-
-    firstArmLength = (4 / 3) * Math.tan(Math.PI / (2 * firstArmFactor));
-    firstArmLength *= firstArmScaleFactor;
-    secondArmLength = (4 / 3) * Math.tan(Math.PI / (2 * secondArmFactor));
-    secondArmLength *= secondArmScaleFactor;
-    firstArmLength *= vertexes[i - 1].round;
-    secondArmLength *= vertexes[i].round;
-    // Set arms angle
-    let firstArmRadians = vertexes[i - 1].radians + Math.PI / 2; // angle + 90 from the previous point angle
-    let firstArmAngle = radToAngle(firstArmRadians);
-    log.debug("first arm angle", firstArmAngle);
-    let secondArmRadians = vertexes[i].radians - Math.PI / 2; // angle + 90 from cur point
-    let secondArmAngle = radToAngle(secondArmRadians);
-    log.debug("second arm angle", secondArmAngle);
-    // Set cos
-    let cosx1 = round(Math.cos(firstArmRadians)) * -1;
-    let cosx2 = round(Math.cos(secondArmRadians)) * -1;
-    // Set sin
-    let siny1 = round(Math.sin(firstArmRadians));
-    let siny2 = round(Math.sin(secondArmRadians));
-    // Set coordinates
-    let x1 = cosx1 * firstArmLength + vertexes[i - 1].x;
-    let x2 = cosx2 * secondArmLength + vertexes[i].x;
-    let y1 = siny1 * firstArmLength + vertexes[i - 1].y;
-    let y2 = siny2 * secondArmLength + vertexes[i].y;
-    log.debug(`vertex ${i} first arm x: ${x1} y: ${y1}`);
-    log.debug(`vertex ${i} second arm x: ${x2} y: ${y2}`);
-    vertexes[i] = {
-      ...vertexes[i],
-      x1,
-      x2,
-      y1,
-      y2,
-      cosx1,
-      cosx2,
-      siny1,
-      siny2
-    };
-  }
   return path;
 };
 
@@ -526,6 +617,7 @@ const pathLayer = (parameters: Parameters = defaultParameters): PathData => {
   path = generateFrame(path);
   path = generateVertexes(path);
   path.vertexes = remapVertexes(path.vertexes); // Add M point
+  path = setArms(path, "init");
 
   if (!parameters.incircle) path = scaleToOne(path);
   path = setCenter(path);
@@ -536,7 +628,7 @@ const pathLayer = (parameters: Parameters = defaultParameters): PathData => {
   path = setLength(path);
   path = calcLength(path);
   path = recalcRadians(path);
-  path = setArms(path);
+  path = setArms(path, "adapt");
   path = shift(path);
   path = generateD(path);
   return path;
@@ -559,6 +651,7 @@ var defaultParameters = {
       type: "linear",
       round: 0.5,
       lengthBasedRound: false,
+      adaptArms: false,
       distance: 1,
       smartRound: false,
       preserveRadians: false
