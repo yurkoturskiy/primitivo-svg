@@ -70,7 +70,7 @@ function morphingLayer(parameters, keyPathsParameters) {
                         pathParameters[key] = inputKeyPathsParameters[key];
                     else
                         pathParameters[key] = inputKeyPathsParameters[key];
-                    console.log("group param", pathParameters[key]);
+                    log.debug("group param", pathParameters[key]);
                 }
                 else if (typeof inputKeyPathsParameters[key] !== "object") {
                     // if one value for all paths
