@@ -6,6 +6,10 @@ import spacingLayer from "./spacing/index";
 import { Parameters, PathData } from "./path/interfaces";
 import { AnimateParameters, KeyPathParameters } from "./morphing/interfaces";
 
+import * as log from "loglevel";
+
+log.setLevel("info");
+
 export const path = (parameters: any): PathData => pathLayer(parameters);
 
 export const morphing = (animateParameters: any, keyPathsParameters: any) =>
