@@ -19,18 +19,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var log = __importStar(require("loglevel"));
-var round = function (number) { return Math.round(number * 1e6) / 1e6; };
-var radToAngle = function (rad) { return (rad * 180) / Math.PI; };
-var angleToRad = function (angle) { return (angle * Math.PI) / 180; };
-var randomFromRange = function (min, max) {
-    return Math.random() * (max - min) + min;
-};
-var radiansDelta = function (a, b) {
-    var delta = Math.abs(a - b);
-    if (delta > Math.PI)
-        delta = 2 * Math.PI - delta;
-    return delta;
-};
+var index_1 = require("../misc/index");
 /***********
  * Methods *
  ***********/
@@ -57,10 +46,10 @@ var generateFrame = function (path) {
         else
             radians = ((Math.PI * 2) / numOfVertexes) * i;
         // Rotate
-        radians = radians + angleToRad(rotate);
-        var angle = radToAngle(radians);
-        var cosx = round(Math.cos(radians));
-        var siny = round(Math.sin(radians));
+        radians = radians + index_1.angleToRad(rotate);
+        var angle = index_1.radToAngle(radians);
+        var cosx = index_1.round(Math.cos(radians));
+        var siny = index_1.round(Math.sin(radians));
         var x = cosx;
         var y = siny;
         vertexes[i] = {
@@ -85,7 +74,7 @@ var parseGroupParameter = function (parameter, group, vertexIndex) {
         return parameter;
     // Random for all
     if (typeof parameter === "object" && parameter.length === 2)
-        return randomFromRange(parameter[0], parameter[1]);
+        return index_1.randomFromRange(parameter[0], parameter[1]);
     // Distance per vertex
     if (typeof parameter === "object") {
         parameter = parameter[vertexIndex];
@@ -94,7 +83,7 @@ var parseGroupParameter = function (parameter, group, vertexIndex) {
             return parameter;
         // Random range
         if (typeof parameter === "object" && parameter.length === 2)
-            return randomFromRange(parameter[0], parameter[1]);
+            return index_1.randomFromRange(parameter[0], parameter[1]);
     }
     return parameter;
 };
@@ -136,14 +125,14 @@ var generateLinearVertexCoordinates = function (vertexes, vertex, prevVertex, ne
     vertex.y *= 0.5;
     vertex.y += nextVertex.y;
     vertex.radians = Math.atan2(vertex.y, vertex.x);
-    vertex.angle = radToAngle(vertex.radians);
+    vertex.angle = index_1.radToAngle(vertex.radians);
     return vertex;
 };
 var generateRadialVertexCoordinates = function (vertexes, vertex, prevVertex, nextVertex) {
-    var radiansStep = radiansDelta(prevVertex.radians, nextVertex.radians) / 2;
+    var radiansStep = index_1.radiansDelta(prevVertex.radians, nextVertex.radians) / 2;
     vertex.radians = prevVertex.radians + radiansStep;
-    vertex.cosx = round(Math.cos(vertex.radians));
-    vertex.siny = round(Math.sin(vertex.radians));
+    vertex.cosx = index_1.round(Math.cos(vertex.radians));
+    vertex.siny = index_1.round(Math.sin(vertex.radians));
     vertex.x = vertex.cosx;
     vertex.y = vertex.siny;
     return vertex;
@@ -212,8 +201,8 @@ var remapVertexes = function (vertexes) {
     return vertexes;
 };
 var setArms = function (path, mode) {
-    var vertexes = path.vertexes, averageLength = path.averageLength;
-    var groups = path.parameters.groups;
+    var vertexes = path.vertexes;
+    var _a = path.parameters, groups = _a.groups, averageLength = _a.averageLength;
     var numOfPoints = vertexes.length - 1; // Minus "M" vertex
     var firstArmFactors = [];
     var secondArmFactors = [];
@@ -237,7 +226,7 @@ var setArms = function (path, mode) {
         // Calc individual factor for smart round
         var individualFactor = void 0;
         if (firstArmSmartRound || secondArmSmartRound) {
-            var distanceRadians = radiansDelta(vertexes[i - 1].radians, vertexes[i].radians);
+            var distanceRadians = index_1.radiansDelta(vertexes[i - 1].radians, vertexes[i].radians);
             individualFactor = (2 * Math.PI) / distanceRadians;
         }
         // First arm
@@ -258,13 +247,13 @@ var setArms = function (path, mode) {
             firstArmLength *= vertexes[i - 1].round;
             // Set angle
             var firstArmRadians = vertexes[i - 1].radians + Math.PI / 2; // angle + 90 from the previous point angle
-            var firstArmAngle = radToAngle(firstArmRadians);
+            var firstArmAngle = index_1.radToAngle(firstArmRadians);
             log.debug("first arm angle", firstArmAngle);
             // Set cos and sin
-            var cosx1 = round(Math.cos(firstArmRadians));
+            var cosx1 = index_1.round(Math.cos(firstArmRadians));
             if (mode === "adapt")
                 cosx1 *= -1;
-            var siny1 = round(Math.sin(firstArmRadians));
+            var siny1 = index_1.round(Math.sin(firstArmRadians));
             // Set coordinates
             var x1 = cosx1 * firstArmLength + vertexes[i - 1].x;
             var y1 = siny1 * firstArmLength + vertexes[i - 1].y;
@@ -295,13 +284,13 @@ var setArms = function (path, mode) {
             secondArmLength *= vertexes[i].round;
             // Set angle
             var secondArmRadians = vertexes[i].radians - Math.PI / 2; // angle + 90 from cur point
-            var secondArmAngle = radToAngle(secondArmRadians);
+            var secondArmAngle = index_1.radToAngle(secondArmRadians);
             log.debug("second arm angle", secondArmAngle);
             // Set cos and sin
-            var cosx2 = round(Math.cos(secondArmRadians));
+            var cosx2 = index_1.round(Math.cos(secondArmRadians));
             if (mode === "adapt")
                 cosx2 *= -1;
-            var siny2 = round(Math.sin(secondArmRadians));
+            var siny2 = index_1.round(Math.sin(secondArmRadians));
             // Set coordinates
             var x2 = cosx2 * secondArmLength + vertexes[i].x;
             var y2 = siny2 * secondArmLength + vertexes[i].y;
@@ -426,15 +415,44 @@ var setScale = function (path) {
 };
 var calcLength = function (path) {
     var parameters = path.parameters;
+    var maxLength = 0;
+    var minLength = 0;
     var averageLength = 0;
+    var maxLengthByGroup = [];
+    var minLengthByGroup = [];
+    var averageLengthByGroup = [];
+    for (var i = 0; i < parameters.numOfGroups; i++) {
+        maxLengthByGroup[i] = 0;
+        minLengthByGroup[i] = 0;
+        averageLengthByGroup[i] = 0;
+    }
     path.vertexes = path.vertexes.map(function (vertex) {
         var x = vertex.x - parameters.centerX;
         var y = vertex.y - parameters.centerY;
         vertex.length = Math.sqrt(x * x + y * y);
         averageLength += vertex.length;
+        averageLengthByGroup[vertex.group] += vertex.length;
+        if (vertex.length > maxLength || maxLength === 0)
+            maxLength = vertex.length;
+        if (vertex.length < minLength || minLength === 0)
+            minLength = vertex.length;
+        if (vertex.length > maxLengthByGroup[vertex.group] ||
+            maxLengthByGroup[vertex.group] === 0)
+            maxLengthByGroup[vertex.group] = vertex.length;
+        if (vertex.length < minLengthByGroup[vertex.group] ||
+            minLengthByGroup[vertex.group] === 0)
+            minLengthByGroup[vertex.group] = vertex.length;
         return vertex;
     });
-    path.averageLength = averageLength / path.vertexes.length;
+    for (var i = 0; i < averageLengthByGroup.length; i++)
+        averageLengthByGroup[i] =
+            averageLengthByGroup[i] / parameters.groups[i].numOfVertexes;
+    parameters.averageLength = averageLength / path.vertexes.length;
+    parameters.averageLengthByGroup = averageLengthByGroup;
+    parameters.minLength = minLength;
+    parameters.minLengthByGroup = minLengthByGroup;
+    parameters.maxLength = maxLength;
+    parameters.maxLengthByGroup = maxLengthByGroup;
     return path;
 };
 var setLength = function (path) {
@@ -479,7 +497,7 @@ var recalcRadians = function (path) {
         var deltaX = vertex.x - centerX;
         var deltaY = centerY - vertex.y;
         vertex.radians = Math.atan2(deltaY, deltaX);
-        vertex.angle = radToAngle(vertex.radians);
+        vertex.angle = index_1.radToAngle(vertex.radians);
         return vertex;
     });
     return path;

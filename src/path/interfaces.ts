@@ -5,14 +5,13 @@
 export interface PathData {
   // Output object
   frame?: Frame;
-  parameters: Parameters;
+  parameters: PathParameters;
   vertexes?: Vertex[];
-  averageLength?: number;
   keyframes?: Keyframe[];
   d?: string;
 }
 
-export interface Parameters {
+export interface InputParameters {
   // Input object
   numOfSegments: number;
   depth: number;
@@ -26,6 +25,15 @@ export interface Parameters {
   numOfGroups: number;
   incircle: boolean;
   groups: GroupParameters[];
+}
+
+export interface PathParameters extends InputParameters {
+  averageLength?: number;
+  maxLength?: number;
+  minLength?: number;
+  averageLengthByGroup?: number[];
+  maxLengthByGroup?: number[];
+  minLengthByGroup?: number[];
 }
 
 export interface GroupParameters {

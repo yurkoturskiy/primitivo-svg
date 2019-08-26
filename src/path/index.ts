@@ -1,27 +1,23 @@
 import * as log from "loglevel";
 
+import {
+  round,
+  radToAngle,
+  angleToRad,
+  randomFromRange,
+  radiansDelta
+} from "../misc/index";
+
 // Interfaces
 import {
   Vertex,
   PathData,
-  Parameters,
+  InputParameters,
   FrameVertex,
   Frame,
   GroupParameters,
   Keyframe
 } from "./interfaces";
-
-const round = (number: number): number => Math.round(number * 1e6) / 1e6;
-const radToAngle = (rad: number): number => (rad * 180) / Math.PI;
-const angleToRad = (angle: number): number => (angle * Math.PI) / 180;
-const randomFromRange = (min: number, max: number): number =>
-  Math.random() * (max - min) + min;
-
-const radiansDelta = (a: number, b: number): number => {
-  let delta = Math.abs(a - b);
-  if (delta > Math.PI) delta = 2 * Math.PI - delta;
-  return delta;
-};
 
 /***********
  * Methods *
@@ -258,8 +254,8 @@ const remapVertexes = (vertexes: Vertex[]): Vertex[] => {
 };
 
 const setArms = (path: PathData, mode: string): PathData => {
-  var { vertexes, averageLength } = path;
-  var { groups } = path.parameters;
+  var { vertexes } = path;
+  var { groups, averageLength } = path.parameters;
   var numOfPoints = vertexes.length - 1; // Minus "M" vertex
   var firstArmFactors: number[] = [];
   var secondArmFactors: number[] = [];
@@ -489,15 +485,58 @@ const setScale = (path: PathData): PathData => {
 
 const calcLength = (path: PathData): PathData => {
   const { parameters } = path;
+  var maxLength: number = 0;
+  var minLength: number = 0;
   var averageLength: number = 0;
+  var maxLengthByGroup: number[] = [];
+  var minLengthByGroup: number[] = [];
+  var averageLengthByGroup: number[] = [];
+
+  for (let i = 0; i < parameters.numOfGroups; i++) {
+    maxLengthByGroup[i] = 0;
+    minLengthByGroup[i] = 0;
+    averageLengthByGroup[i] = 0;
+  }
+
   path.vertexes = path.vertexes.map(vertex => {
     let x = vertex.x - parameters.centerX;
     let y = vertex.y - parameters.centerY;
     vertex.length = Math.sqrt(x * x + y * y);
+
+    // Average length
     averageLength += vertex.length;
+    averageLengthByGroup[vertex.group] += vertex.length;
+
+    // min & max length
+    if (vertex.length < minLength || minLength === 0) minLength = vertex.length;
+    if (vertex.length > maxLength || maxLength === 0) maxLength = vertex.length;
+
+    if (
+      vertex.length > maxLengthByGroup[vertex.group] ||
+      maxLengthByGroup[vertex.group] === 0
+    )
+      maxLengthByGroup[vertex.group] = vertex.length;
+
+    if (
+      vertex.length < minLengthByGroup[vertex.group] ||
+      minLengthByGroup[vertex.group] === 0
+    )
+      minLengthByGroup[vertex.group] = vertex.length;
+
     return vertex;
   });
-  path.averageLength = averageLength / path.vertexes.length;
+
+  for (let i = 0; i < averageLengthByGroup.length; i++)
+    averageLengthByGroup[i] =
+      averageLengthByGroup[i] / parameters.groups[i].numOfVertexes;
+
+  parameters.averageLength = averageLength / path.vertexes.length;
+  parameters.averageLengthByGroup = averageLengthByGroup;
+  parameters.minLength = minLength;
+  parameters.minLengthByGroup = minLengthByGroup;
+  parameters.maxLength = maxLength;
+  parameters.maxLengthByGroup = maxLengthByGroup;
+
   return path;
 };
 
@@ -595,7 +634,9 @@ const generateD = (path: PathData): PathData => {
  * Root *
  ********/
 
-const pathLayer = (parameters: Parameters = defaultParameters): PathData => {
+const pathLayer = (
+  parameters: InputParameters = defaultParameters
+): PathData => {
   // Setup defaults
   var path: PathData = { parameters };
   path = setDefaults(path);
