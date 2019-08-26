@@ -62,10 +62,10 @@ function morphingLayer(
       for (let key in inputKeyPathsParameters) {
         // Set parameters for 'i' key path
         if (key === "groups") {
-          if (getType(inputKeyPathsParameters[key][0] === "object"))
+          if (getType(inputKeyPathsParameters[key][0]) === "object")
             // One setup for all key paths groups
             pathParameters[key] = inputKeyPathsParameters[key];
-          else pathParameters[key] = inputKeyPathsParameters[key];
+          else pathParameters[key] = inputKeyPathsParameters[key][i];
           log.debug("group param", pathParameters[key]);
         } else if (typeof inputKeyPathsParameters[key] !== "object") {
           // if one value for all paths

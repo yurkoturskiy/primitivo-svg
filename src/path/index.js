@@ -430,12 +430,14 @@ var calcLength = function (path) {
         var x = vertex.x - parameters.centerX;
         var y = vertex.y - parameters.centerY;
         vertex.length = Math.sqrt(x * x + y * y);
+        // Average length
         averageLength += vertex.length;
         averageLengthByGroup[vertex.group] += vertex.length;
-        if (vertex.length > maxLength || maxLength === 0)
-            maxLength = vertex.length;
+        // min & max length
         if (vertex.length < minLength || minLength === 0)
             minLength = vertex.length;
+        if (vertex.length > maxLength || maxLength === 0)
+            maxLength = vertex.length;
         if (vertex.length > maxLengthByGroup[vertex.group] ||
             maxLengthByGroup[vertex.group] === 0)
             maxLengthByGroup[vertex.group] = vertex.length;
