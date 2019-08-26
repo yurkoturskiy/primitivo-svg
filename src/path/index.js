@@ -523,16 +523,6 @@ var generateD = function (path) {
     path.d = d;
     return path;
 };
-var generateSVGPathData = function (path) {
-    var array = [];
-    path.vertexes.forEach(function (vertex, index) {
-        if (index === 0) {
-            array[path.vertexes.length] = vertex;
-        }
-    });
-    path.d;
-    return path;
-};
 /********
  * Root *
  ********/

@@ -575,9 +575,7 @@ const generateD = (path: PathData): PathData => {
         vertex.d = `${vertex.type} ${vertex.x} ${vertex.y}`;
         break;
       case "C":
-        vertex.d = `${vertex.type}\n${vertex.x1} ${vertex.y1},\n${vertex.x2} ${
-          vertex.y2
-        },\n${vertex.x} ${vertex.y}`;
+        vertex.d = `${vertex.type}\n${vertex.x1} ${vertex.y1},\n${vertex.x2} ${vertex.y2},\n${vertex.x} ${vertex.y}`;
         break;
       default:
         vertex.d = ``;
@@ -590,17 +588,6 @@ const generateD = (path: PathData): PathData => {
   });
   d += "\n\nZ";
   path.d = d;
-  return path;
-};
-
-const generateSVGPathData = (path: PathData): PathData => {
-  var array = [];
-  path.vertexes.forEach((vertex, index) => {
-    if (index === 0) {
-      array[path.vertexes.length] = vertex;
-    }
-  });
-  path.d;
   return path;
 };
 
