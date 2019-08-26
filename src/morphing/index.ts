@@ -1,6 +1,6 @@
 import * as log from "loglevel";
 // Layers
-import generateShapes from "../path/index";
+import pathLayer from "../path/index";
 // Interfaces
 import {
   AnimateParameters,
@@ -85,7 +85,7 @@ function morphingLayer(
           else throw `Wrong '${key}' parameter array at ${i} key path`;
         }
       }
-      let path = generateShapes(pathParameters);
+      let path = pathLayer(pathParameters);
       paths[i] = path;
       dValues[i] = path.d;
       if (loop && i !== numOfKeyPaths - 1)
