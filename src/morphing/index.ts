@@ -11,7 +11,6 @@ import {
   CalcInterpolationInput,
   CalcInterpolationOutput
 } from "./interfaces";
-import { Parameters as PathParameters } from "../path/interfaces";
 
 const getType = (item: any): string => {
   if (Array.isArray(item)) return "array";
