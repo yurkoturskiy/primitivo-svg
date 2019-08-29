@@ -126,6 +126,16 @@ var getTypeValue = function (group, vertexIndex) {
     else
         return parameter;
 };
+var getSmartRoundValue = function (group, vertexIndex) {
+    var parameter = group.smartRound;
+    parameter = parseGroupParameter(parameter, vertexIndex);
+    if (!parameter)
+        return parameter;
+    else if (typeof parameter !== "boolean")
+        throw "Wrong 'smartRound' parameter in group number " + group.pk;
+    else
+        return parameter;
+};
 var generateLinearVertexCoordinates = function (vertexes, vertex, prevVertex, nextVertex) {
     // Calc X Y coords
     vertex.x = prevVertex.x - nextVertex.x; // Substract adjacent points to get x
@@ -229,8 +239,8 @@ var setArms = function (path, mode) {
         // Prepare vars
         var firstArmLength = void 0, secondArmLength = void 0;
         // Smart round
-        var firstArmSmartRound = groups[vertexes[i - 1].group].smartRound;
-        var secondArmSmartRound = groups[vertexes[i].group].smartRound;
+        var firstArmSmartRound = getSmartRoundValue(groups[vertexes[i - 1].group], i - 1);
+        var secondArmSmartRound = getSmartRoundValue(groups[vertexes[i].group], i);
         // Length based round
         var firstArmLengthBasedRound = groups[vertexes[i - 1].group].lengthBasedRound;
         var secondArmLengthBasedRound = groups[vertexes[i].group].lengthBasedRound;

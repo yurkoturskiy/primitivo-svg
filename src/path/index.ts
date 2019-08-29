@@ -136,6 +136,18 @@ const getTypeValue = (group: GroupParameters, vertexIndex: number): string => {
   else return parameter;
 };
 
+const getSmartRoundValue = (
+  group: GroupParameters,
+  vertexIndex: number
+): boolean => {
+  let parameter: any = group.smartRound;
+  parameter = parseGroupParameter(parameter, vertexIndex);
+  if (!parameter) return parameter;
+  else if (typeof parameter !== "boolean")
+    throw `Wrong 'smartRound' parameter in group number ${group.pk}`;
+  else return parameter;
+};
+
 const generateLinearVertexCoordinates = (
   vertexes: Vertex[],
   vertex: Vertex,
@@ -277,8 +289,11 @@ const setArms = (path: PathData, mode: string): PathData => {
     // Prepare vars
     let firstArmLength, secondArmLength;
     // Smart round
-    let firstArmSmartRound = groups[vertexes[i - 1].group].smartRound;
-    let secondArmSmartRound = groups[vertexes[i].group].smartRound;
+    let firstArmSmartRound = getSmartRoundValue(
+      groups[vertexes[i - 1].group],
+      i - 1
+    );
+    let secondArmSmartRound = getSmartRoundValue(groups[vertexes[i].group], i);
     // Length based round
     let firstArmLengthBasedRound =
       groups[vertexes[i - 1].group].lengthBasedRound;
