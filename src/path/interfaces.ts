@@ -46,7 +46,7 @@ export interface GroupParameters {
   lengthBasedRound?: boolean | boolean[]; // The longer distance from center the bigger round factor is
   adaptArms?: boolean | boolean[]; // Keep arms always perpendicular to center
   radius?: number | number[] | number[][]; // for all | random range | per vertex
-  radians?: number[] | number[][]; // Custom radians for each point of a group
+  radians?: number[]; // Custom radians for each point of a group
   // preserveRadians?: boolean; // Keep the angle on transformation (not implemented)
   numOfVertexes?: number;
 }
