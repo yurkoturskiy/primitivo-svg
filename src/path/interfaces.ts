@@ -39,14 +39,14 @@ export interface PathParameters extends InputParameters {
 export interface GroupParameters {
   // Part of Parameters
   pk?: number; // number of group
-  type: string; // linear | radial | combined(not implemented)
+  type: string | string[]; // linear | radial | combined(not implemented)
   distance: number | number[] | number[][]; // for all | random range | per vertex
   round: number | number[] | number[][]; // for all | random range | per vertex
-  smartRound?: boolean; // Able to create perfect circle from a polygon with custom radians
-  lengthBasedRound?: boolean; // The longer distance from center the bigger round factor is
-  adaptArms?: boolean; // Keep arms always perpendicular to center
+  smartRound?: boolean | boolean[]; // Able to create perfect circle from a polygon with custom radians
+  lengthBasedRound?: boolean | boolean[]; // The longer distance from center the bigger round factor is
+  adaptArms?: boolean | boolean[]; // Keep arms always perpendicular to center
   radius?: number | number[] | number[][]; // for all | random range | per vertex
-  radians?: number[]; // Custom radians for each point of a group
+  radians?: number[] | number[][]; // Custom radians for each point of a group
   // preserveRadians?: boolean; // Keep the angle on transformation (not implemented)
   numOfVertexes?: number;
 }
