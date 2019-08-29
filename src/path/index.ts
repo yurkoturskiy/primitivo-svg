@@ -46,7 +46,7 @@ const generateFrame = (path: PathData): PathData => {
   for (let i = 0; i < numOfVertexes; i++) {
     let radians: number;
     // If custom radians were provided
-    if (groups[0].radians) radians = groups[0].radians[i];
+    if (groups[0].radians) radians = getRadiansValue(groups[0], i);
     // Generate own if not
     else radians = ((Math.PI * 2) / numOfVertexes) * i;
     // Rotate
@@ -172,6 +172,17 @@ const getAdaptArmsValue = (
   else return parameter;
 };
 
+const getRadiansValue = (
+  group: GroupParameters,
+  vertexIndex: number
+): number => {
+  let parameter: any = group.radians;
+  parameter = parseGroupParameter(parameter, vertexIndex);
+  if (!parameter) return parameter;
+  else if (typeof parameter !== "number")
+    throw `Wrong 'radians' parameter in group number ${group.pk}`;
+};
+
 const generateLinearVertexCoordinates = (
   vertexes: Vertex[],
   vertex: Vertex,
@@ -230,6 +241,7 @@ const generateVertexes = (path: PathData): PathData => {
     groups[groupIndex].numOfVertexes = numOfNewVertexes;
     groups[groupIndex].pk = groupIndex;
     for (let i = 1; i < numOfNewVertexes * 2; i += 2) {
+      let indexWithingGroup = (i - 1) / 2;
       let protoVertex = {
         type: "C",
         group: groupIndex
@@ -243,7 +255,7 @@ const generateVertexes = (path: PathData): PathData => {
       let vertex = vertexes[i];
       let prevVertex = vertexes[prevVertexInd];
       let nextVertex = vertexes[nextVertexInd];
-      let vertexType = getTypeValue(groups[groupIndex], i);
+      let vertexType = getTypeValue(groups[groupIndex], indexWithingGroup);
       switch (vertexType) {
         case "linear":
           vertex = generateLinearVertexCoordinates(
@@ -266,7 +278,6 @@ const generateVertexes = (path: PathData): PathData => {
           break;
       }
       // Set distance, round, and radius values per vertex
-      let indexWithingGroup = (i - 1) / 2;
       log.debug("vertex index withing a group", indexWithingGroup);
       vertexes[i].distance = getDistanceValue(
         groups[groupIndex],
@@ -303,9 +314,16 @@ const setArms = (path: PathData, mode: string): PathData => {
   var secondArmFactors: number[] = [];
   var averageLength: number;
   for (let i = 1; i < vertexes.length; i++) {
+    let indexWithingGroup = (i - 1) / 2;
     // Adapt arms
-    let firstArmAdapt = getAdaptArmsValue(groups[vertexes[i - 1].group], i - 1);
-    let secondArmAdapt = getAdaptArmsValue(groups[vertexes[i].group], i);
+    let firstArmAdapt = getAdaptArmsValue(
+      groups[vertexes[i - 1].group],
+      indexWithingGroup - 1
+    );
+    let secondArmAdapt = getAdaptArmsValue(
+      groups[vertexes[i].group],
+      indexWithingGroup
+    );
 
     if (mode === "init" && firstArmAdapt && secondArmAdapt) continue;
     else if (mode === "adapt" && !firstArmAdapt && !secondArmAdapt) continue;
@@ -315,17 +333,20 @@ const setArms = (path: PathData, mode: string): PathData => {
     // Smart round
     let firstArmSmartRound = getSmartRoundValue(
       groups[vertexes[i - 1].group],
-      i - 1
+      indexWithingGroup - 1
     );
-    let secondArmSmartRound = getSmartRoundValue(groups[vertexes[i].group], i);
+    let secondArmSmartRound = getSmartRoundValue(
+      groups[vertexes[i].group],
+      indexWithingGroup
+    );
     // Length based round
     let firstArmLengthBasedRound = getLengthBasedRoundValue(
       groups[vertexes[i - 1].group],
-      i - 1
+      indexWithingGroup - 1
     );
     let secondArmLengthBasedRound = getLengthBasedRoundValue(
       groups[vertexes[i].group],
-      i
+      indexWithingGroup
     );
 
     // Calc individual factor for smart round

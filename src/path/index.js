@@ -41,7 +41,7 @@ var generateFrame = function (path) {
         var radians = void 0;
         // If custom radians were provided
         if (groups[0].radians)
-            radians = groups[0].radians[i];
+            radians = getRadiansValue(groups[0], i);
         // Generate own if not
         else
             radians = ((Math.PI * 2) / numOfVertexes) * i;
@@ -156,6 +156,14 @@ var getAdaptArmsValue = function (group, vertexIndex) {
     else
         return parameter;
 };
+var getRadiansValue = function (group, vertexIndex) {
+    var parameter = group.radians;
+    parameter = parseGroupParameter(parameter, vertexIndex);
+    if (!parameter)
+        return parameter;
+    else if (typeof parameter !== "number")
+        throw "Wrong 'radians' parameter in group number " + group.pk;
+};
 var generateLinearVertexCoordinates = function (vertexes, vertex, prevVertex, nextVertex) {
     // Calc X Y coords
     vertex.x = prevVertex.x - nextVertex.x; // Substract adjacent points to get x
@@ -195,6 +203,7 @@ var generateVertexes = function (path) {
         groups[groupIndex].numOfVertexes = numOfNewVertexes;
         groups[groupIndex].pk = groupIndex;
         for (var i = 1; i < numOfNewVertexes * 2; i += 2) {
+            var indexWithingGroup = (i - 1) / 2;
             var protoVertex = {
                 type: "C",
                 group: groupIndex
@@ -208,7 +217,7 @@ var generateVertexes = function (path) {
             var vertex = vertexes[i];
             var prevVertex = vertexes[prevVertexInd];
             var nextVertex = vertexes[nextVertexInd];
-            var vertexType = getTypeValue(groups[groupIndex], i);
+            var vertexType = getTypeValue(groups[groupIndex], indexWithingGroup);
             switch (vertexType) {
                 case "linear":
                     vertex = generateLinearVertexCoordinates(vertexes, vertex, prevVertex, nextVertex);
@@ -221,7 +230,6 @@ var generateVertexes = function (path) {
                     break;
             }
             // Set distance, round, and radius values per vertex
-            var indexWithingGroup = (i - 1) / 2;
             log.debug("vertex index withing a group", indexWithingGroup);
             vertexes[i].distance = getDistanceValue(groups[groupIndex], indexWithingGroup);
             vertexes[i].round = getRoundValue(groups[groupIndex], indexWithingGroup);
@@ -249,9 +257,10 @@ var setArms = function (path, mode) {
     var secondArmFactors = [];
     var averageLength;
     for (var i = 1; i < vertexes.length; i++) {
+        var indexWithingGroup = (i - 1) / 2;
         // Adapt arms
-        var firstArmAdapt = getAdaptArmsValue(groups[vertexes[i - 1].group], i - 1);
-        var secondArmAdapt = getAdaptArmsValue(groups[vertexes[i].group], i);
+        var firstArmAdapt = getAdaptArmsValue(groups[vertexes[i - 1].group], indexWithingGroup - 1);
+        var secondArmAdapt = getAdaptArmsValue(groups[vertexes[i].group], indexWithingGroup);
         if (mode === "init" && firstArmAdapt && secondArmAdapt)
             continue;
         else if (mode === "adapt" && !firstArmAdapt && !secondArmAdapt)
@@ -259,11 +268,11 @@ var setArms = function (path, mode) {
         // Prepare vars
         var firstArmLength = void 0, secondArmLength = void 0;
         // Smart round
-        var firstArmSmartRound = getSmartRoundValue(groups[vertexes[i - 1].group], i - 1);
-        var secondArmSmartRound = getSmartRoundValue(groups[vertexes[i].group], i);
+        var firstArmSmartRound = getSmartRoundValue(groups[vertexes[i - 1].group], indexWithingGroup - 1);
+        var secondArmSmartRound = getSmartRoundValue(groups[vertexes[i].group], indexWithingGroup);
         // Length based round
-        var firstArmLengthBasedRound = getLengthBasedRoundValue(groups[vertexes[i - 1].group], i - 1);
-        var secondArmLengthBasedRound = getLengthBasedRoundValue(groups[vertexes[i].group], i);
+        var firstArmLengthBasedRound = getLengthBasedRoundValue(groups[vertexes[i - 1].group], indexWithingGroup - 1);
+        var secondArmLengthBasedRound = getLengthBasedRoundValue(groups[vertexes[i].group], indexWithingGroup);
         // Calc individual factor for smart round
         var individualFactor = void 0;
         if (firstArmSmartRound || secondArmSmartRound) {
