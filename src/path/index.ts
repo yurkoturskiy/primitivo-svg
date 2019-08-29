@@ -34,6 +34,14 @@ const setDefaults = (path: PathData): PathData => {
   return path;
 };
 
+const prepareValues = (path: PathData): PathData => {
+  /**
+   * Remap input properties
+   */
+
+  return path;
+};
+
 const generateFrame = (path: PathData): PathData => {
   /*
    * Generate frame which is the base for a path and
@@ -640,6 +648,7 @@ const pathLayer = (
   // Setup defaults
   var path: PathData = { parameters };
   path = setDefaults(path);
+  path = prepareValues(path);
 
   // Generate shape
   path = generateFrame(path);

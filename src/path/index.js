@@ -29,6 +29,12 @@ var setDefaults = function (path) {
     path.parameters.groups = path.parameters.groups.map(function (group) { return (__assign({}, defaultParameters.groups[0], group)); });
     return path;
 };
+var prepareValues = function (path) {
+    /**
+     * Remap input properties
+     */
+    return path;
+};
 var generateFrame = function (path) {
     /*
      * Generate frame which is the base for a path and
@@ -551,6 +557,7 @@ var pathLayer = function (parameters) {
     // Setup defaults
     var path = { parameters: parameters };
     path = setDefaults(path);
+    path = prepareValues(path);
     // Generate shape
     path = generateFrame(path);
     path = generateVertexes(path);
