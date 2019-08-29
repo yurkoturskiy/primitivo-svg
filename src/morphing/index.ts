@@ -11,12 +11,8 @@ import {
   CalcInterpolationInput,
   CalcInterpolationOutput
 } from "./interfaces";
-
-const getType = (item: any): string => {
-  if (Array.isArray(item)) return "array";
-  if (typeof item === "object") return "object";
-  if (typeof item === "number") return "number";
-};
+// mist
+import { getType } from "../misc/index";
 
 const getValueFromRange = (
   values: number[],

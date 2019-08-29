@@ -24,14 +24,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var log = __importStar(require("loglevel"));
 // Layers
 var index_1 = __importDefault(require("../path/index"));
-var getType = function (item) {
-    if (Array.isArray(item))
-        return "array";
-    if (typeof item === "object")
-        return "object";
-    if (typeof item === "number")
-        return "number";
-};
+// mist
+var index_2 = require("../misc/index");
 var getValueFromRange = function (values, numOfKeyPaths, index) {
     var min = Math.min.apply(Math, values);
     var max = Math.max.apply(Math, values);
@@ -65,7 +59,7 @@ function morphingLayer(parameters, keyPathsParameters) {
             for (var key in inputKeyPathsParameters) {
                 // Set parameters for 'i' key path
                 if (key === "groups") {
-                    if (getType(inputKeyPathsParameters[key][0]) === "object")
+                    if (index_2.getType(inputKeyPathsParameters[key][0]) === "object")
                         // One setup for all key paths groups
                         pathParameters[key] = inputKeyPathsParameters[key];
                     else

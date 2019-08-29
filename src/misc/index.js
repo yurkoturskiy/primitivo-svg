@@ -12,3 +12,11 @@ exports.radiansDelta = function (a, b) {
         delta = 2 * Math.PI - delta;
     return delta;
 };
+exports.getType = function (item) {
+    if (Array.isArray(item))
+        return "array";
+    if (typeof item === "object")
+        return "object";
+    if (typeof item === "number")
+        return "number";
+};

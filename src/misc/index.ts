@@ -12,3 +12,9 @@ export const radiansDelta = (a: number, b: number): number => {
   if (delta > Math.PI) delta = 2 * Math.PI - delta;
   return delta;
 };
+
+export const getType = (item: any): string => {
+  if (Array.isArray(item)) return "array";
+  if (typeof item === "object") return "object";
+  if (typeof item === "number") return "number";
+};
