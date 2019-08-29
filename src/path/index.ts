@@ -160,6 +160,18 @@ const getLengthBasedRoundValue = (
   else return parameter;
 };
 
+const getAdaptArmsValue = (
+  group: GroupParameters,
+  vertexIndex: number
+): boolean => {
+  let parameter: any = group.adaptArms;
+  parameter = parseGroupParameter(parameter, vertexIndex);
+  if (!parameter) return parameter;
+  else if (typeof parameter !== "boolean")
+    throw `Wrong 'adaptArms' parameter in group number ${group.pk}`;
+  else return parameter;
+};
+
 const generateLinearVertexCoordinates = (
   vertexes: Vertex[],
   vertex: Vertex,
@@ -292,8 +304,8 @@ const setArms = (path: PathData, mode: string): PathData => {
   var averageLength: number;
   for (let i = 1; i < vertexes.length; i++) {
     // Adapt arms
-    let firstArmAdapt = groups[vertexes[i - 1].group].adaptArms;
-    let secondArmAdapt = groups[vertexes[i].group].adaptArms;
+    let firstArmAdapt = getAdaptArmsValue(groups[vertexes[i - 1].group], i - 1);
+    let secondArmAdapt = getAdaptArmsValue(groups[vertexes[i].group], i);
 
     if (mode === "init" && firstArmAdapt && secondArmAdapt) continue;
     else if (mode === "adapt" && !firstArmAdapt && !secondArmAdapt) continue;

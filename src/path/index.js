@@ -146,6 +146,16 @@ var getLengthBasedRoundValue = function (group, vertexIndex) {
     else
         return parameter;
 };
+var getAdaptArmsValue = function (group, vertexIndex) {
+    var parameter = group.adaptArms;
+    parameter = parseGroupParameter(parameter, vertexIndex);
+    if (!parameter)
+        return parameter;
+    else if (typeof parameter !== "boolean")
+        throw "Wrong 'adaptArms' parameter in group number " + group.pk;
+    else
+        return parameter;
+};
 var generateLinearVertexCoordinates = function (vertexes, vertex, prevVertex, nextVertex) {
     // Calc X Y coords
     vertex.x = prevVertex.x - nextVertex.x; // Substract adjacent points to get x
@@ -240,8 +250,8 @@ var setArms = function (path, mode) {
     var averageLength;
     for (var i = 1; i < vertexes.length; i++) {
         // Adapt arms
-        var firstArmAdapt = groups[vertexes[i - 1].group].adaptArms;
-        var secondArmAdapt = groups[vertexes[i].group].adaptArms;
+        var firstArmAdapt = getAdaptArmsValue(groups[vertexes[i - 1].group], i - 1);
+        var secondArmAdapt = getAdaptArmsValue(groups[vertexes[i].group], i);
         if (mode === "init" && firstArmAdapt && secondArmAdapt)
             continue;
         else if (mode === "adapt" && !firstArmAdapt && !secondArmAdapt)
