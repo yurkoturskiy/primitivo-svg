@@ -73,15 +73,11 @@ const generateFrame = (path: PathData): PathData => {
   return path;
 };
 
-const parseGroupParameter = (
-  parameter: any,
-  group: GroupParameters,
-  vertexIndex: number
-): number => {
+const parseGroupParameter = (parameter: any, vertexIndex: number): number => {
   /* Parse distance, round, or radius group parameters */
 
   // Number for all
-  if (typeof parameter === "number") return parameter;
+  if (typeof parameter !== "object") return parameter;
   // Random for all
   if (typeof parameter === "object" && parameter.length === 2)
     return randomFromRange(parameter[0], parameter[1]);
@@ -89,7 +85,7 @@ const parseGroupParameter = (
   if (typeof parameter === "object") {
     parameter = parameter[vertexIndex];
     // Number
-    if (typeof parameter === "number") return parameter;
+    if (typeof parameter !== "object") return parameter;
     // Random range
     if (typeof parameter === "object" && parameter.length === 2)
       return randomFromRange(parameter[0], parameter[1]);
@@ -100,7 +96,7 @@ const parseGroupParameter = (
 const getRoundValue = (group: GroupParameters, vertexIndex: number): number => {
   /* Get round value for a vertex from given group parameters */
   let parameter: any = group.round;
-  parameter = parseGroupParameter(parameter, group, vertexIndex);
+  parameter = parseGroupParameter(parameter, vertexIndex);
   if (typeof parameter !== "number")
     throw `Wrong 'round' parameters in group number ${group.pk}`;
   else return parameter;
@@ -112,7 +108,7 @@ const getDistanceValue = (
 ): number => {
   /* Get distance value for a vertex from given group parameters */
   let parameter: any = group.distance;
-  parameter = parseGroupParameter(parameter, group, vertexIndex);
+  parameter = parseGroupParameter(parameter, vertexIndex);
   if (typeof parameter !== "number")
     throw `Wrong 'distance' parameters in group number ${group.pk}`;
   else return parameter;
@@ -124,10 +120,19 @@ const getRadiusValue = (
 ): number => {
   /* Get radius value for a vertex from given group parameters */
   let parameter: any = group.radius;
-  parameter = parseGroupParameter(parameter, group, vertexIndex);
+  parameter = parseGroupParameter(parameter, vertexIndex);
   if (!parameter) return parameter;
   else if (typeof parameter !== "number")
     throw `Wrong 'radius' parameters in group number ${group.pk}`;
+  else return parameter;
+};
+
+const getTypeValue = (group: GroupParameters, vertexIndex: number): string => {
+  let parameter: any = group.type;
+  parameter = parseGroupParameter(parameter, vertexIndex);
+  if (!parameter) return parameter;
+  else if (typeof parameter !== "string")
+    throw `Wrong 'type' parameter in group number ${group.pk}`;
   else return parameter;
 };
 
@@ -202,7 +207,8 @@ const generateVertexes = (path: PathData): PathData => {
       let vertex = vertexes[i];
       let prevVertex = vertexes[prevVertexInd];
       let nextVertex = vertexes[nextVertexInd];
-      switch (groups[groupIndex].type) {
+      let vertexType = getTypeValue(groups[groupIndex], i);
+      switch (vertexType) {
         case "linear":
           vertex = generateLinearVertexCoordinates(
             vertexes,

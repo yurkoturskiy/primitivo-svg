@@ -67,10 +67,10 @@ var generateFrame = function (path) {
     };
     return path;
 };
-var parseGroupParameter = function (parameter, group, vertexIndex) {
+var parseGroupParameter = function (parameter, vertexIndex) {
     /* Parse distance, round, or radius group parameters */
     // Number for all
-    if (typeof parameter === "number")
+    if (typeof parameter !== "object")
         return parameter;
     // Random for all
     if (typeof parameter === "object" && parameter.length === 2)
@@ -79,7 +79,7 @@ var parseGroupParameter = function (parameter, group, vertexIndex) {
     if (typeof parameter === "object") {
         parameter = parameter[vertexIndex];
         // Number
-        if (typeof parameter === "number")
+        if (typeof parameter !== "object")
             return parameter;
         // Random range
         if (typeof parameter === "object" && parameter.length === 2)
@@ -90,7 +90,7 @@ var parseGroupParameter = function (parameter, group, vertexIndex) {
 var getRoundValue = function (group, vertexIndex) {
     /* Get round value for a vertex from given group parameters */
     var parameter = group.round;
-    parameter = parseGroupParameter(parameter, group, vertexIndex);
+    parameter = parseGroupParameter(parameter, vertexIndex);
     if (typeof parameter !== "number")
         throw "Wrong 'round' parameters in group number " + group.pk;
     else
@@ -99,7 +99,7 @@ var getRoundValue = function (group, vertexIndex) {
 var getDistanceValue = function (group, vertexIndex) {
     /* Get distance value for a vertex from given group parameters */
     var parameter = group.distance;
-    parameter = parseGroupParameter(parameter, group, vertexIndex);
+    parameter = parseGroupParameter(parameter, vertexIndex);
     if (typeof parameter !== "number")
         throw "Wrong 'distance' parameters in group number " + group.pk;
     else
@@ -108,11 +108,21 @@ var getDistanceValue = function (group, vertexIndex) {
 var getRadiusValue = function (group, vertexIndex) {
     /* Get radius value for a vertex from given group parameters */
     var parameter = group.radius;
-    parameter = parseGroupParameter(parameter, group, vertexIndex);
+    parameter = parseGroupParameter(parameter, vertexIndex);
     if (!parameter)
         return parameter;
     else if (typeof parameter !== "number")
         throw "Wrong 'radius' parameters in group number " + group.pk;
+    else
+        return parameter;
+};
+var getTypeValue = function (group, vertexIndex) {
+    var parameter = group.type;
+    parameter = parseGroupParameter(parameter, vertexIndex);
+    if (!parameter)
+        return parameter;
+    else if (typeof parameter !== "string")
+        throw "Wrong 'type' parameter in group number " + group.pk;
     else
         return parameter;
 };
@@ -168,7 +178,8 @@ var generateVertexes = function (path) {
             var vertex = vertexes[i];
             var prevVertex = vertexes[prevVertexInd];
             var nextVertex = vertexes[nextVertexInd];
-            switch (groups[groupIndex].type) {
+            var vertexType = getTypeValue(groups[groupIndex], i);
+            switch (vertexType) {
                 case "linear":
                     vertex = generateLinearVertexCoordinates(vertexes, vertex, prevVertex, nextVertex);
                     break;
