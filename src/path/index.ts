@@ -148,6 +148,18 @@ const getSmartRoundValue = (
   else return parameter;
 };
 
+const getLengthBasedRoundValue = (
+  group: GroupParameters,
+  vertexIndex: number
+): boolean => {
+  let parameter: any = group.lengthBasedRound;
+  parameter = parseGroupParameter(parameter, vertexIndex);
+  if (!parameter) return parameter;
+  else if (typeof parameter !== "boolean")
+    throw `Wrong 'lengthBasedRound' parameter in group number ${group.pk}`;
+  else return parameter;
+};
+
 const generateLinearVertexCoordinates = (
   vertexes: Vertex[],
   vertex: Vertex,
@@ -295,9 +307,14 @@ const setArms = (path: PathData, mode: string): PathData => {
     );
     let secondArmSmartRound = getSmartRoundValue(groups[vertexes[i].group], i);
     // Length based round
-    let firstArmLengthBasedRound =
-      groups[vertexes[i - 1].group].lengthBasedRound;
-    let secondArmLengthBasedRound = groups[vertexes[i].group].lengthBasedRound;
+    let firstArmLengthBasedRound = getLengthBasedRoundValue(
+      groups[vertexes[i - 1].group],
+      i - 1
+    );
+    let secondArmLengthBasedRound = getLengthBasedRoundValue(
+      groups[vertexes[i].group],
+      i
+    );
 
     // Calc individual factor for smart round
     let individualFactor;
