@@ -1,8 +1,28 @@
 import * as log from "loglevel";
+import pathLayer from "../path/index";
+
+export interface InputParameters {
+  phases: Phase[];
+}
 
 export interface Phase {
   duration: number;
-  groups: GroupParameters[];
+  parameters: PhaseParameters[];
+}
+
+export interface PhaseParameters {
+  numOfSegments?(): number;
+  depth?(): number;
+  x?(): number;
+  y?(): number;
+  width?(): number;
+  height?(): number;
+  centerX?(): number;
+  centerY?(): number;
+  rotate?(): number;
+  numOfGroups?(): number;
+  incircle?(): boolean;
+  groups?(): GroupParameters[];
 }
 
 export interface GroupParameters {
@@ -16,3 +36,11 @@ export interface GroupParameters {
   radius?(): number; // return a radius of a single vertex
   radians?(): number; // Custom radians for each point of a group
 }
+
+log.setLevel("debug");
+const phasesLayer = (parameters: InputParameters) => {
+  log.info("start phases layer");
+  var endPath;
+};
+
+export default phasesLayer;
