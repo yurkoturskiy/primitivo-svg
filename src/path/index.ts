@@ -181,6 +181,7 @@ const getRadiansValue = (
   if (!parameter) return parameter;
   else if (typeof parameter !== "number")
     throw `Wrong 'radians' parameter in group number ${group.pk}`;
+  else return parameter;
 };
 
 const generateLinearVertexCoordinates = (

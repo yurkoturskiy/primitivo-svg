@@ -163,6 +163,8 @@ var getRadiansValue = function (group, vertexIndex) {
         return parameter;
     else if (typeof parameter !== "number")
         throw "Wrong 'radians' parameter in group number " + group.pk;
+    else
+        return parameter;
 };
 var generateLinearVertexCoordinates = function (vertexes, vertex, prevVertex, nextVertex) {
     // Calc X Y coords
