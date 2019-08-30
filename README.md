@@ -4,24 +4,43 @@ Primitivo is a JS SVG library, which generates and animates SVG shapes. You can 
 
 ## Path Layer
 
+Draw a figure
+
 ## Morping Layer
+
+Draw a sequence of paths
 
 ### parameters:
 
--   numOfKeyPaths
--   loop
+| Name          | Description                  |
+| ------------- | ---------------------------- |
+| numOfKeyPaths | Number of key paths (frames) |
+| loop          | Loop the animation           |
 
 ### keyPathsParameters:
 
--   numOfSegments
--   depth
--   x
--   y
--   width
--   height
--   centerX
--   centerY
--   rotate
--   numOfGroups
--   incircle
--   groups: - type - distance - round
+| Name          | Description                          |
+| ------------- | ------------------------------------ |
+| numOfSegments | Number of segments of the path frame |
+| depth         | Pow the number of segments           |
+| x             | X coordinate of the top left corner  |
+| y             | Y coordinate of the top left corner  |
+| width         | The width of the frame               |
+| height        | The height of the frame              |
+| centerX       | X coordinate of the center point     |
+| centerY       | Y coordinate of the center point     |
+| rotate        | Rotate the figure                    |
+| numOfGroups   | Limit the number of groups           |
+| incircle      | Keep points in circle's boundaries   |
+| groups:       | Array of groups settings             |
+| - type        | Linear of radial                     |
+| - distance    | Distance from center                 |
+| - round       | Value of the round strength          |
+
+## Spacing Layer
+
+Calculate keySplines for a defined timing and spacing.
+
+## Phases Layer
+
+Make complex sequence of paths based on input parameters
