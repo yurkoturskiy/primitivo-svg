@@ -14,5 +14,17 @@ var phasesLayer = function (parameters) {
     var endPath = index_1.default(parameters.endPath);
     log.debug("start path", startPath);
     log.debug("end path", endPath);
+    var numOfPhases = parameters.phases.length;
+    log.debug("numOfPhases: " + numOfPhases);
+    endPath.vertexes.forEach(function (keyVertex, index) {
+        for (var i = 0; i < parameters.phases.length; i++) {
+            for (var key in parameters.phases[i].parameters) {
+                var method = parameters.phases[i].parameters[key];
+                var value = method({ startPath: startPath, endPath: endPath, index: index });
+                log.debug("vertex #" + index + "; phase #" + i + "; " + key + ": " + value);
+            }
+        }
+    });
+    log.info("end phases layer");
 };
 exports.default = phasesLayer;
