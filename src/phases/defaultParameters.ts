@@ -1,12 +1,21 @@
+const numOfSegments = 4;
+const x = 0;
+const y = 0;
+const width = window.innerWidth;
+const height = window.innerHeight;
+const centerX = 200;
+const centerY = 100;
+const rotate = 45;
+
 const startPath = {
-  numOfSegments: 4,
-  x: 0,
-  y: 0,
-  width: window.innerWidth,
-  height: window.innerWidth,
-  centerX: 200,
-  centerY: 100,
-  rotate: 45,
+  numOfSegments,
+  x,
+  y,
+  width,
+  height,
+  centerX,
+  centerY,
+  rotate,
   incircle: true,
   groups: [
     {
@@ -26,14 +35,14 @@ const startPath = {
 };
 
 const endPath = {
-  numOfSegments: 4,
-  x: 0,
-  y: 0,
-  width: window.innerWidth,
-  height: window.innerHeight,
-  centerX: 200,
-  centerY: 100,
-  rotate: 45,
+  numOfSegments,
+  x,
+  y,
+  width,
+  height,
+  centerX,
+  centerY,
+  rotate,
   incircle: false,
   groups: [
     {
@@ -50,17 +59,21 @@ const endPath = {
   ]
 };
 
+///////////////
+// Phase one //
+///////////////
+
 const phaseOne = {
   duration: 0,
   parameters: {
-    numOfSegments: () => 4,
-    x: () => 0,
-    y: () => 0,
-    width: () => 400,
-    height: () => 400,
-    centerX: () => 200,
-    centerY: () => 200,
-    rotate: () => 0,
+    numOfSegments: () => numOfSegments,
+    x: () => x,
+    y: () => y,
+    width: () => width,
+    height: () => height,
+    centerX: () => centerX,
+    centerY: () => centerY,
+    rotate: () => rotate,
     incircle: () => true,
     groups: () => [
       {
@@ -80,14 +93,14 @@ const phaseOne = {
 const phaseTwo = {
   duration: 0.1,
   parameters: {
-    numOfSegments: () => 4,
-    x: () => 0,
-    y: () => 0,
-    width: () => 400,
-    height: () => 400,
-    centerX: () => 200,
-    centerY: () => 200,
-    rotate: () => 0,
+    numOfSegments: () => numOfSegments,
+    x: () => x,
+    y: () => y,
+    width: () => width,
+    height: () => height,
+    centerX: () => centerX,
+    centerY: () => centerY,
+    rotate: () => rotate,
     incircle: () => true,
     groups: () => [
       {
@@ -107,14 +120,14 @@ const phaseTwo = {
 const phaseThree = {
   duration: 0.6,
   parameters: {
-    numOfSegments: () => 4,
-    x: () => 0,
-    y: () => 0,
-    width: () => 400,
-    height: () => 400,
-    centerX: () => 200,
-    centerY: () => 200,
-    rotate: () => 0,
+    numOfSegments: () => numOfSegments,
+    x: () => x,
+    y: () => y,
+    width: () => width,
+    height: () => height,
+    centerX: () => centerX,
+    centerY: () => centerY,
+    rotate: () => rotate,
     incircle: () => true,
     groups: () => [
       {

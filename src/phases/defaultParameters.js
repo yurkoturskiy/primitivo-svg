@@ -11,15 +11,23 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var numOfSegments = 4;
+var x = 0;
+var y = 0;
+var width = window.innerWidth;
+var height = window.innerHeight;
+var centerX = 200;
+var centerY = 100;
+var rotate = 45;
 var startPath = {
-    numOfSegments: 4,
-    x: 0,
-    y: 0,
-    width: window.innerWidth,
-    height: window.innerWidth,
-    centerX: 200,
-    centerY: 100,
-    rotate: 45,
+    numOfSegments: numOfSegments,
+    x: x,
+    y: y,
+    width: width,
+    height: height,
+    centerX: centerX,
+    centerY: centerY,
+    rotate: rotate,
     incircle: true,
     groups: [
         {
@@ -38,14 +46,14 @@ var startPath = {
     ]
 };
 var endPath = {
-    numOfSegments: 4,
-    x: 0,
-    y: 0,
-    width: window.innerWidth,
-    height: window.innerHeight,
-    centerX: 200,
-    centerY: 100,
-    rotate: 45,
+    numOfSegments: numOfSegments,
+    x: x,
+    y: y,
+    width: width,
+    height: height,
+    centerX: centerX,
+    centerY: centerY,
+    rotate: rotate,
     incircle: false,
     groups: [
         {
@@ -61,17 +69,20 @@ var endPath = {
         }
     ]
 };
+///////////////
+// Phase one //
+///////////////
 var phaseOne = {
     duration: 0,
     parameters: {
-        numOfSegments: function () { return 4; },
-        x: function () { return 0; },
-        y: function () { return 0; },
-        width: function () { return 400; },
-        height: function () { return 400; },
-        centerX: function () { return 200; },
-        centerY: function () { return 200; },
-        rotate: function () { return 0; },
+        numOfSegments: function () { return numOfSegments; },
+        x: function () { return x; },
+        y: function () { return y; },
+        width: function () { return width; },
+        height: function () { return height; },
+        centerX: function () { return centerX; },
+        centerY: function () { return centerY; },
+        rotate: function () { return rotate; },
         incircle: function () { return true; },
         groups: function () { return [
             {
@@ -90,14 +101,14 @@ var phaseOne = {
 var phaseTwo = {
     duration: 0.1,
     parameters: {
-        numOfSegments: function () { return 4; },
-        x: function () { return 0; },
-        y: function () { return 0; },
-        width: function () { return 400; },
-        height: function () { return 400; },
-        centerX: function () { return 200; },
-        centerY: function () { return 200; },
-        rotate: function () { return 0; },
+        numOfSegments: function () { return numOfSegments; },
+        x: function () { return x; },
+        y: function () { return y; },
+        width: function () { return width; },
+        height: function () { return height; },
+        centerX: function () { return centerX; },
+        centerY: function () { return centerY; },
+        rotate: function () { return rotate; },
         incircle: function () { return true; },
         groups: function () { return [
             {
@@ -116,14 +127,14 @@ var phaseTwo = {
 var phaseThree = {
     duration: 0.6,
     parameters: {
-        numOfSegments: function () { return 4; },
-        x: function () { return 0; },
-        y: function () { return 0; },
-        width: function () { return 400; },
-        height: function () { return 400; },
-        centerX: function () { return 200; },
-        centerY: function () { return 200; },
-        rotate: function () { return 0; },
+        numOfSegments: function () { return numOfSegments; },
+        x: function () { return x; },
+        y: function () { return y; },
+        width: function () { return width; },
+        height: function () { return height; },
+        centerX: function () { return centerX; },
+        centerY: function () { return centerY; },
+        rotate: function () { return rotate; },
         incircle: function () { return true; },
         groups: function () { return [
             {
