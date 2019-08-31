@@ -7,9 +7,9 @@ import phasesLayer from "./phases/index";
 import { InputParameters, PathData } from "./path/interfaces";
 import { AnimateParameters, KeyPathParameters } from "./morphing/interfaces";
 
-import * as log from "loglevel";
-
+var log = require("loglevel");
 log.setLevel("warn");
+log.getLogger("phases-log").setLevel("debug");
 
 export const path = (parameters: any): PathData => pathLayer(parameters);
 
