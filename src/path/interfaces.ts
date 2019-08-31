@@ -14,7 +14,7 @@ export interface PathData {
 export interface InputParameters {
   // Input object
   numOfSegments: number;
-  depth: number;
+  depth?: number;
   x: number;
   y: number;
   width: number;
@@ -22,7 +22,7 @@ export interface InputParameters {
   centerX: number;
   centerY: number;
   rotate: number;
-  numOfGroups: number;
+  numOfGroups?: number;
   incircle: boolean;
   groups: GroupParameters[];
 }
@@ -39,9 +39,9 @@ export interface PathParameters extends InputParameters {
 export interface GroupParameters {
   // Part of Parameters
   pk?: number; // number of group
-  type: string | string[]; // linear | radial | combined(not implemented)
-  distance: number | number[] | number[][]; // for all | random range | per vertex
-  round: number | number[] | number[][]; // for all | random range | per vertex
+  type?: string | string[]; // linear | radial | combined(not implemented)
+  distance?: number | number[] | number[][]; // for all | random range | per vertex
+  round?: number | number[] | number[][]; // for all | random range | per vertex
   smartRound?: boolean | boolean[]; // Able to create perfect circle from a polygon with custom radians
   lengthBasedRound?: boolean | boolean[]; // The longer distance from center the bigger round factor is
   adaptArms?: boolean | boolean[]; // Keep arms always perpendicular to center
