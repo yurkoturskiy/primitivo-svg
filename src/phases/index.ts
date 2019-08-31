@@ -17,6 +17,10 @@ export interface InputParameters {
 
 export interface Phase {
   duration: number;
+  progressionsPhaseScope(parameters: ProgressionsPhaseScopeMethod): number[];
+  progressionsGeneralScope(
+    parameters: ProgressionsGeneralScopeMethod
+  ): number[];
   parameters: PhaseParameters;
 }
 
@@ -54,6 +58,18 @@ export interface PhaseParameterMethod {
   index: number;
 }
 
+export interface ProgressionsPhaseScopeMethod {
+  startPath: PathData;
+  endPath: PathData;
+}
+
+export interface ProgressionsGeneralScopeMethod {
+  startPath: PathData;
+  endPath: PathData;
+  duration: number;
+  prevPhaseProgressions: number[];
+}
+
 const phasesLayer = (parameters: InputParameters = defaultParameters) => {
   log.info("run phases layer");
   const startPath = pathLayer(parameters.startPath);
@@ -62,15 +78,53 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
   log.debug("end path", endPath);
   const numOfPhases = parameters.phases.length;
   log.debug(`numOfPhases: ${numOfPhases}`);
-  endPath.vertexes.forEach((keyVertex, index) => {
-    for (let i = 0; i < parameters.phases.length; i++) {
+
+  var progressionsPhaseScope: number[][] = Array(numOfPhases);
+  progressionsPhaseScope.fill([], 0, numOfPhases);
+
+  var progressionsGeneralScope: any = Array(numOfPhases);
+  progressionsGeneralScope.fill([], 0, numOfPhases);
+
+  var progressions: number[];
+
+  for (let i = 0; i < parameters.phases.length; i++) {
+    // Calc progressionsPhaseScope
+    progressionsPhaseScope[i] = parameters.phases[i].progressionsPhaseScope({
+      startPath,
+      endPath
+    });
+    // Calc progressionsGeneralScope
+    const duration = parameters.phases[i].duration;
+    const prevPhaseProgressions = i && progressionsGeneralScope[i - 1];
+    progressionsGeneralScope[i] = parameters.phases[i].progressionsGeneralScope(
+      { startPath, endPath, duration, prevPhaseProgressions }
+    );
+  }
+
+  // Calc progressions
+  progressions = progressionsGeneralScope.flat();
+  // Sort
+  progressions = progressions.sort((a, b) => a - b);
+  // Remove dublicates
+  let i = 0;
+  while (i < progressions.length) {
+    if (progressions[i - 1] === progressions[i]) progressions.splice(i, 1);
+    else i += 1;
+  }
+
+  log.debug("progressions phase scope", progressionsPhaseScope);
+  log.debug("progressions general scope", progressionsGeneralScope);
+  log.debug("progressions", progressions);
+
+  for (let i = 0; i < parameters.phases.length; i++) {
+    endPath.vertexes.forEach((keyVertex, index) => {
       for (let key in parameters.phases[i].parameters) {
         let method = parameters.phases[i].parameters[key];
         let value = method({ startPath, endPath, index });
         log.debug(`vertex #${index}; phase #${i}; ${key}: ${value}`);
       }
-    }
-  });
+    });
+  }
   log.info("end phases layer");
 };
 

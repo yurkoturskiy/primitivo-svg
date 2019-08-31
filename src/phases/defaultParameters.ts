@@ -1,8 +1,8 @@
 const numOfSegments = 4;
 const x = 0;
 const y = 0;
-const width = window.innerWidth;
-const height = window.innerHeight;
+const width = 1000;
+const height = 700;
 const centerX = 200;
 const centerY = 100;
 const rotate = 45;
@@ -63,8 +63,24 @@ const endPath = {
 // Phase one //
 ///////////////
 
+var progressionsPhaseScope = (params: any): number[] => {
+  let numOfVertexes = params.endPath.vertexes.length;
+  let progressions: number[] = Array(numOfVertexes);
+  progressions.fill(1, 0, numOfVertexes);
+  return progressions;
+};
+
+var progressionsGeneralScope = (params: any): number[] => {
+  let numOfVertexes = params.endPath.vertexes.length;
+  let progressions: number[] = Array(numOfVertexes);
+  progressions.fill(params.duration, 0, numOfVertexes);
+  return progressions;
+};
+
 const phaseOne = {
-  duration: 0,
+  duration: 0.1,
+  progressionsPhaseScope,
+  progressionsGeneralScope,
   parameters: {
     numOfSegments: () => numOfSegments,
     x: () => x,
@@ -90,8 +106,32 @@ const phaseOne = {
   }
 };
 
+var progressionsPhaseScope = (params: any): number[] => {
+  let progressions: number[] = [];
+  const { endPath } = params;
+  params.endPath.vertexes.forEach((vertex: any, index: any) => {
+    let maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
+    let delta = maxLength / vertex.length;
+    progressions.push(1 / delta);
+  });
+  return progressions;
+};
+
+var progressionsGeneralScope = (params: any): number[] => {
+  const { duration, endPath, prevPhaseProgressions } = params;
+  let progressions: number[] = [];
+  params.endPath.vertexes.forEach((vertex: any, index: any) => {
+    let maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
+    let delta = maxLength / vertex.length;
+    progressions.push(duration / delta + prevPhaseProgressions[index]);
+  });
+  return progressions;
+};
+
 const phaseTwo = {
-  duration: 0.1,
+  duration: 0.5,
+  progressionsPhaseScope,
+  progressionsGeneralScope,
   parameters: {
     numOfSegments: () => numOfSegments,
     x: () => x,
@@ -118,7 +158,9 @@ const phaseTwo = {
 };
 
 const phaseThree = {
-  duration: 0.6,
+  duration: 0.4,
+  progressionsPhaseScope,
+  progressionsGeneralScope,
   parameters: {
     numOfSegments: () => numOfSegments,
     x: () => x,

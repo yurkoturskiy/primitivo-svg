@@ -14,8 +14,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var numOfSegments = 4;
 var x = 0;
 var y = 0;
-var width = window.innerWidth;
-var height = window.innerHeight;
+var width = 1000;
+var height = 700;
 var centerX = 200;
 var centerY = 100;
 var rotate = 45;
@@ -72,8 +72,22 @@ var endPath = {
 ///////////////
 // Phase one //
 ///////////////
+var progressionsPhaseScope = function (params) {
+    var numOfVertexes = params.endPath.vertexes.length;
+    var progressions = Array(numOfVertexes);
+    progressions.fill(1, 0, numOfVertexes);
+    return progressions;
+};
+var progressionsGeneralScope = function (params) {
+    var numOfVertexes = params.endPath.vertexes.length;
+    var progressions = Array(numOfVertexes);
+    progressions.fill(params.duration, 0, numOfVertexes);
+    return progressions;
+};
 var phaseOne = {
-    duration: 0,
+    duration: 0.1,
+    progressionsPhaseScope: progressionsPhaseScope,
+    progressionsGeneralScope: progressionsGeneralScope,
     parameters: {
         numOfSegments: function () { return numOfSegments; },
         x: function () { return x; },
@@ -98,8 +112,30 @@ var phaseOne = {
         ]; }
     }
 };
+var progressionsPhaseScope = function (params) {
+    var progressions = [];
+    var endPath = params.endPath;
+    params.endPath.vertexes.forEach(function (vertex, index) {
+        var maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
+        var delta = maxLength / vertex.length;
+        progressions.push(1 / delta);
+    });
+    return progressions;
+};
+var progressionsGeneralScope = function (params) {
+    var duration = params.duration, endPath = params.endPath, prevPhaseProgressions = params.prevPhaseProgressions;
+    var progressions = [];
+    params.endPath.vertexes.forEach(function (vertex, index) {
+        var maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
+        var delta = maxLength / vertex.length;
+        progressions.push(duration / delta + prevPhaseProgressions[index]);
+    });
+    return progressions;
+};
 var phaseTwo = {
-    duration: 0.1,
+    duration: 0.5,
+    progressionsPhaseScope: progressionsPhaseScope,
+    progressionsGeneralScope: progressionsGeneralScope,
     parameters: {
         numOfSegments: function () { return numOfSegments; },
         x: function () { return x; },
@@ -125,7 +161,9 @@ var phaseTwo = {
     }
 };
 var phaseThree = {
-    duration: 0.6,
+    duration: 0.4,
+    progressionsPhaseScope: progressionsPhaseScope,
+    progressionsGeneralScope: progressionsGeneralScope,
     parameters: {
         numOfSegments: function () { return numOfSegments; },
         x: function () { return x; },
