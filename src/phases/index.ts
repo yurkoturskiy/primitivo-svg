@@ -1,13 +1,19 @@
-import * as log from "loglevel";
 import pathLayer from "../path/index";
+var log = require("loglevel").getLogger("phases-log");
+// interfaces
+import { InputParameters as PathInputParameters } from "../path/interfaces";
+// Defaults
+import defaultParameters from "./defaultParameters";
 
 export interface InputParameters {
-  phases: Phase[];
+  startPath: PathInputParameters;
+  endPath: PathInputParameters;
+  phases?: Phase[];
 }
 
 export interface Phase {
   duration: number;
-  parameters: PhaseParameters[];
+  parameters: PhaseParameters;
 }
 
 export interface PhaseParameters {
@@ -37,10 +43,12 @@ export interface GroupParameters {
   radians?(): number; // Custom radians for each point of a group
 }
 
-log.setLevel("debug");
-const phasesLayer = (parameters: InputParameters) => {
-  log.info("start phases layer");
-  var endPath;
+const phasesLayer = (parameters: InputParameters = defaultParameters) => {
+  log.info("run phases layer");
+  const startPath = pathLayer(parameters.startPath);
+  const endPath = pathLayer(parameters.endPath);
+  log.debug("start path", startPath);
+  log.debug("end path", endPath);
 };
 
 export default phasesLayer;
