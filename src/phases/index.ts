@@ -37,7 +37,7 @@ export interface PhaseParameters {
   rotate?(parameters: PhaseParameterMethod): number;
   numOfGroups?(parameters: PhaseParameterMethod): number;
   incircle?(parameters: PhaseParameterMethod): boolean;
-  groups?(parameters: PhaseParameterMethod): GroupParameters[];
+  groups?: GroupParameters[];
 }
 
 export interface GroupParameters {
@@ -74,6 +74,7 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
   log.info("run phases layer");
   const startPath = pathLayer(parameters.startPath);
   const endPath = pathLayer(parameters.endPath);
+  const { phases } = parameters;
   log.debug("start path", startPath);
   log.debug("end path", endPath);
   const numOfPhases = parameters.phases.length;
@@ -101,6 +102,9 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
     );
   }
 
+  log.debug("progressions phase scope", progressionsPhaseScope);
+  log.debug("progressions general scope", progressionsGeneralScope);
+
   // Calc progressions
   progressions = progressionsGeneralScope.flat();
   // Sort
@@ -112,16 +116,30 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
     else i += 1;
   }
 
-  log.debug("progressions phase scope", progressionsPhaseScope);
-  log.debug("progressions general scope", progressionsGeneralScope);
   log.debug("progressions", progressions);
 
-  for (let i = 0; i < parameters.phases.length; i++) {
-    endPath.vertexes.forEach((keyVertex, index) => {
-      for (let key in parameters.phases[i].parameters) {
-        let method = parameters.phases[i].parameters[key];
-        let value = method({ startPath, endPath, index });
-        log.debug(`vertex #${index}; phase #${i}; ${key}: ${value}`);
+  for (let progression of progressions) {
+    log.debug("progression", progression);
+    endPath.vertexes.forEach((keyVertex, vertexIndex) => {
+      for (let phaseIndex = 0; phaseIndex < phases.length; phaseIndex++) {
+        let phaseIsActive =
+          progressionsGeneralScope[phaseIndex][vertexIndex] >= progression;
+
+        log.debug(
+          `vertex #${vertexIndex} Phase #${phaseIndex} is ${phaseIsActive}`
+        );
+
+        if (!phaseIsActive) continue;
+
+        for (let key in phases[phaseIndex].parameters) {
+          if (key !== "groups") {
+            let method = phases[phaseIndex].parameters[key];
+            let value = method({ startPath, endPath, vertexIndex });
+            log.debug(`vertex #${vertexIndex}; ${key}: ${value}`);
+          }
+        }
+
+        if (phaseIsActive) break;
       }
     });
   }

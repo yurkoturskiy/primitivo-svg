@@ -12,6 +12,7 @@ var phasesLayer = function (parameters) {
     log.info("run phases layer");
     var startPath = index_1.default(parameters.startPath);
     var endPath = index_1.default(parameters.endPath);
+    var phases = parameters.phases;
     log.debug("start path", startPath);
     log.debug("end path", endPath);
     var numOfPhases = parameters.phases.length;
@@ -32,6 +33,8 @@ var phasesLayer = function (parameters) {
         var prevPhaseProgressions = i_1 && progressionsGeneralScope[i_1 - 1];
         progressionsGeneralScope[i_1] = parameters.phases[i_1].progressionsGeneralScope({ startPath: startPath, endPath: endPath, duration: duration, prevPhaseProgressions: prevPhaseProgressions });
     }
+    log.debug("progressions phase scope", progressionsPhaseScope);
+    log.debug("progressions general scope", progressionsGeneralScope);
     // Calc progressions
     progressions = progressionsGeneralScope.flat();
     // Sort
@@ -44,20 +47,30 @@ var phasesLayer = function (parameters) {
         else
             i += 1;
     }
-    log.debug("progressions phase scope", progressionsPhaseScope);
-    log.debug("progressions general scope", progressionsGeneralScope);
     log.debug("progressions", progressions);
-    var _loop_1 = function (i_2) {
-        endPath.vertexes.forEach(function (keyVertex, index) {
-            for (var key in parameters.phases[i_2].parameters) {
-                var method = parameters.phases[i_2].parameters[key];
-                var value = method({ startPath: startPath, endPath: endPath, index: index });
-                log.debug("vertex #" + index + "; phase #" + i_2 + "; " + key + ": " + value);
+    var _loop_1 = function (progression) {
+        log.debug("progression", progression);
+        endPath.vertexes.forEach(function (keyVertex, vertexIndex) {
+            for (var phaseIndex = 0; phaseIndex < phases.length; phaseIndex++) {
+                var phaseIsActive = progressionsGeneralScope[phaseIndex][vertexIndex] >= progression;
+                log.debug("vertex #" + vertexIndex + " Phase #" + phaseIndex + " is " + phaseIsActive);
+                if (!phaseIsActive)
+                    continue;
+                for (var key in phases[phaseIndex].parameters) {
+                    if (key !== "groups") {
+                        var method = phases[phaseIndex].parameters[key];
+                        var value = method({ startPath: startPath, endPath: endPath, vertexIndex: vertexIndex });
+                        log.debug("vertex #" + vertexIndex + "; " + key + ": " + value);
+                    }
+                }
+                if (phaseIsActive)
+                    break;
             }
         });
     };
-    for (var i_2 = 0; i_2 < parameters.phases.length; i_2++) {
-        _loop_1(i_2);
+    for (var _i = 0, progressions_1 = progressions; _i < progressions_1.length; _i++) {
+        var progression = progressions_1[_i];
+        _loop_1(progression);
     }
     log.info("end phases layer");
 };
