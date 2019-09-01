@@ -98,7 +98,7 @@ var phaseOne = {
         centerY: function () { return centerY; },
         rotate: function () { return rotate; },
         incircle: function () { return true; },
-        groups: function () { return [
+        groups: [
             {
                 type: function () { return "radial"; },
                 radius: function () { return 10; },
@@ -109,7 +109,7 @@ var phaseOne = {
                 radius: function () { return 10; },
                 round: function () { return 1; }
             }
-        ]; }
+        ]
     }
 };
 var progressionsPhaseScope = function (params) {
@@ -146,7 +146,7 @@ var phaseTwo = {
         centerY: function () { return centerY; },
         rotate: function () { return rotate; },
         incircle: function () { return true; },
-        groups: function () { return [
+        groups: [
             {
                 type: function () { return "radial"; },
                 radius: function () { return 40; },
@@ -157,7 +157,7 @@ var phaseTwo = {
                 radius: function () { return 40; },
                 round: function () { return 1; }
             }
-        ]; }
+        ]
     }
 };
 var phaseThree = {
@@ -174,7 +174,7 @@ var phaseThree = {
         centerY: function () { return centerY; },
         rotate: function () { return rotate; },
         incircle: function () { return true; },
-        groups: function () { return [
+        groups: [
             {
                 type: function () { return "radial"; },
                 distance: function () { return 1; },
@@ -185,7 +185,7 @@ var phaseThree = {
                 distance: function () { return 1; },
                 round: function () { return 1; }
             }
-        ]; }
+        ]
     }
 };
 exports.default = {

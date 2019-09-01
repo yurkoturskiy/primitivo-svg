@@ -91,7 +91,7 @@ const phaseOne = {
     centerY: () => centerY,
     rotate: () => rotate,
     incircle: () => true,
-    groups: () => [
+    groups: [
       {
         type: () => "radial",
         radius: () => 10,
@@ -142,7 +142,7 @@ const phaseTwo = {
     centerY: () => centerY,
     rotate: () => rotate,
     incircle: () => true,
-    groups: () => [
+    groups: [
       {
         type: () => "radial",
         radius: () => 40,
@@ -171,7 +171,7 @@ const phaseThree = {
     centerY: () => centerY,
     rotate: () => rotate,
     incircle: () => true,
-    groups: () => [
+    groups: [
       {
         type: () => "radial",
         distance: () => 1,
