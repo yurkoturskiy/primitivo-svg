@@ -136,32 +136,41 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
   ////////////////////////////////////////////////////////////////
   // Set groups parameters for each progression and each vertex //
   var pathsGroupsParameters: GroupParameters[][] = Array(progressions.length);
-  pathsGroupsParameters.fill([], 0, progressions.length);
-  for (let pIndex = 0; pIndex < progressions.length; pIndex++) {
-    log.debug("progression", progressions[pIndex]);
+  for (let prIndex = 0; prIndex < progressions.length; prIndex++) {
+    pathsGroupsParameters[prIndex] = [];
     endPath.vertexes.forEach((keyVertex, vIndex) => {
-      for (let pIndex = 0; pIndex < phases.length; pIndex++) {
-        let phaseIsActive =
-          progressionsGeneralScope[pIndex][vIndex] >= progressions[pIndex];
+      // loop vertexes
+      for (let phIndex = 0; phIndex < phases.length; phIndex++) {
+        // loop phases and pick first incoplete phase to take values from
 
-        log.debug(`vertex #${vIndex} Phase #${pIndex} is ${phaseIsActive}`);
+        // Check if current phase is incomplete
+        let phaseIsIncomplete =
+          progressionsGeneralScope[phIndex][vIndex] >= progressions[prIndex];
 
-        if (!phaseIsActive) continue;
+        if (!phaseIsIncomplete)
+          // Current phase was completed. Switch to next one.
+          continue;
 
-        const { groupsParameters } = phases[pIndex];
-        for (let gIndex = 0; gIndex < groupsParameters.length; gIndex++)
-          for (let key in groupsParameters[gIndex]) {
-            if (key !== "groups") {
-              let method = phases[pIndex].groupsParameters[gIndex][key];
-              let value = method({ startPath, endPath, vIndex });
-              log.debug(`vertex #${vIndex}; ${key}: ${value}`);
-            }
+        const { groupsParameters } = phases[phIndex];
+        for (let gIndex = 0; gIndex < groupsParameters.length; gIndex++) {
+          // loop groups
+          if (vIndex === 0) pathsGroupsParameters[prIndex][gIndex] = {};
+          for (let [key, method] of Object.entries(groupsParameters[gIndex])) {
+            // loop group param methods and take values
+            let value = method({ startPath, endPath, vIndex });
+            if (pathsGroupsParameters[prIndex][gIndex][key] === undefined)
+              pathsGroupsParameters[prIndex][gIndex][key] = [];
+            pathsGroupsParameters[prIndex][gIndex][key][vIndex] = value;
           }
+        }
 
-        if (phaseIsActive) break;
+        if (phaseIsIncomplete)
+          // Current phase is the one we need. Break phases loop.
+          break;
       }
     });
   }
+  log.debug("paths groups parameters", pathsGroupsParameters);
   log.info("end phases layer");
 };
 

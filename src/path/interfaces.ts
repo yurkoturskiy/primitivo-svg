@@ -37,9 +37,10 @@ export interface PathParameters extends InputParameters {
 
 export interface GroupParameters {
   // Part of Parameters
+  [key: string]: any;
   pk?: number; // number of group
   type?: string | string[]; // linear | radial | combined(not implemented)
-  incircle: boolean | boolean[];
+  incircle?: boolean | boolean[];
   distance?: number | number[] | number[][]; // for all | random range | per vertex
   round?: number | number[] | number[][]; // for all | random range | per vertex
   smartRound?: boolean | boolean[]; // Able to create perfect circle from a polygon with custom radians
