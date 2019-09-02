@@ -1,3 +1,5 @@
+var log = require("loglevel").getLogger("phases-log");
+
 const baseParameters = {
   numOfSegments: 4,
   x: 0,
@@ -103,21 +105,45 @@ var progressionsGeneralScope = (params: any): number[] => {
   return progressions;
 };
 
+const radiusFirstGroup = ({
+  progression,
+  endPath,
+  vertex,
+  progressionsGeneralScope,
+  progressionsPhaseScope
+}: any): number => {
+  let keyVertexIndex = progressionsGeneralScope.indexOf(progression);
+  let maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
+  return maxLength * progressionsPhaseScope[keyVertexIndex];
+};
+
+const radiusSecondGroup = ({
+  progression,
+  endPath,
+  vertex,
+  progressionsGeneralScope,
+  progressionsPhaseScope
+}: any): number => {
+  let keyVertexIndex = progressionsGeneralScope.indexOf(progression);
+  let maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
+  return (maxLength * progressionsPhaseScope[keyVertexIndex]) / 2;
+};
+
 const phaseTwo = {
   duration: 0.5,
   progressionsPhaseScope,
   progressionsGeneralScope,
   groupsParameters: [
     {
-      incircle: () => true,
+      incircle: () => false,
       type: () => "radial",
-      radius: () => 40,
-      round: () => 0
+      radius: radiusFirstGroup,
+      round: () => 1
     },
     {
-      incircle: () => true,
+      incircle: () => false,
       type: () => "linear",
-      radius: () => 40,
+      radius: radiusSecondGroup,
       round: () => 1
     }
   ]
@@ -129,13 +155,13 @@ const phaseThree = {
   progressionsGeneralScope,
   groupsParameters: [
     {
-      incircle: () => true,
+      incircle: () => false,
       type: () => "radial",
       distance: () => 1,
       round: () => 0
     },
     {
-      incircle: () => true,
+      incircle: () => false,
       type: () => "linear",
       distance: () => 1,
       round: () => 1

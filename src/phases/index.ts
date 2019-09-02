@@ -42,21 +42,24 @@ export interface BaseParameters {
 export interface PhaseGroupParameters {
   // Part of Parameters
   [key: string]: any;
-  type?(): string; // type value for a group
-  incircle?(): boolean;
-  distance?(): number; // return a value for a single vertex
-  round?(): number; // return a value for a single vertex
-  smartRound?(): boolean; // value for a group
-  lengthBasedRound?(): boolean; // value for a group
-  adaptArms?(): boolean; // Keep arms always perpendicular to center
-  radius?(): number; // return a radius of a single vertex
-  radians?(): number; // Custom radians for each point of a group
+  type?(params: GroupParameterMethod): string; // type value for a group
+  incircle?(params: GroupParameterMethod): boolean;
+  distance?(params: GroupParameterMethod): number; // return a value for a single vertex
+  round?(params: GroupParameterMethod): number; // return a value for a single vertex
+  smartRound?(params: GroupParameterMethod): boolean; // value for a group
+  lengthBasedRound?(params: GroupParameterMethod): boolean; // value for a group
+  adaptArms?(params: GroupParameterMethod): boolean; // Keep arms always perpendicular to center
+  radius?(params: GroupParameterMethod): number; // return a radius of a single vertex
+  radians?(params: GroupParameterMethod): number; // Custom radians for each point of a group
 }
 
-export interface PhaseParameterMethod {
+export interface GroupParameterMethod {
   startPath: PathData;
   endPath: PathData;
-  index: number;
+  vertex: Vertex;
+  progressionsPhaseScope: number[];
+  progressionsGeneralScope: number[];
+  progression: number;
 }
 
 export interface ProgressionsPhaseScopeMethod {
@@ -138,7 +141,12 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
   var pathsGroupsParameters: GroupParameters[][] = Array(progressions.length);
   for (let prIndex = 0; prIndex < progressions.length; prIndex++) {
     pathsGroupsParameters[prIndex] = [];
-    endPath.vertexes.forEach((keyVertex, vIndex) => {
+    endPath.vertexes.forEach((vertex, vIndex) => {
+      const gIndex = vertex.group;
+      const { indexWithingGroup } = vertex;
+      log.debug(
+        `vertex: ${vIndex}, group: ${gIndex}, indWithGroup: ${indexWithingGroup}`
+      );
       // loop vertexes
       for (let phIndex = 0; phIndex < phases.length; phIndex++) {
         // loop phases and pick first incoplete phase to take values from
@@ -152,16 +160,24 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
           continue;
 
         const { groupsParameters } = phases[phIndex];
-        for (let gIndex = 0; gIndex < groupsParameters.length; gIndex++) {
-          // loop groups
-          if (vIndex === 0) pathsGroupsParameters[prIndex][gIndex] = {};
-          for (let [key, method] of Object.entries(groupsParameters[gIndex])) {
-            // loop group param methods and take values
-            let value = method({ startPath, endPath, vIndex });
-            if (pathsGroupsParameters[prIndex][gIndex][key] === undefined)
-              pathsGroupsParameters[prIndex][gIndex][key] = [];
-            pathsGroupsParameters[prIndex][gIndex][key][vIndex] = value;
-          }
+
+        if (pathsGroupsParameters[prIndex][gIndex] === undefined)
+          pathsGroupsParameters[prIndex][gIndex] = {};
+        for (let [key, method] of Object.entries(groupsParameters[gIndex])) {
+          // loop group param methods and take values
+          let value = method({
+            startPath,
+            endPath,
+            vertex,
+            progressionsGeneralScope: progressionsGeneralScope[phIndex],
+            progressionsPhaseScope: progressionsPhaseScope[phIndex],
+            progression: progressions[prIndex]
+          });
+          if (pathsGroupsParameters[prIndex][gIndex][key] === undefined)
+            pathsGroupsParameters[prIndex][gIndex][key] = [];
+          pathsGroupsParameters[prIndex][gIndex][key][
+            indexWithingGroup
+          ] = value;
         }
 
         if (phaseIsIncomplete)

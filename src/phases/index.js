@@ -69,7 +69,10 @@ var phasesLayer = function (parameters) {
     var pathsGroupsParameters = Array(progressions.length);
     var _loop_1 = function (prIndex) {
         pathsGroupsParameters[prIndex] = [];
-        endPath.vertexes.forEach(function (keyVertex, vIndex) {
+        endPath.vertexes.forEach(function (vertex, vIndex) {
+            var gIndex = vertex.group;
+            var indexWithingGroup = vertex.indexWithingGroup;
+            log.debug("vertex: " + vIndex + ", group: " + gIndex + ", indWithGroup: " + indexWithingGroup);
             // loop vertexes
             for (var phIndex = 0; phIndex < phases.length; phIndex++) {
                 // loop phases and pick first incoplete phase to take values from
@@ -79,18 +82,22 @@ var phasesLayer = function (parameters) {
                     // Current phase was completed. Switch to next one.
                     continue;
                 var groupsParameters = phases[phIndex].groupsParameters;
-                for (var gIndex = 0; gIndex < groupsParameters.length; gIndex++) {
-                    // loop groups
-                    if (vIndex === 0)
-                        pathsGroupsParameters[prIndex][gIndex] = {};
-                    for (var _i = 0, _a = Object.entries(groupsParameters[gIndex]); _i < _a.length; _i++) {
-                        var _b = _a[_i], key = _b[0], method = _b[1];
-                        // loop group param methods and take values
-                        var value = method({ startPath: startPath, endPath: endPath, vIndex: vIndex });
-                        if (pathsGroupsParameters[prIndex][gIndex][key] === undefined)
-                            pathsGroupsParameters[prIndex][gIndex][key] = [];
-                        pathsGroupsParameters[prIndex][gIndex][key][vIndex] = value;
-                    }
+                if (pathsGroupsParameters[prIndex][gIndex] === undefined)
+                    pathsGroupsParameters[prIndex][gIndex] = {};
+                for (var _i = 0, _a = Object.entries(groupsParameters[gIndex]); _i < _a.length; _i++) {
+                    var _b = _a[_i], key = _b[0], method = _b[1];
+                    // loop group param methods and take values
+                    var value = method({
+                        startPath: startPath,
+                        endPath: endPath,
+                        vertex: vertex,
+                        progressionsGeneralScope: progressionsGeneralScope[phIndex],
+                        progressionsPhaseScope: progressionsPhaseScope[phIndex],
+                        progression: progressions[prIndex]
+                    });
+                    if (pathsGroupsParameters[prIndex][gIndex][key] === undefined)
+                        pathsGroupsParameters[prIndex][gIndex][key] = [];
+                    pathsGroupsParameters[prIndex][gIndex][key][indexWithingGroup] = value;
                 }
                 if (phaseIsIncomplete)
                     // Current phase is the one we need. Break phases loop.

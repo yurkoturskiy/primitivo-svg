@@ -11,6 +11,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var log = require("loglevel").getLogger("phases-log");
 var baseParameters = {
     numOfSegments: 4,
     x: 0,
@@ -107,21 +108,33 @@ var progressionsGeneralScope = function (params) {
     });
     return progressions;
 };
+var radiusFirstGroup = function (_a) {
+    var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex, progressionsGeneralScope = _a.progressionsGeneralScope, progressionsPhaseScope = _a.progressionsPhaseScope;
+    var keyVertexIndex = progressionsGeneralScope.indexOf(progression);
+    var maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
+    return maxLength * progressionsPhaseScope[keyVertexIndex];
+};
+var radiusSecondGroup = function (_a) {
+    var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex, progressionsGeneralScope = _a.progressionsGeneralScope, progressionsPhaseScope = _a.progressionsPhaseScope;
+    var keyVertexIndex = progressionsGeneralScope.indexOf(progression);
+    var maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
+    return (maxLength * progressionsPhaseScope[keyVertexIndex]) / 2;
+};
 var phaseTwo = {
     duration: 0.5,
     progressionsPhaseScope: progressionsPhaseScope,
     progressionsGeneralScope: progressionsGeneralScope,
     groupsParameters: [
         {
-            incircle: function () { return true; },
+            incircle: function () { return false; },
             type: function () { return "radial"; },
-            radius: function () { return 40; },
-            round: function () { return 0; }
+            radius: radiusFirstGroup,
+            round: function () { return 1; }
         },
         {
-            incircle: function () { return true; },
+            incircle: function () { return false; },
             type: function () { return "linear"; },
-            radius: function () { return 40; },
+            radius: radiusSecondGroup,
             round: function () { return 1; }
         }
     ]
@@ -132,13 +145,13 @@ var phaseThree = {
     progressionsGeneralScope: progressionsGeneralScope,
     groupsParameters: [
         {
-            incircle: function () { return true; },
+            incircle: function () { return false; },
             type: function () { return "radial"; },
             distance: function () { return 1; },
             round: function () { return 0; }
         },
         {
-            incircle: function () { return true; },
+            incircle: function () { return false; },
             type: function () { return "linear"; },
             distance: function () { return 1; },
             round: function () { return 1; }
