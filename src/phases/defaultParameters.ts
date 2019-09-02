@@ -1,65 +1,47 @@
-const numOfSegments = 4;
-const x = 0;
-const y = 0;
-const width = 1000;
-const height = 700;
-const centerX = 200;
-const centerY = 100;
-const rotate = 45;
-
-const startPath = {
-  numOfSegments,
-  x,
-  y,
-  width,
-  height,
-  centerX,
-  centerY,
-  rotate,
-  groups: [
-    {
-      incircle: true,
-      radius: 8,
-      round: 1,
-      adaptArms: true,
-      smartRound: true
-    },
-    {
-      incircle: true,
-      type: "radial",
-      radius: 8,
-      round: 1,
-      adaptArms: true,
-      smartRound: true
-    }
-  ]
+const baseParameters = {
+  numOfSegments: 4,
+  x: 0,
+  y: 0,
+  width: 1000,
+  height: 700,
+  centerX: 200,
+  centerY: 100,
+  rotate: 45
 };
 
-const endPath = {
-  numOfSegments,
-  x,
-  y,
-  width,
-  height,
-  centerX,
-  centerY,
-  rotate,
-  groups: [
-    {
-      incircle: false,
-      distance: 1,
-      round: 0,
-      adaptArms: true
-    },
-    {
-      incircle: false,
-      type: "linear",
-      distance: 1,
-      round: 1,
-      adaptArms: false
-    }
-  ]
-};
+const startGroupsParameters = [
+  {
+    incircle: true,
+    radius: 8,
+    round: 1,
+    adaptArms: true,
+    smartRound: true
+  },
+  {
+    incircle: true,
+    type: "radial",
+    radius: 8,
+    round: 1,
+    adaptArms: true,
+    smartRound: true
+  }
+];
+
+const endGroupsParameters = [
+  {
+    incircle: false,
+    distance: 1,
+    round: 0,
+    adaptArms: true
+  },
+  {
+    incircle: false,
+    type: "linear",
+    distance: 1,
+    round: 1,
+    adaptArms: false
+  }
+];
 
 ///////////////
 // Phase one //
@@ -83,30 +65,20 @@ const phaseOne = {
   duration: 0.1,
   progressionsPhaseScope,
   progressionsGeneralScope,
-  parameters: {
-    numOfSegments: () => numOfSegments,
-    x: () => x,
-    y: () => y,
-    width: () => width,
-    height: () => height,
-    centerX: () => centerX,
-    centerY: () => centerY,
-    rotate: () => rotate,
-    groups: [
-      {
-        incircle: () => true,
-        type: () => "radial",
-        radius: () => 10,
-        round: () => 0
-      },
-      {
-        incircle: () => true,
-        type: () => "linear",
-        radius: () => 10,
-        round: () => 1
-      }
-    ]
-  }
+  groupsParameters: [
+    {
+      incircle: () => true,
+      type: () => "radial",
+      radius: () => 10,
+      round: () => 0
+    },
+    {
+      incircle: () => true,
+      type: () => "linear",
+      radius: () => 10,
+      round: () => 1
+    }
+  ]
 };
 
 var progressionsPhaseScope = (params: any): number[] => {
@@ -135,64 +107,45 @@ const phaseTwo = {
   duration: 0.5,
   progressionsPhaseScope,
   progressionsGeneralScope,
-  parameters: {
-    numOfSegments: () => numOfSegments,
-    x: () => x,
-    y: () => y,
-    width: () => width,
-    height: () => height,
-    centerX: () => centerX,
-    centerY: () => centerY,
-    rotate: () => rotate,
-    groups: [
-      {
-        incircle: () => true,
-        type: () => "radial",
-        radius: () => 40,
-        round: () => 0
-      },
-      {
-        incircle: () => true,
-        type: () => "linear",
-        radius: () => 40,
-        round: () => 1
-      }
-    ]
-  }
+  groupsParameters: [
+    {
+      incircle: () => true,
+      type: () => "radial",
+      radius: () => 40,
+      round: () => 0
+    },
+    {
+      incircle: () => true,
+      type: () => "linear",
+      radius: () => 40,
+      round: () => 1
+    }
+  ]
 };
 
 const phaseThree = {
   duration: 0.4,
   progressionsPhaseScope,
   progressionsGeneralScope,
-  parameters: {
-    numOfSegments: () => numOfSegments,
-    x: () => x,
-    y: () => y,
-    width: () => width,
-    height: () => height,
-    centerX: () => centerX,
-    centerY: () => centerY,
-    rotate: () => rotate,
-    groups: [
-      {
-        incircle: () => true,
-        type: () => "radial",
-        distance: () => 1,
-        round: () => 0
-      },
-      {
-        incircle: () => true,
-        type: () => "linear",
-        distance: () => 1,
-        round: () => 1
-      }
-    ]
-  }
+  groupsParameters: [
+    {
+      incircle: () => true,
+      type: () => "radial",
+      distance: () => 1,
+      round: () => 0
+    },
+    {
+      incircle: () => true,
+      type: () => "linear",
+      distance: () => 1,
+      round: () => 1
+    }
+  ]
 };
 
 export default {
-  startPath,
-  endPath,
+  startGroupsParameters,
+  endGroupsParameters,
+  baseParameters,
   phases: [{ ...phaseOne }, { ...phaseTwo }, { ...phaseThree }]
 };

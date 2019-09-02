@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -10,13 +21,18 @@ var defaultParameters_1 = __importDefault(require("./defaultParameters"));
 var phasesLayer = function (parameters) {
     if (parameters === void 0) { parameters = defaultParameters_1.default; }
     log.info("run phases layer");
-    var startPath = index_1.default(parameters.startPath);
-    var endPath = index_1.default(parameters.endPath);
-    var phases = parameters.phases;
+    ////////////////////////////////
+    // Create start and end paths //
+    var baseParameters = parameters.baseParameters, startGroupsParameters = parameters.startGroupsParameters, endGroupsParameters = parameters.endGroupsParameters;
+    var startPath = index_1.default(__assign({}, baseParameters, { groups: startGroupsParameters }));
+    var endPath = index_1.default(__assign({}, baseParameters, { groups: endGroupsParameters }));
     log.debug("start path", startPath);
     log.debug("end path", endPath);
+    var phases = parameters.phases;
     var numOfPhases = parameters.phases.length;
     log.debug("numOfPhases: " + numOfPhases);
+    ///////////////////////
+    // Calc Progressions //
     var progressionsPhaseScope = Array(numOfPhases);
     progressionsPhaseScope.fill([], 0, numOfPhases);
     var progressionsGeneralScope = Array(numOfPhases);
@@ -48,29 +64,31 @@ var phasesLayer = function (parameters) {
             i += 1;
     }
     log.debug("progressions", progressions);
-    var _loop_1 = function (progression) {
-        log.debug("progression", progression);
-        endPath.vertexes.forEach(function (keyVertex, vertexIndex) {
-            for (var phaseIndex = 0; phaseIndex < phases.length; phaseIndex++) {
-                var phaseIsActive = progressionsGeneralScope[phaseIndex][vertexIndex] >= progression;
-                log.debug("vertex #" + vertexIndex + " Phase #" + phaseIndex + " is " + phaseIsActive);
+    ////////////////////////////////////////////////////////////////
+    // Set groups parameters for each progression and each vertex //
+    var pathsGroupsParameters = Array(progressions.length);
+    pathsGroupsParameters.fill([], 0, progressions.length);
+    for (var pIndex = 0; pIndex < progressions.length; pIndex++) {
+        log.debug("progression", progressions[pIndex]);
+        endPath.vertexes.forEach(function (keyVertex, vIndex) {
+            for (var pIndex_1 = 0; pIndex_1 < phases.length; pIndex_1++) {
+                var phaseIsActive = progressionsGeneralScope[pIndex_1][vIndex] >= progressions[pIndex_1];
+                log.debug("vertex #" + vIndex + " Phase #" + pIndex_1 + " is " + phaseIsActive);
                 if (!phaseIsActive)
                     continue;
-                for (var key in phases[phaseIndex].parameters) {
-                    if (key !== "groups") {
-                        var method = phases[phaseIndex].parameters[key];
-                        var value = method({ startPath: startPath, endPath: endPath, vertexIndex: vertexIndex });
-                        log.debug("vertex #" + vertexIndex + "; " + key + ": " + value);
+                var groupsParameters = phases[pIndex_1].groupsParameters;
+                for (var gIndex = 0; gIndex < groupsParameters.length; gIndex++)
+                    for (var key in groupsParameters[gIndex]) {
+                        if (key !== "groups") {
+                            var method = phases[pIndex_1].groupsParameters[gIndex][key];
+                            var value = method({ startPath: startPath, endPath: endPath, vIndex: vIndex });
+                            log.debug("vertex #" + vIndex + "; " + key + ": " + value);
+                        }
                     }
-                }
                 if (phaseIsActive)
                     break;
             }
         });
-    };
-    for (var _i = 0, progressions_1 = progressions; _i < progressions_1.length; _i++) {
-        var progression = progressions_1[_i];
-        _loop_1(progression);
     }
     log.info("end phases layer");
 };

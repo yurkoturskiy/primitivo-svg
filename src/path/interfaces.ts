@@ -13,17 +13,17 @@ export interface PathData {
 
 export interface InputParameters {
   // Input object
-  numOfSegments: number;
+  numOfSegments?: number;
   depth?: number;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  centerX: number;
-  centerY: number;
-  rotate: number;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  centerX?: number;
+  centerY?: number;
+  rotate?: number;
   numOfGroups?: number;
-  groups: GroupParameters[];
+  groups?: GroupParameters[];
 }
 
 export interface PathParameters extends InputParameters {

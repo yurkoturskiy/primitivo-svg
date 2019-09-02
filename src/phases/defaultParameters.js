@@ -11,66 +11,48 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var numOfSegments = 4;
-var x = 0;
-var y = 0;
-var width = 1000;
-var height = 700;
-var centerX = 200;
-var centerY = 100;
-var rotate = 45;
-var startPath = {
-    numOfSegments: numOfSegments,
-    x: x,
-    y: y,
-    width: width,
-    height: height,
-    centerX: centerX,
-    centerY: centerY,
-    rotate: rotate,
-    groups: [
-        {
-            incircle: true,
-            radius: 8,
-            round: 1,
-            adaptArms: true,
-            smartRound: true
-        },
-        {
-            incircle: true,
-            type: "radial",
-            radius: 8,
-            round: 1,
-            adaptArms: true,
-            smartRound: true
-        }
-    ]
+var baseParameters = {
+    numOfSegments: 4,
+    x: 0,
+    y: 0,
+    width: 1000,
+    height: 700,
+    centerX: 200,
+    centerY: 100,
+    rotate: 45
 };
-var endPath = {
-    numOfSegments: numOfSegments,
-    x: x,
-    y: y,
-    width: width,
-    height: height,
-    centerX: centerX,
-    centerY: centerY,
-    rotate: rotate,
-    groups: [
-        {
-            incircle: false,
-            distance: 1,
-            round: 0,
-            adaptArms: true
-        },
-        {
-            incircle: false,
-            type: "linear",
-            distance: 1,
-            round: 1,
-            adaptArms: false
-        }
-    ]
-};
+var startGroupsParameters = [
+    {
+        incircle: true,
+        radius: 8,
+        round: 1,
+        adaptArms: true,
+        smartRound: true
+    },
+    {
+        incircle: true,
+        type: "radial",
+        radius: 8,
+        round: 1,
+        adaptArms: true,
+        smartRound: true
+    }
+];
+var endGroupsParameters = [
+    {
+        incircle: false,
+        distance: 1,
+        round: 0,
+        adaptArms: true
+    },
+    {
+        incircle: false,
+        type: "linear",
+        distance: 1,
+        round: 1,
+        adaptArms: false
+    }
+];
 ///////////////
 // Phase one //
 ///////////////
@@ -90,30 +72,20 @@ var phaseOne = {
     duration: 0.1,
     progressionsPhaseScope: progressionsPhaseScope,
     progressionsGeneralScope: progressionsGeneralScope,
-    parameters: {
-        numOfSegments: function () { return numOfSegments; },
-        x: function () { return x; },
-        y: function () { return y; },
-        width: function () { return width; },
-        height: function () { return height; },
-        centerX: function () { return centerX; },
-        centerY: function () { return centerY; },
-        rotate: function () { return rotate; },
-        groups: [
-            {
-                incircle: function () { return true; },
-                type: function () { return "radial"; },
-                radius: function () { return 10; },
-                round: function () { return 0; }
-            },
-            {
-                incircle: function () { return true; },
-                type: function () { return "linear"; },
-                radius: function () { return 10; },
-                round: function () { return 1; }
-            }
-        ]
-    }
+    groupsParameters: [
+        {
+            incircle: function () { return true; },
+            type: function () { return "radial"; },
+            radius: function () { return 10; },
+            round: function () { return 0; }
+        },
+        {
+            incircle: function () { return true; },
+            type: function () { return "linear"; },
+            radius: function () { return 10; },
+            round: function () { return 1; }
+        }
+    ]
 };
 var progressionsPhaseScope = function (params) {
     var progressions = [];
@@ -139,62 +111,43 @@ var phaseTwo = {
     duration: 0.5,
     progressionsPhaseScope: progressionsPhaseScope,
     progressionsGeneralScope: progressionsGeneralScope,
-    parameters: {
-        numOfSegments: function () { return numOfSegments; },
-        x: function () { return x; },
-        y: function () { return y; },
-        width: function () { return width; },
-        height: function () { return height; },
-        centerX: function () { return centerX; },
-        centerY: function () { return centerY; },
-        rotate: function () { return rotate; },
-        groups: [
-            {
-                incircle: function () { return true; },
-                type: function () { return "radial"; },
-                radius: function () { return 40; },
-                round: function () { return 0; }
-            },
-            {
-                incircle: function () { return true; },
-                type: function () { return "linear"; },
-                radius: function () { return 40; },
-                round: function () { return 1; }
-            }
-        ]
-    }
+    groupsParameters: [
+        {
+            incircle: function () { return true; },
+            type: function () { return "radial"; },
+            radius: function () { return 40; },
+            round: function () { return 0; }
+        },
+        {
+            incircle: function () { return true; },
+            type: function () { return "linear"; },
+            radius: function () { return 40; },
+            round: function () { return 1; }
+        }
+    ]
 };
 var phaseThree = {
     duration: 0.4,
     progressionsPhaseScope: progressionsPhaseScope,
     progressionsGeneralScope: progressionsGeneralScope,
-    parameters: {
-        numOfSegments: function () { return numOfSegments; },
-        x: function () { return x; },
-        y: function () { return y; },
-        width: function () { return width; },
-        height: function () { return height; },
-        centerX: function () { return centerX; },
-        centerY: function () { return centerY; },
-        rotate: function () { return rotate; },
-        groups: [
-            {
-                incircle: function () { return true; },
-                type: function () { return "radial"; },
-                distance: function () { return 1; },
-                round: function () { return 0; }
-            },
-            {
-                incircle: function () { return true; },
-                type: function () { return "linear"; },
-                distance: function () { return 1; },
-                round: function () { return 1; }
-            }
-        ]
-    }
+    groupsParameters: [
+        {
+            incircle: function () { return true; },
+            type: function () { return "radial"; },
+            distance: function () { return 1; },
+            round: function () { return 0; }
+        },
+        {
+            incircle: function () { return true; },
+            type: function () { return "linear"; },
+            distance: function () { return 1; },
+            round: function () { return 1; }
+        }
+    ]
 };
 exports.default = {
-    startPath: startPath,
-    endPath: endPath,
+    startGroupsParameters: startGroupsParameters,
+    endGroupsParameters: endGroupsParameters,
+    baseParameters: baseParameters,
     phases: [__assign({}, phaseOne), __assign({}, phaseTwo), __assign({}, phaseThree)]
 };
