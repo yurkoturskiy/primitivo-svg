@@ -28,15 +28,16 @@ var startPath = {
     centerX: centerX,
     centerY: centerY,
     rotate: rotate,
-    incircle: true,
     groups: [
         {
+            incircle: true,
             radius: 8,
             round: 1,
             adaptArms: true,
             smartRound: true
         },
         {
+            incircle: true,
             type: "radial",
             radius: 8,
             round: 1,
@@ -54,14 +55,15 @@ var endPath = {
     centerX: centerX,
     centerY: centerY,
     rotate: rotate,
-    incircle: false,
     groups: [
         {
+            incircle: false,
             distance: 1,
             round: 0,
             adaptArms: true
         },
         {
+            incircle: false,
             type: "linear",
             distance: 1,
             round: 1,
@@ -97,14 +99,15 @@ var phaseOne = {
         centerX: function () { return centerX; },
         centerY: function () { return centerY; },
         rotate: function () { return rotate; },
-        incircle: function () { return true; },
         groups: [
             {
+                incircle: function () { return true; },
                 type: function () { return "radial"; },
                 radius: function () { return 10; },
                 round: function () { return 0; }
             },
             {
+                incircle: function () { return true; },
                 type: function () { return "linear"; },
                 radius: function () { return 10; },
                 round: function () { return 1; }
@@ -145,14 +148,15 @@ var phaseTwo = {
         centerX: function () { return centerX; },
         centerY: function () { return centerY; },
         rotate: function () { return rotate; },
-        incircle: function () { return true; },
         groups: [
             {
+                incircle: function () { return true; },
                 type: function () { return "radial"; },
                 radius: function () { return 40; },
                 round: function () { return 0; }
             },
             {
+                incircle: function () { return true; },
                 type: function () { return "linear"; },
                 radius: function () { return 40; },
                 round: function () { return 1; }
@@ -173,14 +177,15 @@ var phaseThree = {
         centerX: function () { return centerX; },
         centerY: function () { return centerY; },
         rotate: function () { return rotate; },
-        incircle: function () { return true; },
         groups: [
             {
+                incircle: function () { return true; },
                 type: function () { return "radial"; },
                 distance: function () { return 1; },
                 round: function () { return 0; }
             },
             {
+                incircle: function () { return true; },
                 type: function () { return "linear"; },
                 distance: function () { return 1; },
                 round: function () { return 1; }

@@ -111,15 +111,16 @@ var defaults = {
         centerY: 100,
         rotate: 0,
         numOfGroups: 2,
-        incircle: true,
         groups: [
             {
                 type: "radial",
+                incircle: true,
                 distance: [0.95, 1],
                 round: 1
             },
             {
                 type: "radial",
+                incircle: true,
                 distance: [1.3, 1.4],
                 round: [0, 0.3]
             }

@@ -23,7 +23,6 @@ export interface InputParameters {
   centerY: number;
   rotate: number;
   numOfGroups?: number;
-  incircle: boolean;
   groups: GroupParameters[];
 }
 
@@ -40,6 +39,7 @@ export interface GroupParameters {
   // Part of Parameters
   pk?: number; // number of group
   type?: string | string[]; // linear | radial | combined(not implemented)
+  incircle: boolean | boolean[];
   distance?: number | number[] | number[][]; // for all | random range | per vertex
   round?: number | number[] | number[][]; // for all | random range | per vertex
   smartRound?: boolean | boolean[]; // Able to create perfect circle from a polygon with custom radians
@@ -53,6 +53,8 @@ export interface GroupParameters {
 
 export interface Vertex {
   type?: string;
+  index?: number;
+  indexWithingGroup?: number;
   group?: number;
   round?: number;
   distance?: number;

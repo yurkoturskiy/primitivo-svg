@@ -36,13 +36,13 @@ export interface PhaseParameters {
   centerY?(parameters: PhaseParameterMethod): number;
   rotate?(parameters: PhaseParameterMethod): number;
   numOfGroups?(parameters: PhaseParameterMethod): number;
-  incircle?(parameters: PhaseParameterMethod): boolean;
   groups?: GroupParameters[];
 }
 
 export interface GroupParameters {
   // Part of Parameters
   type?(): string; // type value for a group
+  incircle?(): boolean;
   distance?(): number; // return a value for a single vertex
   round?(): number; // return a value for a single vertex
   smartRound?(): boolean; // value for a group

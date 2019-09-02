@@ -16,15 +16,16 @@ const startPath = {
   centerX,
   centerY,
   rotate,
-  incircle: true,
   groups: [
     {
+      incircle: true,
       radius: 8,
       round: 1,
       adaptArms: true,
       smartRound: true
     },
     {
+      incircle: true,
       type: "radial",
       radius: 8,
       round: 1,
@@ -43,14 +44,15 @@ const endPath = {
   centerX,
   centerY,
   rotate,
-  incircle: false,
   groups: [
     {
+      incircle: false,
       distance: 1,
       round: 0,
       adaptArms: true
     },
     {
+      incircle: false,
       type: "linear",
       distance: 1,
       round: 1,
@@ -90,14 +92,15 @@ const phaseOne = {
     centerX: () => centerX,
     centerY: () => centerY,
     rotate: () => rotate,
-    incircle: () => true,
     groups: [
       {
+        incircle: () => true,
         type: () => "radial",
         radius: () => 10,
         round: () => 0
       },
       {
+        incircle: () => true,
         type: () => "linear",
         radius: () => 10,
         round: () => 1
@@ -141,14 +144,15 @@ const phaseTwo = {
     centerX: () => centerX,
     centerY: () => centerY,
     rotate: () => rotate,
-    incircle: () => true,
     groups: [
       {
+        incircle: () => true,
         type: () => "radial",
         radius: () => 40,
         round: () => 0
       },
       {
+        incircle: () => true,
         type: () => "linear",
         radius: () => 40,
         round: () => 1
@@ -170,14 +174,15 @@ const phaseThree = {
     centerX: () => centerX,
     centerY: () => centerY,
     rotate: () => rotate,
-    incircle: () => true,
     groups: [
       {
+        incircle: () => true,
         type: () => "radial",
         distance: () => 1,
         round: () => 0
       },
       {
+        incircle: () => true,
         type: () => "linear",
         distance: () => 1,
         round: () => 1

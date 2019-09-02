@@ -5,7 +5,8 @@ import {
   radToAngle,
   angleToRad,
   randomFromRange,
-  radiansDelta
+  radiansDelta,
+  getType
 } from "../misc/index";
 
 // Interfaces
@@ -230,6 +231,8 @@ const generateVertexes = (path: PathData): PathData => {
   var vertexes: Vertex[] = frame.vertexes.map((vertex, index) => ({
     ...vertex,
     type: "C",
+    index,
+    indexWithingGroup: index,
     group: 0,
     round: getRoundValue(groups[0], index),
     distance: getDistanceValue(groups[0], index),
@@ -289,6 +292,8 @@ const generateVertexes = (path: PathData): PathData => {
         groups[groupIndex],
         indexWithingGroup
       );
+      vertexes[i].index = i;
+      vertexes[i].indexWithingGroup = indexWithingGroup;
     }
   }
   path.vertexes = vertexes;
@@ -315,15 +320,14 @@ const setArms = (path: PathData, mode: string): PathData => {
   var secondArmFactors: number[] = [];
   var averageLength: number;
   for (let i = 1; i < vertexes.length; i++) {
-    let indexWithingGroup = (i - 1) / 2;
     // Adapt arms
     let firstArmAdapt = getAdaptArmsValue(
       groups[vertexes[i - 1].group],
-      indexWithingGroup - 1
+      vertexes[i - 1].indexWithingGroup
     );
     let secondArmAdapt = getAdaptArmsValue(
       groups[vertexes[i].group],
-      indexWithingGroup
+      vertexes[i].indexWithingGroup
     );
 
     if (mode === "init" && firstArmAdapt && secondArmAdapt) continue;
@@ -334,20 +338,20 @@ const setArms = (path: PathData, mode: string): PathData => {
     // Smart round
     let firstArmSmartRound = getSmartRoundValue(
       groups[vertexes[i - 1].group],
-      indexWithingGroup - 1
+      vertexes[i - 1].indexWithingGroup
     );
     let secondArmSmartRound = getSmartRoundValue(
       groups[vertexes[i].group],
-      indexWithingGroup
+      vertexes[i].indexWithingGroup
     );
     // Length based round
     let firstArmLengthBasedRound = getLengthBasedRoundValue(
       groups[vertexes[i - 1].group],
-      indexWithingGroup - 1
+      vertexes[i - 1].indexWithingGroup
     );
     let secondArmLengthBasedRound = getLengthBasedRoundValue(
       groups[vertexes[i].group],
-      indexWithingGroup
+      vertexes[i].indexWithingGroup
     );
 
     // Calc individual factor for smart round
@@ -445,7 +449,39 @@ const setArms = (path: PathData, mode: string): PathData => {
   return path;
 };
 
+const getIncircleValue = (
+  group: GroupParameters,
+  vertexIndex: number
+): boolean => {
+  let parameter: any = group.incircle;
+  parameter = parseGroupParameter(parameter, vertexIndex);
+  if (!parameter) return parameter;
+  else if (typeof parameter !== "boolean")
+    throw `Wrong 'incircle' parameter in group number ${group.pk}`;
+  else return parameter;
+};
+
 const scaleToOne = (path: PathData): PathData => {
+  const { groups } = path.parameters;
+  let needToScale: boolean;
+  for (let index = 0; index < groups.length; index++) {
+    // Check settings if it needs to scale
+    if (groups[index].incircle) {
+      if (getType(groups[index].incircle) === "array") {
+        // Incircle is an array. Try to scale
+        needToScale = true;
+        break;
+      }
+    } else {
+      needToScale = true;
+      break;
+    }
+  }
+
+  if (!needToScale)
+    // Incircle value is true. Cancel scale and return path as it is.
+    return path;
+
   var maxX = 0;
   var minX = 0;
   var maxY = 0;
@@ -460,14 +496,28 @@ const scaleToOne = (path: PathData): PathData => {
   let factorY = 2 / (Math.abs(minY) + maxY);
   let shiftX = factorX * maxX - 1;
   let shiftY = factorY * maxY - 1;
-  path.vertexes = path.vertexes.map(vertex => {
-    vertex.x = vertex.x * factorX - shiftX;
-    vertex.y = vertex.y * factorY - shiftY;
+  path.vertexes = path.vertexes.map((vertex, index) => {
+    let incircleValue = getIncircleValue(
+      groups[vertex.group],
+      vertex.indexWithingGroup
+    );
+    if (!incircleValue) {
+      vertex.x = vertex.x * factorX - shiftX;
+      vertex.y = vertex.y * factorY - shiftY;
+    }
     if (vertex.type === "C") {
-      vertex.x1 = vertex.x1 * factorX - shiftX;
-      vertex.x2 = vertex.x2 * factorX - shiftX;
-      vertex.y1 = vertex.y1 * factorY - shiftY;
-      vertex.y2 = vertex.y2 * factorY - shiftY;
+      let incircleFirstArmValue = getIncircleValue(
+        groups[path.vertexes[index - 1].group],
+        path.vertexes[index - 1].indexWithingGroup
+      );
+      if (!incircleFirstArmValue) {
+        vertex.x1 = vertex.x1 * factorX - shiftX;
+        vertex.y1 = vertex.y1 * factorY - shiftY;
+      }
+      if (!incircleValue) {
+        vertex.x2 = vertex.x2 * factorX - shiftX;
+        vertex.y2 = vertex.y2 * factorY - shiftY;
+      }
     }
     return vertex;
   });
@@ -719,7 +769,7 @@ const pathLayer = (
   path.vertexes = remapVertexes(path.vertexes); // Add M point
   path = setArms(path, "init");
 
-  if (!parameters.incircle) path = scaleToOne(path);
+  path = scaleToOne(path);
   path = setCenter(path);
   path = setDistance(path);
   path = setPosition(path);
@@ -745,10 +795,10 @@ var defaultParameters = {
   centerY: 50,
   rotate: 0,
   numOfGroups: 1,
-  incircle: false,
   groups: [
     {
       type: "linear",
+      incircle: false,
       round: 0.5,
       lengthBasedRound: false,
       adaptArms: false,

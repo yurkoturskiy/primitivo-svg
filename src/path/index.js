@@ -197,7 +197,7 @@ var generateVertexes = function (path) {
     // Init root group from frame vertexes
     groups[0].numOfVertexes = frame.numOfVertexes;
     groups[0].pk = 0;
-    var vertexes = frame.vertexes.map(function (vertex, index) { return (__assign({}, vertex, { type: "C", group: 0, round: getRoundValue(groups[0], index), distance: getDistanceValue(groups[0], index), radius: getRadiusValue(groups[0], index) })); });
+    var vertexes = frame.vertexes.map(function (vertex, index) { return (__assign({}, vertex, { type: "C", index: index, indexWithingGroup: index, group: 0, round: getRoundValue(groups[0], index), distance: getDistanceValue(groups[0], index), radius: getRadiusValue(groups[0], index) })); });
     for (var groupIndex = 1; groupIndex < numOfGroups; groupIndex++) {
         log.debug("group number", groupIndex);
         var numOfNewVertexes = vertexes.length;
@@ -236,6 +236,8 @@ var generateVertexes = function (path) {
             vertexes[i].distance = getDistanceValue(groups[groupIndex], indexWithingGroup);
             vertexes[i].round = getRoundValue(groups[groupIndex], indexWithingGroup);
             vertexes[i].radius = getRadiusValue(groups[groupIndex], indexWithingGroup);
+            vertexes[i].index = i;
+            vertexes[i].indexWithingGroup = indexWithingGroup;
         }
     }
     path.vertexes = vertexes;
@@ -259,10 +261,9 @@ var setArms = function (path, mode) {
     var secondArmFactors = [];
     var averageLength;
     for (var i = 1; i < vertexes.length; i++) {
-        var indexWithingGroup = (i - 1) / 2;
         // Adapt arms
-        var firstArmAdapt = getAdaptArmsValue(groups[vertexes[i - 1].group], indexWithingGroup - 1);
-        var secondArmAdapt = getAdaptArmsValue(groups[vertexes[i].group], indexWithingGroup);
+        var firstArmAdapt = getAdaptArmsValue(groups[vertexes[i - 1].group], vertexes[i - 1].indexWithingGroup);
+        var secondArmAdapt = getAdaptArmsValue(groups[vertexes[i].group], vertexes[i].indexWithingGroup);
         if (mode === "init" && firstArmAdapt && secondArmAdapt)
             continue;
         else if (mode === "adapt" && !firstArmAdapt && !secondArmAdapt)
@@ -270,11 +271,11 @@ var setArms = function (path, mode) {
         // Prepare vars
         var firstArmLength = void 0, secondArmLength = void 0;
         // Smart round
-        var firstArmSmartRound = getSmartRoundValue(groups[vertexes[i - 1].group], indexWithingGroup - 1);
-        var secondArmSmartRound = getSmartRoundValue(groups[vertexes[i].group], indexWithingGroup);
+        var firstArmSmartRound = getSmartRoundValue(groups[vertexes[i - 1].group], vertexes[i - 1].indexWithingGroup);
+        var secondArmSmartRound = getSmartRoundValue(groups[vertexes[i].group], vertexes[i].indexWithingGroup);
         // Length based round
-        var firstArmLengthBasedRound = getLengthBasedRoundValue(groups[vertexes[i - 1].group], indexWithingGroup - 1);
-        var secondArmLengthBasedRound = getLengthBasedRoundValue(groups[vertexes[i].group], indexWithingGroup);
+        var firstArmLengthBasedRound = getLengthBasedRoundValue(groups[vertexes[i - 1].group], vertexes[i - 1].indexWithingGroup);
+        var secondArmLengthBasedRound = getLengthBasedRoundValue(groups[vertexes[i].group], vertexes[i].indexWithingGroup);
         // Calc individual factor for smart round
         var individualFactor = void 0;
         if (firstArmSmartRound || secondArmSmartRound) {
@@ -356,7 +357,36 @@ var setArms = function (path, mode) {
     }
     return path;
 };
+var getIncircleValue = function (group, vertexIndex) {
+    var parameter = group.incircle;
+    parameter = parseGroupParameter(parameter, vertexIndex);
+    if (!parameter)
+        return parameter;
+    else if (typeof parameter !== "boolean")
+        throw "Wrong 'incircle' parameter in group number " + group.pk;
+    else
+        return parameter;
+};
 var scaleToOne = function (path) {
+    var groups = path.parameters.groups;
+    var needToScale;
+    for (var index = 0; index < groups.length; index++) {
+        // Check settings if it needs to scale
+        if (groups[index].incircle) {
+            if (index_1.getType(groups[index].incircle) === "array") {
+                // Incircle is an array. Try to scale
+                needToScale = true;
+                break;
+            }
+        }
+        else {
+            needToScale = true;
+            break;
+        }
+    }
+    if (!needToScale)
+        // Incircle value is true. Cancel scale and return path as it is.
+        return path;
     var maxX = 0;
     var minX = 0;
     var maxY = 0;
@@ -375,14 +405,22 @@ var scaleToOne = function (path) {
     var factorY = 2 / (Math.abs(minY) + maxY);
     var shiftX = factorX * maxX - 1;
     var shiftY = factorY * maxY - 1;
-    path.vertexes = path.vertexes.map(function (vertex) {
-        vertex.x = vertex.x * factorX - shiftX;
-        vertex.y = vertex.y * factorY - shiftY;
+    path.vertexes = path.vertexes.map(function (vertex, index) {
+        var incircleValue = getIncircleValue(groups[vertex.group], vertex.indexWithingGroup);
+        if (!incircleValue) {
+            vertex.x = vertex.x * factorX - shiftX;
+            vertex.y = vertex.y * factorY - shiftY;
+        }
         if (vertex.type === "C") {
-            vertex.x1 = vertex.x1 * factorX - shiftX;
-            vertex.x2 = vertex.x2 * factorX - shiftX;
-            vertex.y1 = vertex.y1 * factorY - shiftY;
-            vertex.y2 = vertex.y2 * factorY - shiftY;
+            var incircleFirstArmValue = getIncircleValue(groups[path.vertexes[index - 1].group], path.vertexes[index - 1].indexWithingGroup);
+            if (!incircleFirstArmValue) {
+                vertex.x1 = vertex.x1 * factorX - shiftX;
+                vertex.y1 = vertex.y1 * factorY - shiftY;
+            }
+            if (!incircleValue) {
+                vertex.x2 = vertex.x2 * factorX - shiftX;
+                vertex.y2 = vertex.y2 * factorY - shiftY;
+            }
         }
         return vertex;
     });
@@ -608,8 +646,7 @@ var pathLayer = function (parameters) {
     path = generateVertexes(path);
     path.vertexes = remapVertexes(path.vertexes); // Add M point
     path = setArms(path, "init");
-    if (!parameters.incircle)
-        path = scaleToOne(path);
+    path = scaleToOne(path);
     path = setCenter(path);
     path = setDistance(path);
     path = setPosition(path);
@@ -634,10 +671,10 @@ var defaultParameters = {
     centerY: 50,
     rotate: 0,
     numOfGroups: 1,
-    incircle: false,
     groups: [
         {
             type: "linear",
+            incircle: false,
             round: 0.5,
             lengthBasedRound: false,
             adaptArms: false,

@@ -15,7 +15,6 @@ export interface KeyPathParameters {
   centerY: number | number[];
   rotate: number | number[];
   numOfGroups: number | number[];
-  incircle: boolean | boolean[];
   groups: GroupParameters[] | GroupParameters[][];
 }
 
@@ -23,6 +22,7 @@ export interface GroupParameters {
   // Part of Parameters
   pk?: number; // number of group
   type?: string; // linear | radial | combined(not implemented)
+  incircle: boolean | boolean[];
   distance?: number | number[] | number[][]; // for all | random range | per vertex
   round?: number | number[] | number[][]; // for all | random range | per vertex
   smartRound?: boolean; // Round polygons with custom radians to circle
