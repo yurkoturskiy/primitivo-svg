@@ -112,7 +112,15 @@ var radiusFirstGroup = function (_a) {
     var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex, progressionsGeneralScope = _a.progressionsGeneralScope, progressionsPhaseScope = _a.progressionsPhaseScope;
     var keyVertexIndex = progressionsGeneralScope.indexOf(progression);
     var maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
-    return maxLength * progressionsPhaseScope[keyVertexIndex];
+    var result = maxLength * progressionsPhaseScope[keyVertexIndex];
+    if (isNaN(result)) {
+        log.debug("Vertex " + keyVertexIndex + " length is NaN");
+        log.debug("progression", progression);
+        log.debug("progression general scope", progressionsGeneralScope);
+        log.debug("max length", maxLength);
+        log.debug("progression phase scope", progressionsPhaseScope[keyVertexIndex]);
+    }
+    return result;
 };
 var radiusSecondGroup = function (_a) {
     var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex, progressionsGeneralScope = _a.progressionsGeneralScope, progressionsPhaseScope = _a.progressionsPhaseScope;
@@ -147,13 +155,19 @@ var phaseThree = {
         {
             incircle: function () { return false; },
             type: function () { return "radial"; },
-            distance: function () { return 1; },
+            radius: function (_a) {
+                var vertex = _a.vertex;
+                return vertex.length;
+            },
             round: function () { return 0; }
         },
         {
             incircle: function () { return false; },
             type: function () { return "linear"; },
-            distance: function () { return 1; },
+            radius: function (_a) {
+                var vertex = _a.vertex;
+                return vertex.length;
+            },
             round: function () { return 1; }
         }
     ]

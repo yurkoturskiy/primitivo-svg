@@ -72,36 +72,44 @@ var phasesLayer = function (parameters) {
         endPath.vertexes.forEach(function (vertex, vIndex) {
             var gIndex = vertex.group;
             var indexWithingGroup = vertex.indexWithingGroup;
-            log.debug("vertex: " + vIndex + ", group: " + gIndex + ", indWithGroup: " + indexWithingGroup);
             // loop vertexes
+            var activePhaseIndex;
             for (var phIndex = 0; phIndex < phases.length; phIndex++) {
                 // loop phases and pick first incoplete phase to take values from
                 // Check if current phase is incomplete
-                var phaseIsIncomplete = progressionsGeneralScope[phIndex][vIndex] >= progressions[prIndex];
-                if (!phaseIsIncomplete)
-                    // Current phase was completed. Switch to next one.
-                    continue;
-                var groupsParameters = phases[phIndex].groupsParameters;
-                if (pathsGroupsParameters[prIndex][gIndex] === undefined)
-                    pathsGroupsParameters[prIndex][gIndex] = {};
-                for (var _i = 0, _a = Object.entries(groupsParameters[gIndex]); _i < _a.length; _i++) {
-                    var _b = _a[_i], key = _b[0], method = _b[1];
-                    // loop group param methods and take values
-                    var value = method({
+                var phaseIsIncomplete = progressions[prIndex] <= progressionsGeneralScope[phIndex][vIndex];
+                if (phaseIsIncomplete) {
+                    // Current phase is the one we need. Break phases loop.
+                    var groupsParameters = phases[phIndex].groupsParameters;
+                    activePhaseIndex = phIndex;
+                    break;
+                }
+            }
+            if (pathsGroupsParameters[prIndex][gIndex] === undefined)
+                pathsGroupsParameters[prIndex][gIndex] = {};
+            var parametersSource = 
+            // If activePhaseIndex is undefined set previous progression values as a source
+            activePhaseIndex === undefined
+                ? pathsGroupsParameters[prIndex - 1][gIndex]
+                : phases[activePhaseIndex].groupsParameters[gIndex];
+            for (var _i = 0, _a = Object.entries(parametersSource); _i < _a.length; _i++) {
+                var _b = _a[_i], key = _b[0], source = _b[1];
+                // loop group param methods and take values
+                var value = 
+                // If activePhaseIndex is undefined take value from previus progression
+                activePhaseIndex === undefined
+                    ? source[indexWithingGroup]
+                    : source({
                         startPath: startPath,
                         endPath: endPath,
                         vertex: vertex,
-                        progressionsGeneralScope: progressionsGeneralScope[phIndex],
-                        progressionsPhaseScope: progressionsPhaseScope[phIndex],
+                        progressionsGeneralScope: progressionsGeneralScope[activePhaseIndex],
+                        progressionsPhaseScope: progressionsPhaseScope[activePhaseIndex],
                         progression: progressions[prIndex]
                     });
-                    if (pathsGroupsParameters[prIndex][gIndex][key] === undefined)
-                        pathsGroupsParameters[prIndex][gIndex][key] = [];
-                    pathsGroupsParameters[prIndex][gIndex][key][indexWithingGroup] = value;
-                }
-                if (phaseIsIncomplete)
-                    // Current phase is the one we need. Break phases loop.
-                    break;
+                if (pathsGroupsParameters[prIndex][gIndex][key] === undefined)
+                    pathsGroupsParameters[prIndex][gIndex][key] = [];
+                pathsGroupsParameters[prIndex][gIndex][key][indexWithingGroup] = value;
             }
         });
     };
