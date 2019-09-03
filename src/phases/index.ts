@@ -57,9 +57,7 @@ export interface GroupParameterMethod {
   startPath: PathData;
   endPath: PathData;
   vertex: Vertex;
-  progressionsPhaseScope: number[];
-  progressionsGeneralScope: number[];
-  progression: number;
+  progression: Progression;
 }
 
 export interface ProgressionsPhaseScopeMethod {
@@ -72,6 +70,13 @@ export interface ProgressionsGeneralScopeMethod {
   endPath: PathData;
   duration: number;
   prevPhaseProgressions: number[];
+}
+
+export interface Progression {
+  keyVertexIndex: number;
+  phaseIndex: number;
+  generalScope: number;
+  phaseScope: number;
 }
 
 const phasesLayer = (parameters: InputParameters = defaultParameters) => {
@@ -92,21 +97,19 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
   log.debug("start path", startPath);
   log.debug("end path", endPath);
 
+  ///////////////////
+  // Set variables //
   const { phases } = parameters;
   const numOfPhases = parameters.phases.length;
-  log.debug(`numOfPhases: ${numOfPhases}`);
+  const numOfVertexes = endPath.vertexes.length;
 
   ///////////////////////
   // Calc Progressions //
   var progressionsPhaseScope: number[][] = Array(numOfPhases);
-  progressionsPhaseScope.fill([], 0, numOfPhases);
-
   var progressionsGeneralScope: any = Array(numOfPhases);
-  progressionsGeneralScope.fill([], 0, numOfPhases);
+  var progressions: Progression[] = [];
 
-  var progressions: number[];
-
-  for (let i = 0; i < parameters.phases.length; i++) {
+  for (let i = 0; i < numOfPhases; i++) {
     // Calc progressionsPhaseScope
     progressionsPhaseScope[i] = parameters.phases[i].progressionsPhaseScope({
       startPath,
@@ -118,19 +121,34 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
     progressionsGeneralScope[i] = parameters.phases[i].progressionsGeneralScope(
       { startPath, endPath, duration, prevPhaseProgressions }
     );
+
+    // Form progressions objects
+    for (
+      let keyVertexIndex = 0;
+      keyVertexIndex < progressionsGeneralScope[i].length;
+      keyVertexIndex++
+    )
+      progressions.push({
+        keyVertexIndex,
+        phaseIndex: i,
+        generalScope: progressionsGeneralScope[i][keyVertexIndex],
+        phaseScope: progressionsPhaseScope[i][keyVertexIndex]
+      });
   }
 
   log.debug("progressions phase scope", progressionsPhaseScope);
   log.debug("progressions general scope", progressionsGeneralScope);
 
-  // Calc progressions
-  progressions = progressionsGeneralScope.flat();
-  // Sort
-  progressions = progressions.sort((a, b) => a - b);
+  // Sort progressions objects
+  progressions = progressions.sort(
+    (a: any, b: any) => a.generalScope - b.generalScope
+  );
+
   // Remove dublicates
-  let i = 0;
+  let i = 1;
   while (i < progressions.length) {
-    if (progressions[i - 1] === progressions[i]) progressions.splice(i, 1);
+    if (progressions[i - 1].generalScope === progressions[i].generalScope)
+      progressions.splice(i, 1);
     else i += 1;
   }
 
@@ -148,12 +166,14 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
 
       // loop vertexes
       var activePhaseIndex;
-      for (let phIndex = 0; phIndex < phases.length; phIndex++) {
+      var keyVertexIndex;
+      for (let phIndex = 0; phIndex < numOfPhases; phIndex++) {
         // loop phases and pick first incoplete phase to take values from
 
         // Check if current phase is incomplete
         let phaseIsIncomplete =
-          progressions[prIndex] <= progressionsGeneralScope[phIndex][vIndex];
+          progressions[prIndex].generalScope <=
+          progressionsGeneralScope[phIndex][vIndex];
 
         if (phaseIsIncomplete) {
           // Current phase is the one we need. Break phases loop.
@@ -183,10 +203,6 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
                 startPath,
                 endPath,
                 vertex,
-                progressionsGeneralScope:
-                  progressionsGeneralScope[activePhaseIndex],
-                progressionsPhaseScope:
-                  progressionsPhaseScope[activePhaseIndex],
                 progression: progressions[prIndex]
               });
 

@@ -105,25 +105,13 @@ var progressionsGeneralScope = (params: any): number[] => {
   return progressions;
 };
 
-const radiusFirstGroup = ({
-  progression,
-  endPath,
-  vertex,
-  progressionsGeneralScope,
-  progressionsPhaseScope
-}: any): number => {
-  let keyVertexIndex = progressionsGeneralScope.indexOf(progression);
+const radiusFirstGroup = ({ progression, endPath, vertex }: any): number => {
   let maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
-  let result = maxLength * progressionsPhaseScope[keyVertexIndex];
+  let result = maxLength * progression.phaseScope;
   if (isNaN(result)) {
-    log.debug(`Vertex ${keyVertexIndex} length is NaN`);
+    log.debug(`Vertex ${vertex.index} length is NaN`);
     log.debug("progression", progression);
-    log.debug("progression general scope", progressionsGeneralScope);
     log.debug("max length", maxLength);
-    log.debug(
-      "progression phase scope",
-      progressionsPhaseScope[keyVertexIndex]
-    );
   }
   return result;
 };
@@ -135,9 +123,8 @@ const radiusSecondGroup = ({
   progressionsGeneralScope,
   progressionsPhaseScope
 }: any): number => {
-  let keyVertexIndex = progressionsGeneralScope.indexOf(progression);
   let maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
-  return (maxLength * progressionsPhaseScope[keyVertexIndex]) / 2;
+  return (maxLength * progression.phaseScope) / 2;
 };
 
 const phaseTwo = {

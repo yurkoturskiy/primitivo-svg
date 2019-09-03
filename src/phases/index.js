@@ -28,17 +28,17 @@ var phasesLayer = function (parameters) {
     var endPath = index_1.default(__assign({}, baseParameters, { groups: endGroupsParameters }));
     log.debug("start path", startPath);
     log.debug("end path", endPath);
+    ///////////////////
+    // Set variables //
     var phases = parameters.phases;
     var numOfPhases = parameters.phases.length;
-    log.debug("numOfPhases: " + numOfPhases);
+    var numOfVertexes = endPath.vertexes.length;
     ///////////////////////
     // Calc Progressions //
     var progressionsPhaseScope = Array(numOfPhases);
-    progressionsPhaseScope.fill([], 0, numOfPhases);
     var progressionsGeneralScope = Array(numOfPhases);
-    progressionsGeneralScope.fill([], 0, numOfPhases);
-    var progressions;
-    for (var i_1 = 0; i_1 < parameters.phases.length; i_1++) {
+    var progressions = [];
+    for (var i_1 = 0; i_1 < numOfPhases; i_1++) {
         // Calc progressionsPhaseScope
         progressionsPhaseScope[i_1] = parameters.phases[i_1].progressionsPhaseScope({
             startPath: startPath,
@@ -48,17 +48,23 @@ var phasesLayer = function (parameters) {
         var duration = parameters.phases[i_1].duration;
         var prevPhaseProgressions = i_1 && progressionsGeneralScope[i_1 - 1];
         progressionsGeneralScope[i_1] = parameters.phases[i_1].progressionsGeneralScope({ startPath: startPath, endPath: endPath, duration: duration, prevPhaseProgressions: prevPhaseProgressions });
+        // Form progressions objects
+        for (var keyVertexIndex = 0; keyVertexIndex < progressionsGeneralScope[i_1].length; keyVertexIndex++)
+            progressions.push({
+                keyVertexIndex: keyVertexIndex,
+                phaseIndex: i_1,
+                generalScope: progressionsGeneralScope[i_1][keyVertexIndex],
+                phaseScope: progressionsPhaseScope[i_1][keyVertexIndex]
+            });
     }
     log.debug("progressions phase scope", progressionsPhaseScope);
     log.debug("progressions general scope", progressionsGeneralScope);
-    // Calc progressions
-    progressions = progressionsGeneralScope.flat();
-    // Sort
-    progressions = progressions.sort(function (a, b) { return a - b; });
+    // Sort progressions objects
+    progressions = progressions.sort(function (a, b) { return a.generalScope - b.generalScope; });
     // Remove dublicates
-    var i = 0;
+    var i = 1;
     while (i < progressions.length) {
-        if (progressions[i - 1] === progressions[i])
+        if (progressions[i - 1].generalScope === progressions[i].generalScope)
             progressions.splice(i, 1);
         else
             i += 1;
@@ -74,10 +80,12 @@ var phasesLayer = function (parameters) {
             var indexWithingGroup = vertex.indexWithingGroup;
             // loop vertexes
             var activePhaseIndex;
-            for (var phIndex = 0; phIndex < phases.length; phIndex++) {
+            var keyVertexIndex;
+            for (var phIndex = 0; phIndex < numOfPhases; phIndex++) {
                 // loop phases and pick first incoplete phase to take values from
                 // Check if current phase is incomplete
-                var phaseIsIncomplete = progressions[prIndex] <= progressionsGeneralScope[phIndex][vIndex];
+                var phaseIsIncomplete = progressions[prIndex].generalScope <=
+                    progressionsGeneralScope[phIndex][vIndex];
                 if (phaseIsIncomplete) {
                     // Current phase is the one we need. Break phases loop.
                     var groupsParameters = phases[phIndex].groupsParameters;
@@ -103,8 +111,6 @@ var phasesLayer = function (parameters) {
                         startPath: startPath,
                         endPath: endPath,
                         vertex: vertex,
-                        progressionsGeneralScope: progressionsGeneralScope[activePhaseIndex],
-                        progressionsPhaseScope: progressionsPhaseScope[activePhaseIndex],
                         progression: progressions[prIndex]
                     });
                 if (pathsGroupsParameters[prIndex][gIndex][key] === undefined)

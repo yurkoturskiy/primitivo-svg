@@ -109,24 +109,20 @@ var progressionsGeneralScope = function (params) {
     return progressions;
 };
 var radiusFirstGroup = function (_a) {
-    var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex, progressionsGeneralScope = _a.progressionsGeneralScope, progressionsPhaseScope = _a.progressionsPhaseScope;
-    var keyVertexIndex = progressionsGeneralScope.indexOf(progression);
+    var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex;
     var maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
-    var result = maxLength * progressionsPhaseScope[keyVertexIndex];
+    var result = maxLength * progression.phaseScope;
     if (isNaN(result)) {
-        log.debug("Vertex " + keyVertexIndex + " length is NaN");
+        log.debug("Vertex " + vertex.index + " length is NaN");
         log.debug("progression", progression);
-        log.debug("progression general scope", progressionsGeneralScope);
         log.debug("max length", maxLength);
-        log.debug("progression phase scope", progressionsPhaseScope[keyVertexIndex]);
     }
     return result;
 };
 var radiusSecondGroup = function (_a) {
     var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex, progressionsGeneralScope = _a.progressionsGeneralScope, progressionsPhaseScope = _a.progressionsPhaseScope;
-    var keyVertexIndex = progressionsGeneralScope.indexOf(progression);
     var maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
-    return (maxLength * progressionsPhaseScope[keyVertexIndex]) / 2;
+    return (maxLength * progression.phaseScope) / 2;
 };
 var phaseTwo = {
     duration: 0.5,
