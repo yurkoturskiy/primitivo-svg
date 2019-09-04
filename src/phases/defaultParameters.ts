@@ -14,7 +14,7 @@ const baseParameters = {
 const startGroupsParameters = [
   {
     incircle: true,
-    radius: 8,
+    radius: 4,
     round: 1,
     adaptArms: true,
     smartRound: true
@@ -22,7 +22,7 @@ const startGroupsParameters = [
   {
     incircle: true,
     type: "radial",
-    radius: 8,
+    radius: 4,
     round: 1,
     adaptArms: true,
     smartRound: true
@@ -71,14 +71,18 @@ const phaseOne = {
     {
       incircle: () => true,
       type: () => "radial",
-      radius: () => 10,
-      round: () => 0
+      radius: () => 30,
+      round: () => 1,
+      adaptArms: () => true,
+      smartRound: () => true
     },
     {
       incircle: () => true,
       type: () => "linear",
-      radius: () => 10,
-      round: () => 1
+      radius: () => 30,
+      round: () => 1,
+      adaptArms: () => true,
+      smartRound: () => true
     }
   ]
 };

@@ -131,13 +131,13 @@ var generateGroupsParameters = function (data) {
 };
 var generateDValues = function (data) {
     log.info("start generate d values");
-    var _a = data.parameters, loop = _a.loop, baseParameters = _a.baseParameters;
+    var _a = data.parameters, loop = _a.loop, baseParameters = _a.baseParameters, startGroupsParameters = _a.startGroupsParameters;
     var pathsGroupsParameters = data.pathsGroupsParameters;
     var morphingParams = {
         numOfKeyPaths: pathsGroupsParameters.length,
         loop: loop
     };
-    var pathsParams = __assign({}, baseParameters, { groups: pathsGroupsParameters.slice() });
+    var pathsParams = __assign({}, baseParameters, { groups: [startGroupsParameters].concat(pathsGroupsParameters) });
     log.debug("paths parameters", pathsParams);
     data.dValues = index_2.default(morphingParams, pathsParams).dValues;
     return data;

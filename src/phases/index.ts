@@ -173,7 +173,7 @@ const generateGroupsParameters = (data: Data): Data => {
 
 const generateDValues = (data: Data): Data => {
   log.info("start generate d values");
-  const { loop, baseParameters } = data.parameters;
+  const { loop, baseParameters, startGroupsParameters } = data.parameters;
   const { pathsGroupsParameters } = data;
   const morphingParams = {
     numOfKeyPaths: pathsGroupsParameters.length,
@@ -181,7 +181,7 @@ const generateDValues = (data: Data): Data => {
   };
   const pathsParams = {
     ...baseParameters,
-    groups: [...pathsGroupsParameters]
+    groups: [startGroupsParameters, ...pathsGroupsParameters]
   };
   log.debug("paths parameters", pathsParams);
   data.dValues = morphingLayer(morphingParams, pathsParams).dValues;

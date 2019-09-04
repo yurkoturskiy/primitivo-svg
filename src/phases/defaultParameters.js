@@ -25,7 +25,7 @@ var baseParameters = {
 var startGroupsParameters = [
     {
         incircle: true,
-        radius: 8,
+        radius: 4,
         round: 1,
         adaptArms: true,
         smartRound: true
@@ -33,7 +33,7 @@ var startGroupsParameters = [
     {
         incircle: true,
         type: "radial",
-        radius: 8,
+        radius: 4,
         round: 1,
         adaptArms: true,
         smartRound: true
@@ -77,14 +77,18 @@ var phaseOne = {
         {
             incircle: function () { return true; },
             type: function () { return "radial"; },
-            radius: function () { return 10; },
-            round: function () { return 0; }
+            radius: function () { return 30; },
+            round: function () { return 1; },
+            adaptArms: function () { return true; },
+            smartRound: function () { return true; }
         },
         {
             incircle: function () { return true; },
             type: function () { return "linear"; },
-            radius: function () { return 10; },
-            round: function () { return 1; }
+            radius: function () { return 30; },
+            round: function () { return 1; },
+            adaptArms: function () { return true; },
+            smartRound: function () { return true; }
         }
     ]
 };

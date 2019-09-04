@@ -20,22 +20,6 @@ export interface KeyPathParameters {
   groups?: GroupParameters[] | GroupParameters[][];
 }
 
-// export interface GroupParameters {
-//   // Part of Parameters
-//   pk?: number; // number of group
-//   type?: string | string[]; // linear | radial | combined(not implemented)
-//   incircle?: boolean | boolean[];
-//   distance?: number | number[] | number[][]; // for all | random range | per vertex
-//   round?: number | number[] | number[][]; // for all | random range | per vertex
-//   smartRound?: boolean | boolean[]; // Round polygons with custom radians to circle
-//   lengthBasedRound?: boolean | boolean[]; // The longer distance from center the bigger round factor is
-//   adaptArms?: boolean | boolean[]; // Keep arms always perpendicular to center
-//   radius?: number | number[] | number[][]; // for all | random range | per vertex
-//   radians?: number[]; // Custom radians for each point of a group
-//   // preserveRadians?: boolean; // Keep the angle on transformation (not implemented)
-//   numOfVertexes?: number;
-// }
-
 export interface AnimateValue {
   value: string;
   keyTimes: string;
