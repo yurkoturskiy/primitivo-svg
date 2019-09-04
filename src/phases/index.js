@@ -18,23 +18,19 @@ var index_1 = __importDefault(require("../path/index"));
 var log = require("loglevel").getLogger("phases-log");
 // Defaults
 var defaultParameters_1 = __importDefault(require("./defaultParameters"));
-var phasesLayer = function (parameters) {
-    if (parameters === void 0) { parameters = defaultParameters_1.default; }
-    log.info("run phases layer");
+var generateOuterPaths = function (data) {
     ////////////////////////////////
     // Create start and end paths //
-    var baseParameters = parameters.baseParameters, startGroupsParameters = parameters.startGroupsParameters, endGroupsParameters = parameters.endGroupsParameters;
-    var startPath = index_1.default(__assign({}, baseParameters, { groups: startGroupsParameters }));
-    var endPath = index_1.default(__assign({}, baseParameters, { groups: endGroupsParameters }));
-    log.debug("start path", startPath);
-    log.debug("end path", endPath);
-    ///////////////////
-    // Set variables //
-    var phases = parameters.phases;
+    var _a = data.parameters, baseParameters = _a.baseParameters, startGroupsParameters = _a.startGroupsParameters, endGroupsParameters = _a.endGroupsParameters;
+    data.startPath = index_1.default(__assign({}, baseParameters, { groups: startGroupsParameters }));
+    data.endPath = index_1.default(__assign({}, baseParameters, { groups: endGroupsParameters }));
+    log.debug("start path", data.startPath);
+    log.debug("end path", data.endPath);
+    return data;
+};
+var calcProgressions = function (data) {
+    var parameters = data.parameters, startPath = data.startPath, endPath = data.endPath;
     var numOfPhases = parameters.phases.length;
-    var numOfVertexes = endPath.vertexes.length;
-    ///////////////////////
-    // Calc Progressions //
     var progressionsPhaseScope = Array(numOfPhases);
     var progressionsGeneralScope = Array(numOfPhases);
     var progressions = [];
@@ -70,8 +66,15 @@ var phasesLayer = function (parameters) {
             i += 1;
     }
     log.debug("progressions", progressions);
-    ////////////////////////////////////////////////////////////////
-    // Set groups parameters for each progression and each vertex //
+    return __assign({}, data, { progressions: progressions,
+        progressionsGeneralScope: progressionsGeneralScope,
+        progressionsPhaseScope: progressionsPhaseScope });
+};
+var generateGroupsParameters = function (data) {
+    // Set groups parameters for each progression and each vertex
+    var endPath = data.endPath, startPath = data.startPath, progressions = data.progressions, progressionsGeneralScope = data.progressionsGeneralScope;
+    var phases = data.parameters.phases;
+    var numOfPhases = phases.length;
     var pathsGroupsParameters = Array(progressions.length);
     var _loop_1 = function (prIndex) {
         pathsGroupsParameters[prIndex] = [];
@@ -123,6 +126,15 @@ var phasesLayer = function (parameters) {
         _loop_1(prIndex);
     }
     log.debug("paths groups parameters", pathsGroupsParameters);
+    return __assign({}, data, { pathsGroupsParameters: pathsGroupsParameters });
+};
+var phasesLayer = function (parameters) {
+    if (parameters === void 0) { parameters = defaultParameters_1.default; }
+    log.info("run phases layer");
+    var data = { parameters: parameters };
+    data = generateOuterPaths(data);
+    data = calcProgressions(data);
+    data = generateGroupsParameters(data);
     log.info("end phases layer");
 };
 exports.default = phasesLayer;

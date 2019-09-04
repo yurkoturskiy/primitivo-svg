@@ -1,110 +1,53 @@
 import pathLayer from "../path/index";
 var log = require("loglevel").getLogger("phases-log");
-// interfaces
+
+// Path interfaces
 import {
   PathData,
   InputParameters as PathInputParameters,
   GroupParameters,
   Vertex
 } from "../path/interfaces";
+
+// Interfaces
+import {
+  InputParameters,
+  Data,
+  Phase,
+  BaseParameters,
+  PhaseGroupParameters,
+  GroupParameterMethod,
+  ProgressionsPhaseScopeMethod,
+  ProgressionsGeneralScopeMethod,
+  Progression
+} from "./interfaces";
+
 // Defaults
 import defaultParameters from "./defaultParameters";
 
-export interface InputParameters {
-  startGroupsParameters: GroupParameters[];
-  endGroupsParameters: GroupParameters[];
-  baseParameters: BaseParameters;
-  phases?: Phase[];
-}
-
-export interface Phase {
-  duration: number;
-  progressionsPhaseScope(parameters: ProgressionsPhaseScopeMethod): number[];
-  progressionsGeneralScope(
-    parameters: ProgressionsGeneralScopeMethod
-  ): number[];
-  groupsParameters: PhaseGroupParameters[];
-}
-
-export interface BaseParameters {
-  numOfSegments?: number;
-  depth?: number;
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  centerX?: number;
-  centerY?: number;
-  rotate?: number;
-  numOfGroups?: number;
-}
-
-export interface PhaseGroupParameters {
-  // Part of Parameters
-  [key: string]: any;
-  type?(params: GroupParameterMethod): string; // type value for a group
-  incircle?(params: GroupParameterMethod): boolean;
-  distance?(params: GroupParameterMethod): number; // return a value for a single vertex
-  round?(params: GroupParameterMethod): number; // return a value for a single vertex
-  smartRound?(params: GroupParameterMethod): boolean; // value for a group
-  lengthBasedRound?(params: GroupParameterMethod): boolean; // value for a group
-  adaptArms?(params: GroupParameterMethod): boolean; // Keep arms always perpendicular to center
-  radius?(params: GroupParameterMethod): number; // return a radius of a single vertex
-  radians?(params: GroupParameterMethod): number; // Custom radians for each point of a group
-}
-
-export interface GroupParameterMethod {
-  startPath: PathData;
-  endPath: PathData;
-  vertex: Vertex;
-  progression: Progression;
-}
-
-export interface ProgressionsPhaseScopeMethod {
-  startPath: PathData;
-  endPath: PathData;
-}
-
-export interface ProgressionsGeneralScopeMethod {
-  startPath: PathData;
-  endPath: PathData;
-  duration: number;
-  prevPhaseProgressions: number[];
-}
-
-export interface Progression {
-  keyVertexIndex: number;
-  phaseIndex: number;
-  generalScope: number;
-  phaseScope: number;
-}
-
-const phasesLayer = (parameters: InputParameters = defaultParameters) => {
-  log.info("run phases layer");
-
+const generateOuterPaths = (data: Data): Data => {
   ////////////////////////////////
   // Create start and end paths //
   const {
     baseParameters,
     startGroupsParameters,
     endGroupsParameters
-  } = parameters;
-  const startPath = pathLayer({
+  } = data.parameters;
+  data.startPath = pathLayer({
     ...baseParameters,
     groups: startGroupsParameters
   });
-  const endPath = pathLayer({ ...baseParameters, groups: endGroupsParameters });
-  log.debug("start path", startPath);
-  log.debug("end path", endPath);
 
-  ///////////////////
-  // Set variables //
-  const { phases } = parameters;
+  data.endPath = pathLayer({ ...baseParameters, groups: endGroupsParameters });
+  log.debug("start path", data.startPath);
+  log.debug("end path", data.endPath);
+  return data;
+};
+
+const calcProgressions = (data: Data): Data => {
+  const { parameters, startPath, endPath } = data;
   const numOfPhases = parameters.phases.length;
-  const numOfVertexes = endPath.vertexes.length;
 
-  ///////////////////////
-  // Calc Progressions //
   var progressionsPhaseScope: number[][] = Array(numOfPhases);
   var progressionsGeneralScope: any = Array(numOfPhases);
   var progressions: Progression[] = [];
@@ -153,9 +96,19 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
   }
 
   log.debug("progressions", progressions);
+  return {
+    ...data,
+    progressions,
+    progressionsGeneralScope,
+    progressionsPhaseScope
+  };
+};
 
-  ////////////////////////////////////////////////////////////////
-  // Set groups parameters for each progression and each vertex //
+const generateGroupsParameters = (data: Data): Data => {
+  // Set groups parameters for each progression and each vertex
+  const { endPath, startPath, progressions, progressionsGeneralScope } = data;
+  const { phases } = data.parameters;
+  const numOfPhases = phases.length;
   var pathsGroupsParameters: GroupParameters[][] = Array(progressions.length);
 
   for (let prIndex = 0; prIndex < progressions.length; prIndex++) {
@@ -214,6 +167,16 @@ const phasesLayer = (parameters: InputParameters = defaultParameters) => {
     });
   }
   log.debug("paths groups parameters", pathsGroupsParameters);
+  return { ...data, pathsGroupsParameters };
+};
+
+const phasesLayer = (parameters: InputParameters = defaultParameters) => {
+  log.info("run phases layer");
+  var data: Data = { parameters };
+  data = generateOuterPaths(data);
+  data = calcProgressions(data);
+  data = generateGroupsParameters(data);
+
   log.info("end phases layer");
 };
 
