@@ -169,6 +169,7 @@ var phaseThree = {
     ]
 };
 exports.default = {
+    loop: true,
     startGroupsParameters: startGroupsParameters,
     endGroupsParameters: endGroupsParameters,
     baseParameters: baseParameters,

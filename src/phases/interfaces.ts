@@ -7,6 +7,7 @@ import {
 } from "../path/interfaces";
 
 export interface InputParameters {
+  loop: boolean;
   startGroupsParameters: GroupParameters[];
   endGroupsParameters: GroupParameters[];
   baseParameters: BaseParameters;
@@ -21,6 +22,7 @@ export interface Data {
   progressionsGeneralScope?: number[][];
   progressionsPhaseScope?: number[][];
   pathsGroupsParameters?: GroupParameters[][];
+  dValues?: string;
 }
 
 export interface Phase {

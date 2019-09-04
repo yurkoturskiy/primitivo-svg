@@ -1,4 +1,5 @@
 import pathLayer from "../path/index";
+import morphingLayer from "../morphing/index";
 var log = require("loglevel").getLogger("phases-log");
 
 // Path interfaces
@@ -170,14 +171,32 @@ const generateGroupsParameters = (data: Data): Data => {
   return { ...data, pathsGroupsParameters };
 };
 
-const phasesLayer = (parameters: InputParameters = defaultParameters) => {
+const generateDValues = (data: Data): Data => {
+  log.info("start generate d values");
+  const { loop, baseParameters } = data.parameters;
+  const { pathsGroupsParameters } = data;
+  const morphingParams = {
+    numOfKeyPaths: pathsGroupsParameters.length,
+    loop
+  };
+  const pathsParams = {
+    ...baseParameters,
+    groups: [...pathsGroupsParameters]
+  };
+  log.debug("paths parameters", pathsParams);
+  data.dValues = morphingLayer(morphingParams, pathsParams).dValues;
+  return data;
+};
+
+const phasesLayer = (parameters: InputParameters = defaultParameters): Data => {
   log.info("run phases layer");
   var data: Data = { parameters };
   data = generateOuterPaths(data);
   data = calcProgressions(data);
   data = generateGroupsParameters(data);
-
+  data = generateDValues(data);
   log.info("end phases layer");
+  return data;
 };
 
 export default phasesLayer;

@@ -5,7 +5,6 @@ import pathLayer from "../path/index";
 import {
   AnimateParameters,
   KeyPathParameters,
-  GroupParameters,
   AnimateValue,
   Output,
   CalcInterpolationInput,

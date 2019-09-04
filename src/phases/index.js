@@ -15,6 +15,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = __importDefault(require("../path/index"));
+var index_2 = __importDefault(require("../morphing/index"));
 var log = require("loglevel").getLogger("phases-log");
 // Defaults
 var defaultParameters_1 = __importDefault(require("./defaultParameters"));
@@ -128,6 +129,19 @@ var generateGroupsParameters = function (data) {
     log.debug("paths groups parameters", pathsGroupsParameters);
     return __assign({}, data, { pathsGroupsParameters: pathsGroupsParameters });
 };
+var generateDValues = function (data) {
+    log.info("start generate d values");
+    var _a = data.parameters, loop = _a.loop, baseParameters = _a.baseParameters;
+    var pathsGroupsParameters = data.pathsGroupsParameters;
+    var morphingParams = {
+        numOfKeyPaths: pathsGroupsParameters.length,
+        loop: loop
+    };
+    var pathsParams = __assign({}, baseParameters, { groups: pathsGroupsParameters.slice() });
+    log.debug("paths parameters", pathsParams);
+    data.dValues = index_2.default(morphingParams, pathsParams).dValues;
+    return data;
+};
 var phasesLayer = function (parameters) {
     if (parameters === void 0) { parameters = defaultParameters_1.default; }
     log.info("run phases layer");
@@ -135,6 +149,8 @@ var phasesLayer = function (parameters) {
     data = generateOuterPaths(data);
     data = calcProgressions(data);
     data = generateGroupsParameters(data);
+    data = generateDValues(data);
     log.info("end phases layer");
+    return data;
 };
 exports.default = phasesLayer;
