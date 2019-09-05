@@ -73,7 +73,7 @@ var calcProgressions = function (data) {
 };
 var generateGroupsParameters = function (data) {
     // Set groups parameters for each progression and each vertex
-    var endPath = data.endPath, startPath = data.startPath, progressions = data.progressions, progressionsGeneralScope = data.progressionsGeneralScope;
+    var endPath = data.endPath, startPath = data.startPath, progressions = data.progressions, progressionsGeneralScope = data.progressionsGeneralScope, progressionsPhaseScope = data.progressionsPhaseScope;
     var phases = data.parameters.phases;
     var numOfPhases = phases.length;
     var pathsGroupsParameters = Array(progressions.length);
@@ -85,8 +85,10 @@ var generateGroupsParameters = function (data) {
             // loop vertexes
             var activePhaseIndex;
             var keyVertexIndex;
+            var phasesDuration = [];
             for (var phIndex = 0; phIndex < numOfPhases; phIndex++) {
-                // loop phases and pick first incoplete phase to take values from
+                // loop phases and pick first incomplete phase to take values from
+                phasesDuration.push(phases[phIndex].duration);
                 // Check if current phase is incomplete
                 var phaseIsIncomplete = progressions[prIndex].generalScope <=
                     progressionsGeneralScope[phIndex][vIndex];
@@ -115,7 +117,11 @@ var generateGroupsParameters = function (data) {
                         startPath: startPath,
                         endPath: endPath,
                         vertex: vertex,
-                        progression: progressions[prIndex]
+                        progression: progressions[prIndex],
+                        phasesDuration: phasesDuration,
+                        activePhaseIndex: activePhaseIndex,
+                        progressionsGeneralScope: progressionsGeneralScope,
+                        progressionsPhaseScope: progressionsPhaseScope
                     });
                 if (pathsGroupsParameters[prIndex][gIndex][key] === undefined)
                     pathsGroupsParameters[prIndex][gIndex][key] = [];

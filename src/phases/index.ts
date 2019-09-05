@@ -107,9 +107,16 @@ const calcProgressions = (data: Data): Data => {
 
 const generateGroupsParameters = (data: Data): Data => {
   // Set groups parameters for each progression and each vertex
-  const { endPath, startPath, progressions, progressionsGeneralScope } = data;
+  const {
+    endPath,
+    startPath,
+    progressions,
+    progressionsGeneralScope,
+    progressionsPhaseScope
+  } = data;
   const { phases } = data.parameters;
   const numOfPhases = phases.length;
+
   var pathsGroupsParameters: GroupParameters[][] = Array(progressions.length);
 
   for (let prIndex = 0; prIndex < progressions.length; prIndex++) {
@@ -121,9 +128,10 @@ const generateGroupsParameters = (data: Data): Data => {
       // loop vertexes
       var activePhaseIndex;
       var keyVertexIndex;
+      var phasesDuration: number[] = [];
       for (let phIndex = 0; phIndex < numOfPhases; phIndex++) {
-        // loop phases and pick first incoplete phase to take values from
-
+        // loop phases and pick first incomplete phase to take values from
+        phasesDuration.push(phases[phIndex].duration);
         // Check if current phase is incomplete
         let phaseIsIncomplete =
           progressions[prIndex].generalScope <=
@@ -157,7 +165,11 @@ const generateGroupsParameters = (data: Data): Data => {
                 startPath,
                 endPath,
                 vertex,
-                progression: progressions[prIndex]
+                progression: progressions[prIndex],
+                phasesDuration,
+                activePhaseIndex,
+                progressionsGeneralScope,
+                progressionsPhaseScope
               });
 
         if (pathsGroupsParameters[prIndex][gIndex][key] === undefined)

@@ -66,6 +66,10 @@ export interface GroupParameterMethod {
   endPath: PathData;
   vertex: Vertex;
   progression: Progression;
+  progressionsGeneralScope: number[][];
+  progressionsPhaseScope: number[][];
+  activePhaseIndex: number;
+  phasesDuration: number[];
 }
 
 export interface ProgressionsPhaseScopeMethod {
