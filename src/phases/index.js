@@ -36,13 +36,14 @@ var calcProgressions = function (data) {
     var progressionsGeneralScope = Array(numOfPhases);
     var progressions = [];
     for (var i_1 = 0; i_1 < numOfPhases; i_1++) {
+        var duration = parameters.phases[i_1].duration;
         // Calc progressionsPhaseScope
         progressionsPhaseScope[i_1] = parameters.phases[i_1].progressionsPhaseScope({
             startPath: startPath,
-            endPath: endPath
+            endPath: endPath,
+            duration: duration
         });
         // Calc progressionsGeneralScope
-        var duration = parameters.phases[i_1].duration;
         var prevPhaseProgressions = i_1 && progressionsGeneralScope[i_1 - 1];
         progressionsGeneralScope[i_1] = parameters.phases[i_1].progressionsGeneralScope({ startPath: startPath, endPath: endPath, duration: duration, prevPhaseProgressions: prevPhaseProgressions });
         // Form progressions objects

@@ -54,13 +54,14 @@ const calcProgressions = (data: Data): Data => {
   var progressions: Progression[] = [];
 
   for (let i = 0; i < numOfPhases; i++) {
+    const duration = parameters.phases[i].duration;
     // Calc progressionsPhaseScope
     progressionsPhaseScope[i] = parameters.phases[i].progressionsPhaseScope({
       startPath,
-      endPath
+      endPath,
+      duration
     });
     // Calc progressionsGeneralScope
-    const duration = parameters.phases[i].duration;
     const prevPhaseProgressions = i && progressionsGeneralScope[i - 1];
     progressionsGeneralScope[i] = parameters.phases[i].progressionsGeneralScope(
       { startPath, endPath, duration, prevPhaseProgressions }
