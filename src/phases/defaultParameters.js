@@ -25,7 +25,7 @@ var baseParameters = {
 var startGroupsParameters = [
     {
         incircle: true,
-        radius: 4,
+        radius: 8,
         round: 1,
         adaptArms: true,
         smartRound: true
@@ -33,7 +33,7 @@ var startGroupsParameters = [
     {
         incircle: true,
         type: "radial",
-        radius: 4,
+        radius: 8,
         round: 1,
         adaptArms: true,
         smartRound: true
@@ -94,9 +94,9 @@ var phaseOne = {
 };
 var progressionsPhaseScope = function (params) {
     var progressions = [];
-    var endPath = params.endPath;
+    var endPath = params.endPath, duration = params.duration;
     params.endPath.vertexes.forEach(function (vertex, index) {
-        var maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
+        var maxLength = endPath.parameters.maxLength;
         var delta = maxLength / vertex.length;
         progressions.push(1 / delta);
     });
@@ -106,27 +106,29 @@ var progressionsGeneralScope = function (params) {
     var duration = params.duration, endPath = params.endPath, prevPhaseProgressions = params.prevPhaseProgressions;
     var progressions = [];
     params.endPath.vertexes.forEach(function (vertex, index) {
-        var maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
+        var maxLength = endPath.parameters.maxLength;
         var delta = maxLength / vertex.length;
         progressions.push(duration / delta + prevPhaseProgressions[index]);
     });
     return progressions;
 };
 var radiusFirstGroup = function (_a) {
-    var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex;
-    var maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
-    var result = maxLength * progression.phaseScope;
-    if (isNaN(result)) {
-        log.debug("Vertex " + vertex.index + " length is NaN");
-        log.debug("progression", progression);
-        log.debug("max length", maxLength);
-    }
+    var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex, progressionsGeneralScope = _a.progressionsGeneralScope, progressionsPhaseScope = _a.progressionsPhaseScope, activePhaseIndex = _a.activePhaseIndex, phasesDuration = _a.phasesDuration;
+    var maxLength = endPath.parameters.maxLength;
+    var factor = (progression.generalScope /
+        progressionsGeneralScope[activePhaseIndex][vertex.index]) *
+        progressionsPhaseScope[activePhaseIndex][vertex.index];
+    var result = factor * maxLength;
     return result;
 };
 var radiusSecondGroup = function (_a) {
-    var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex, progressionsGeneralScope = _a.progressionsGeneralScope, progressionsPhaseScope = _a.progressionsPhaseScope;
-    var maxLength = endPath.parameters.maxLengthByGroup[vertex.group];
-    return (maxLength * progression.phaseScope) / 2;
+    var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex, progressionsGeneralScope = _a.progressionsGeneralScope, progressionsPhaseScope = _a.progressionsPhaseScope, activePhaseIndex = _a.activePhaseIndex, phasesDuration = _a.phasesDuration;
+    var maxLength = endPath.parameters.maxLength;
+    var factor = (progression.generalScope /
+        progressionsGeneralScope[activePhaseIndex][vertex.index]) *
+        progressionsPhaseScope[activePhaseIndex][vertex.index];
+    var result = factor * maxLength;
+    return result / 2;
 };
 var phaseTwo = {
     duration: 0.5,
@@ -147,6 +149,34 @@ var phaseTwo = {
         }
     ]
 };
+var progressionsPhaseScope = function (params) {
+    var progressions = [];
+    var endPath = params.endPath, duration = params.duration;
+    params.endPath.vertexes.forEach(function (vertex, index) {
+        var maxLength = endPath.parameters.maxLength;
+        var delta = maxLength / vertex.length;
+        progressions.push(1 / delta);
+    });
+    return progressions;
+};
+var roundFirstGroup = function (_a) {
+    var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex, progressionsGeneralScope = _a.progressionsGeneralScope, progressionsPhaseScope = _a.progressionsPhaseScope, activePhaseIndex = _a.activePhaseIndex;
+    var factor = progression.generalScope /
+        progressionsGeneralScope[activePhaseIndex][vertex.index];
+    var result = 1 - factor;
+    log.debug("progression", progression.generalScope);
+    log.debug("vertex", vertex.index, "group", vertex.group, "factor", factor, "round", result, "active phase", activePhaseIndex);
+    return result;
+};
+var radiusSecondGroup = function (_a) {
+    var progression = _a.progression, endPath = _a.endPath, vertex = _a.vertex, progressionsGeneralScope = _a.progressionsGeneralScope, progressionsPhaseScope = _a.progressionsPhaseScope, activePhaseIndex = _a.activePhaseIndex;
+    var maxLength = endPath.parameters.maxLength;
+    var factor = (progression.generalScope /
+        progressionsGeneralScope[activePhaseIndex][vertex.index]) *
+        progressionsPhaseScope[activePhaseIndex][vertex.index];
+    var result = factor * maxLength;
+    return result;
+};
 var phaseThree = {
     duration: 0.4,
     progressionsPhaseScope: progressionsPhaseScope,
@@ -159,15 +189,12 @@ var phaseThree = {
                 var vertex = _a.vertex;
                 return vertex.length;
             },
-            round: function () { return 0; }
+            round: roundFirstGroup
         },
         {
             incircle: function () { return false; },
             type: function () { return "linear"; },
-            radius: function (_a) {
-                var vertex = _a.vertex;
-                return vertex.length;
-            },
+            radius: radiusSecondGroup,
             round: function () { return 1; }
         }
     ]
