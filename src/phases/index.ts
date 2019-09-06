@@ -19,8 +19,7 @@ import {
   PhaseGroupParameters,
   GroupParameterMethod,
   ProgressionsPhaseScopeMethod,
-  ProgressionsGeneralScopeMethod,
-  Progression
+  ProgressionsGeneralScopeMethod
 } from "./interfaces";
 
 // Defaults
@@ -51,7 +50,7 @@ const calcProgressions = (data: Data): Data => {
 
   var progressionsPhaseScope: number[][] = Array(numOfPhases);
   var progressionsGeneralScope: any = Array(numOfPhases);
-  var progressions: Progression[] = [];
+  var progressions: number[] = [];
 
   for (let i = 0; i < numOfPhases; i++) {
     const duration = parameters.phases[i].duration;
@@ -73,30 +72,21 @@ const calcProgressions = (data: Data): Data => {
       keyVertexIndex < progressionsGeneralScope[i].length;
       keyVertexIndex++
     )
-      progressions.push({
-        keyVertexIndex,
-        phaseIndex: i,
-        generalScope: progressionsGeneralScope[i][keyVertexIndex],
-        phaseScope: progressionsPhaseScope[i][keyVertexIndex]
-      });
+      progressions.push(progressionsGeneralScope[i][keyVertexIndex]);
   }
 
   log.debug("progressions phase scope", progressionsPhaseScope);
   log.debug("progressions general scope", progressionsGeneralScope);
 
   // Sort progressions objects
-  progressions = progressions.sort(
-    (a: any, b: any) => a.generalScope - b.generalScope
-  );
+  progressions = progressions.sort((a: number, b: number) => a - b);
 
   // Remove dublicates
   let i = 1;
   while (i < progressions.length) {
-    if (progressions[i - 1].generalScope === progressions[i].generalScope)
-      progressions.splice(i, 1);
+    if (progressions[i - 1] === progressions[i]) progressions.splice(i, 1);
     else i += 1;
   }
-
   log.debug("progressions", progressions);
   return {
     ...data,
@@ -135,8 +125,7 @@ const generateGroupsParameters = (data: Data): Data => {
         phasesDuration.push(phases[phIndex].duration);
         // Check if current phase is incomplete
         let phaseIsIncomplete =
-          progressions[prIndex].generalScope <=
-          progressionsGeneralScope[phIndex][vIndex];
+          progressions[prIndex] <= progressionsGeneralScope[phIndex][vIndex];
 
         if (phaseIsIncomplete) {
           // Current phase is the one we need. Break phases loop.

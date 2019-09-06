@@ -120,8 +120,7 @@ var radiusFirstGroup = ({
 }: any): number => {
   let maxLength = endPath.parameters.maxLength;
   let factor =
-    (progression.generalScope /
-      progressionsGeneralScope[activePhaseIndex][vertex.index]) *
+    (progression / progressionsGeneralScope[activePhaseIndex][vertex.index]) *
     progressionsPhaseScope[activePhaseIndex][vertex.index];
   let result = factor * maxLength;
   return result;
@@ -138,8 +137,7 @@ var radiusSecondGroup = ({
 }: any): number => {
   let maxLength = endPath.parameters.maxLength;
   let factor =
-    (progression.generalScope /
-      progressionsGeneralScope[activePhaseIndex][vertex.index]) *
+    (progression / progressionsGeneralScope[activePhaseIndex][vertex.index]) *
     progressionsPhaseScope[activePhaseIndex][vertex.index];
   let result = factor * maxLength;
   return result / 2;
@@ -185,10 +183,9 @@ var roundFirstGroup = ({
   activePhaseIndex
 }: any): number => {
   let factor =
-    progression.generalScope /
-    progressionsGeneralScope[activePhaseIndex][vertex.index];
+    progression / progressionsGeneralScope[activePhaseIndex][vertex.index];
   let result = 1 - factor;
-  log.debug("progression", progression.generalScope);
+  log.debug("progression", progression);
   log.debug(
     "vertex",
     vertex.index,
@@ -214,8 +211,7 @@ var radiusSecondGroup = ({
 }: any): number => {
   let maxLength = endPath.parameters.maxLength;
   let factor =
-    (progression.generalScope /
-      progressionsGeneralScope[activePhaseIndex][vertex.index]) *
+    (progression / progressionsGeneralScope[activePhaseIndex][vertex.index]) *
     progressionsPhaseScope[activePhaseIndex][vertex.index];
   let result = factor * maxLength;
   return result;

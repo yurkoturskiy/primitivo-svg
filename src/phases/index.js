@@ -48,21 +48,16 @@ var calcProgressions = function (data) {
         progressionsGeneralScope[i_1] = parameters.phases[i_1].progressionsGeneralScope({ startPath: startPath, endPath: endPath, duration: duration, prevPhaseProgressions: prevPhaseProgressions });
         // Form progressions objects
         for (var keyVertexIndex = 0; keyVertexIndex < progressionsGeneralScope[i_1].length; keyVertexIndex++)
-            progressions.push({
-                keyVertexIndex: keyVertexIndex,
-                phaseIndex: i_1,
-                generalScope: progressionsGeneralScope[i_1][keyVertexIndex],
-                phaseScope: progressionsPhaseScope[i_1][keyVertexIndex]
-            });
+            progressions.push(progressionsGeneralScope[i_1][keyVertexIndex]);
     }
     log.debug("progressions phase scope", progressionsPhaseScope);
     log.debug("progressions general scope", progressionsGeneralScope);
     // Sort progressions objects
-    progressions = progressions.sort(function (a, b) { return a.generalScope - b.generalScope; });
+    progressions = progressions.sort(function (a, b) { return a - b; });
     // Remove dublicates
     var i = 1;
     while (i < progressions.length) {
-        if (progressions[i - 1].generalScope === progressions[i].generalScope)
+        if (progressions[i - 1] === progressions[i])
             progressions.splice(i, 1);
         else
             i += 1;
@@ -91,8 +86,7 @@ var generateGroupsParameters = function (data) {
                 // loop phases and pick first incomplete phase to take values from
                 phasesDuration.push(phases[phIndex].duration);
                 // Check if current phase is incomplete
-                var phaseIsIncomplete = progressions[prIndex].generalScope <=
-                    progressionsGeneralScope[phIndex][vIndex];
+                var phaseIsIncomplete = progressions[prIndex] <= progressionsGeneralScope[phIndex][vIndex];
                 if (phaseIsIncomplete) {
                     // Current phase is the one we need. Break phases loop.
                     var groupsParameters = phases[phIndex].groupsParameters;

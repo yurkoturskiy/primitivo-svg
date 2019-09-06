@@ -18,7 +18,7 @@ export interface Data {
   parameters: InputParameters;
   startPath?: PathData;
   endPath?: PathData;
-  progressions?: Progression[];
+  progressions?: number[];
   progressionsGeneralScope?: number[][];
   progressionsPhaseScope?: number[][];
   pathsGroupsParameters?: GroupParameters[][];
@@ -65,7 +65,7 @@ export interface GroupParameterMethod {
   startPath: PathData;
   endPath: PathData;
   vertex: Vertex;
-  progression: Progression;
+  progression: number[];
   progressionsGeneralScope: number[][];
   progressionsPhaseScope: number[][];
   activePhaseIndex: number;
@@ -83,11 +83,4 @@ export interface ProgressionsGeneralScopeMethod {
   endPath: PathData;
   duration: number;
   prevPhaseProgressions: number[];
-}
-
-export interface Progression {
-  keyVertexIndex: number;
-  phaseIndex: number;
-  generalScope: number;
-  phaseScope: number;
 }
