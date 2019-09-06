@@ -231,7 +231,6 @@ const generateVertexes = (path: PathData): PathData => {
   var vertexes: Vertex[] = frame.vertexes.map((vertex, index) => ({
     ...vertex,
     type: "C",
-    index,
     indexWithingGroup: index,
     group: 0,
     round: getRoundValue(groups[0], index),
@@ -292,7 +291,6 @@ const generateVertexes = (path: PathData): PathData => {
         groups[groupIndex],
         indexWithingGroup
       );
-      vertexes[i].index = i;
       vertexes[i].indexWithingGroup = indexWithingGroup;
     }
   }
@@ -304,11 +302,13 @@ const remapVertexes = (vertexes: Vertex[]): Vertex[] => {
   /*
    * Add "M" vertex to the array at the start
    * Move first vertex to the end
+   * Set index to each vertex
    */
 
   var newArray = [];
   vertexes[vertexes.length] = vertexes[0];
   vertexes[0] = { ...vertexes[0], type: "M" };
+  vertexes = vertexes.map((vertex, index) => ({ ...vertex, index }));
   return vertexes;
 };
 

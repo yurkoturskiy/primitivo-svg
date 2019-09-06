@@ -197,7 +197,7 @@ var generateVertexes = function (path) {
     // Init root group from frame vertexes
     groups[0].numOfVertexes = frame.numOfVertexes;
     groups[0].pk = 0;
-    var vertexes = frame.vertexes.map(function (vertex, index) { return (__assign({}, vertex, { type: "C", index: index, indexWithingGroup: index, group: 0, round: getRoundValue(groups[0], index), distance: getDistanceValue(groups[0], index), radius: getRadiusValue(groups[0], index) })); });
+    var vertexes = frame.vertexes.map(function (vertex, index) { return (__assign({}, vertex, { type: "C", indexWithingGroup: index, group: 0, round: getRoundValue(groups[0], index), distance: getDistanceValue(groups[0], index), radius: getRadiusValue(groups[0], index) })); });
     for (var groupIndex = 1; groupIndex < numOfGroups; groupIndex++) {
         log.debug("group number", groupIndex);
         var numOfNewVertexes = vertexes.length;
@@ -236,7 +236,6 @@ var generateVertexes = function (path) {
             vertexes[i].distance = getDistanceValue(groups[groupIndex], indexWithingGroup);
             vertexes[i].round = getRoundValue(groups[groupIndex], indexWithingGroup);
             vertexes[i].radius = getRadiusValue(groups[groupIndex], indexWithingGroup);
-            vertexes[i].index = i;
             vertexes[i].indexWithingGroup = indexWithingGroup;
         }
     }
@@ -247,10 +246,12 @@ var remapVertexes = function (vertexes) {
     /*
      * Add "M" vertex to the array at the start
      * Move first vertex to the end
+     * Set index to each vertex
      */
     var newArray = [];
     vertexes[vertexes.length] = vertexes[0];
     vertexes[0] = __assign({}, vertexes[0], { type: "M" });
+    vertexes = vertexes.map(function (vertex, index) { return (__assign({}, vertex, { index: index })); });
     return vertexes;
 };
 var setArms = function (path, mode) {
