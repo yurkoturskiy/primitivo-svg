@@ -1,11 +1,12 @@
-var log = require("loglevel").getLogger("spacing-log");
 // Interfaces
 import { Parameters, Output } from "./interfaces";
 // misc functions
 import solveCubicEquation from "./solveCubicEquation";
 
+var log = require("loglevel").getLogger("spacing-log");
+
 const pointToNumber = (point: string): number[] => {
-  console.log("point to number", point);
+  log.debug("point to number", point);
   let p: string[] | number[] = point.split(",");
   p = [Number(p[0]), Number(p[1])];
   log.debug("converted point to number", p);
@@ -22,13 +23,13 @@ function calcTime(
   py: number
 ): number {
   var a = p4y - 3 * p3y + 3 * p2y - p1y;
-  console.log("a", a);
+  log.debug("a", a);
   var b = 3 * (p3y - 2 * p2y + p1y);
-  console.log("b", b);
+  log.debug("b", b);
   var c = 3 * (p2y - p1y);
-  console.log("c", c);
+  log.debug("c", c);
   var d = p1y - py;
-  console.log("d", d);
+  log.debug("d", d);
   let ts = solveCubicEquation(a, b, c, d);
   for (let t of ts) {
     if (t > 0 && t < 1) return t;
@@ -108,9 +109,9 @@ const spacingLayer = (parameters: Parameters): Output => {
 
   // Calc keySplines
   for (let i = 1; i < splines.length; i += 2) {
-    console.log("p", i);
+    log.debug("p", i);
     if (splines[i] == null) {
-      console.log(splines[i]);
+      log.debug(splines[i]);
       if (!p3Index || i > p3Index) {
         for (let end = i; i < splines.length; end++) {
           // Find next key spline
@@ -176,7 +177,7 @@ const spacingLayer = (parameters: Parameters): Output => {
     splines[i] = [splines[i], splines[i + 1]];
     splines.splice(i + 1, 1);
   }
-  console.log("splines", splines);
+  log.debug("splines", splines);
   return { keySplines: splines.join("; "), keyTimes: keyTimes.join("; ") };
 };
 
