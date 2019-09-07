@@ -1,7 +1,7 @@
 export interface Parameters {
   progression?: number[];
   keyTimes?: number[];
-  keySplines?: string[];
+  keySplines?: string | string[];
 }
 
 export interface Output {

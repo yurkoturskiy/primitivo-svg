@@ -9,7 +9,8 @@ import { AnimateParameters, KeyPathParameters } from "./morphing/interfaces";
 
 var log = require("loglevel");
 log.setLevel("warn");
-log.getLogger("phases-log").setLevel("debug");
+log.getLogger("phases-log").setLevel("info");
+log.getLogger("spacing-log").setLevel("debug");
 
 export const path = (parameters: any): PathData => pathLayer(parameters);
 

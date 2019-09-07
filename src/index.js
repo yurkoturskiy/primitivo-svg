@@ -10,7 +10,8 @@ var index_3 = __importDefault(require("./spacing/index"));
 var index_4 = __importDefault(require("./phases/index"));
 var log = require("loglevel");
 log.setLevel("warn");
-log.getLogger("phases-log").setLevel("debug");
+log.getLogger("phases-log").setLevel("info");
+log.getLogger("spacing-log").setLevel("debug");
 exports.path = function (parameters) { return index_1.default(parameters); };
 exports.morphing = function (animateParameters, keyPathsParameters) {
     return index_2.default(animateParameters, keyPathsParameters);
