@@ -3,11 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var log = require("loglevel").getLogger("spacing-log");
 // misc functions
 var solveCubicEquation_1 = __importDefault(require("./solveCubicEquation"));
+var log = require("loglevel").getLogger("spacing-log");
 var pointToNumber = function (point) {
-    console.log("point to number", point);
+    log.debug("point to number", point);
     var p = point.split(",");
     p = [Number(p[0]), Number(p[1])];
     log.debug("converted point to number", p);
@@ -16,13 +16,13 @@ var pointToNumber = function (point) {
 var pointToString = function (point) { return point.join(","); };
 function calcTime(p1y, p2y, p3y, p4y, py) {
     var a = p4y - 3 * p3y + 3 * p2y - p1y;
-    console.log("a", a);
+    log.debug("a", a);
     var b = 3 * (p3y - 2 * p2y + p1y);
-    console.log("b", b);
+    log.debug("b", b);
     var c = 3 * (p2y - p1y);
-    console.log("c", c);
+    log.debug("c", c);
     var d = p1y - py;
-    console.log("d", d);
+    log.debug("d", d);
     var ts = solveCubicEquation_1.default(a, b, c, d);
     for (var _i = 0, ts_1 = ts; _i < ts_1.length; _i++) {
         var t = ts_1[_i];
@@ -87,9 +87,9 @@ var spacingLayer = function (parameters) {
     var p3Index;
     // Calc keySplines
     for (var i = 1; i < splines.length; i += 2) {
-        console.log("p", i);
+        log.debug("p", i);
         if (splines[i] == null) {
-            console.log(splines[i]);
+            log.debug(splines[i]);
             if (!p3Index || i > p3Index) {
                 for (var end = i; i < splines.length; end++) {
                     // Find next key spline
@@ -153,7 +153,7 @@ var spacingLayer = function (parameters) {
         splines[i] = [splines[i], splines[i + 1]];
         splines.splice(i + 1, 1);
     }
-    console.log("splines", splines);
+    log.debug("splines", splines);
     return { keySplines: splines.join("; "), keyTimes: keyTimes.join("; ") };
 };
 exports.default = spacingLayer;

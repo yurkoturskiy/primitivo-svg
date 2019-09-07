@@ -26,7 +26,7 @@ export interface Data {
 }
 
 export interface Phase {
-  duration: number;
+  duration(parameters: DurationMethod): number;
   progressionsPhaseScope(parameters: ProgressionsPhaseScopeMethod): number[];
   progressionsGeneralScope(
     parameters: ProgressionsGeneralScopeMethod
@@ -69,7 +69,11 @@ export interface GroupParameterMethod {
   progressionsGeneralScope: number[][];
   progressionsPhaseScope: number[][];
   activePhaseIndex: number;
-  phasesDuration: number[];
+}
+
+export interface DurationMethod {
+  startPath: PathData;
+  endPath: PathData;
 }
 
 export interface ProgressionsPhaseScopeMethod {

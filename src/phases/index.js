@@ -36,7 +36,7 @@ var calcProgressions = function (data) {
     var progressionsGeneralScope = Array(numOfPhases);
     var progressions = [];
     for (var i_1 = 0; i_1 < numOfPhases; i_1++) {
-        var duration = parameters.phases[i_1].duration;
+        var duration = parameters.phases[i_1].duration({ startPath: startPath, endPath: endPath });
         // Calc progressionsPhaseScope
         progressionsPhaseScope[i_1] = parameters.phases[i_1].progressionsPhaseScope({
             startPath: startPath,
@@ -81,10 +81,8 @@ var generateGroupsParameters = function (data) {
             // loop vertexes
             var activePhaseIndex;
             var keyVertexIndex;
-            var phasesDuration = [];
             for (var phIndex = 0; phIndex < numOfPhases; phIndex++) {
                 // loop phases and pick first incomplete phase to take values from
-                phasesDuration.push(phases[phIndex].duration);
                 // Check if current phase is incomplete
                 var phaseIsIncomplete = progressions[prIndex] <= progressionsGeneralScope[phIndex][vIndex];
                 if (phaseIsIncomplete) {
@@ -113,7 +111,6 @@ var generateGroupsParameters = function (data) {
                         endPath: endPath,
                         vertex: vertex,
                         progression: progressions[prIndex],
-                        phasesDuration: phasesDuration,
                         activePhaseIndex: activePhaseIndex,
                         progressionsGeneralScope: progressionsGeneralScope,
                         progressionsPhaseScope: progressionsPhaseScope
@@ -132,12 +129,15 @@ var generateGroupsParameters = function (data) {
 };
 var generateDValues = function (data) {
     log.info("start generate d values");
-    var _a = data.parameters, loop = _a.loop, baseParameters = _a.baseParameters, startGroupsParameters = _a.startGroupsParameters;
+    var _a = data.parameters, loop = _a.loop, baseParameters = _a.baseParameters, startGroupsParameters = _a.startGroupsParameters, endGroupsParameters = _a.endGroupsParameters;
     var pathsGroupsParameters = data.pathsGroupsParameters;
     var morphingParams = {
-        numOfKeyPaths: pathsGroupsParameters.length,
+        numOfKeyPaths: pathsGroupsParameters.length + 1,
         loop: loop
     };
+    log.debug("morphing params", morphingParams);
+    // data.progressions.push(1);
+    data.progressions.unshift(0);
     var pathsParams = __assign({}, baseParameters, { groups: [startGroupsParameters].concat(pathsGroupsParameters) });
     log.debug("paths parameters", pathsParams);
     data.dValues = index_2.default(morphingParams, pathsParams).dValues;

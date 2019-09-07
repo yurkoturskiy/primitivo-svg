@@ -53,7 +53,7 @@ const calcProgressions = (data: Data): Data => {
   var progressions: number[] = [];
 
   for (let i = 0; i < numOfPhases; i++) {
-    const duration = parameters.phases[i].duration;
+    const duration = parameters.phases[i].duration({ startPath, endPath });
     // Calc progressionsPhaseScope
     progressionsPhaseScope[i] = parameters.phases[i].progressionsPhaseScope({
       startPath,
@@ -119,10 +119,8 @@ const generateGroupsParameters = (data: Data): Data => {
       // loop vertexes
       var activePhaseIndex;
       var keyVertexIndex;
-      var phasesDuration: number[] = [];
       for (let phIndex = 0; phIndex < numOfPhases; phIndex++) {
         // loop phases and pick first incomplete phase to take values from
-        phasesDuration.push(phases[phIndex].duration);
         // Check if current phase is incomplete
         let phaseIsIncomplete =
           progressions[prIndex] <= progressionsGeneralScope[phIndex][vIndex];
@@ -156,7 +154,6 @@ const generateGroupsParameters = (data: Data): Data => {
                 endPath,
                 vertex,
                 progression: progressions[prIndex],
-                phasesDuration,
                 activePhaseIndex,
                 progressionsGeneralScope,
                 progressionsPhaseScope
@@ -175,12 +172,20 @@ const generateGroupsParameters = (data: Data): Data => {
 
 const generateDValues = (data: Data): Data => {
   log.info("start generate d values");
-  const { loop, baseParameters, startGroupsParameters } = data.parameters;
+  const {
+    loop,
+    baseParameters,
+    startGroupsParameters,
+    endGroupsParameters
+  } = data.parameters;
   const { pathsGroupsParameters } = data;
   const morphingParams = {
-    numOfKeyPaths: pathsGroupsParameters.length,
+    numOfKeyPaths: pathsGroupsParameters.length + 1,
     loop
   };
+  log.debug("morphing params", morphingParams);
+  // data.progressions.push(1);
+  data.progressions.unshift(0);
   const pathsParams = {
     ...baseParameters,
     groups: [startGroupsParameters, ...pathsGroupsParameters]

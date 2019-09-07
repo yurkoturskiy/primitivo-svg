@@ -4,17 +4,17 @@ const baseParameters = {
   numOfSegments: 4,
   x: 0,
   y: 0,
-  width: 1000,
-  height: 700,
-  centerX: 200,
-  centerY: 100,
+  width: 1920,
+  height: 937,
+  centerX: 400,
+  centerY: 300,
   rotate: 45
 };
 
 const startGroupsParameters = [
   {
     incircle: true,
-    radius: 8,
+    radius: 2,
     round: 1,
     adaptArms: true,
     smartRound: true
@@ -22,7 +22,7 @@ const startGroupsParameters = [
   {
     incircle: true,
     type: "radial",
-    radius: 8,
+    radius: 2,
     round: 1,
     adaptArms: true,
     smartRound: true
@@ -63,15 +63,20 @@ var progressionsGeneralScope = (params: any): number[] => {
   return progressions;
 };
 
+var phaseOneDuration = (params: any) => {
+  console.log("phase one duration", params);
+  return 0.1;
+};
+
 const phaseOne = {
-  duration: 0.1,
+  duration: phaseOneDuration,
   progressionsPhaseScope,
   progressionsGeneralScope,
   groupsParameters: [
     {
       incircle: () => true,
       type: () => "radial",
-      radius: () => 30,
+      radius: () => 100,
       round: () => 1,
       adaptArms: () => true,
       smartRound: () => true
@@ -79,13 +84,17 @@ const phaseOne = {
     {
       incircle: () => true,
       type: () => "linear",
-      radius: () => 30,
+      radius: () => 100,
       round: () => 1,
       adaptArms: () => true,
       smartRound: () => true
     }
   ]
 };
+
+///////////////
+// Phase two //
+///////////////
 
 var progressionsPhaseScope = (params: any): number[] => {
   let progressions: number[] = [];
@@ -144,7 +153,7 @@ var radiusSecondGroup = ({
 };
 
 const phaseTwo = {
-  duration: 0.5,
+  duration: () => 0.45,
   progressionsPhaseScope,
   progressionsGeneralScope,
   groupsParameters: [
@@ -152,16 +161,22 @@ const phaseTwo = {
       incircle: () => false,
       type: () => "radial",
       radius: radiusFirstGroup,
+      adaptArms: () => true,
       round: () => 1
     },
     {
       incircle: () => false,
       type: () => "linear",
       radius: radiusSecondGroup,
+      adaptArms: () => false,
       round: () => 1
     }
   ]
 };
+
+/////////////////
+// Phase three //
+/////////////////
 
 var progressionsPhaseScope = (params: any): number[] => {
   let progressions: number[] = [];
@@ -218,7 +233,7 @@ var radiusSecondGroup = ({
 };
 
 const phaseThree = {
-  duration: 0.4,
+  duration: () => 0.45,
   progressionsPhaseScope,
   progressionsGeneralScope,
   groupsParameters: [
@@ -226,19 +241,21 @@ const phaseThree = {
       incircle: () => false,
       type: () => "radial",
       radius: ({ vertex }: any) => vertex.length,
+      adaptArms: () => true,
       round: roundFirstGroup
     },
     {
       incircle: () => false,
       type: () => "linear",
       radius: radiusSecondGroup,
+      adaptArms: () => false,
       round: () => 1
     }
   ]
 };
 
 export default {
-  loop: true,
+  loop: false,
   startGroupsParameters,
   endGroupsParameters,
   baseParameters,

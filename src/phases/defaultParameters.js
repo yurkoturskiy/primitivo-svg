@@ -16,16 +16,16 @@ var baseParameters = {
     numOfSegments: 4,
     x: 0,
     y: 0,
-    width: 1000,
-    height: 700,
-    centerX: 200,
-    centerY: 100,
+    width: 1920,
+    height: 937,
+    centerX: 400,
+    centerY: 300,
     rotate: 45
 };
 var startGroupsParameters = [
     {
         incircle: true,
-        radius: 8,
+        radius: 2,
         round: 1,
         adaptArms: true,
         smartRound: true
@@ -33,7 +33,7 @@ var startGroupsParameters = [
     {
         incircle: true,
         type: "radial",
-        radius: 8,
+        radius: 2,
         round: 1,
         adaptArms: true,
         smartRound: true
@@ -69,15 +69,19 @@ var progressionsGeneralScope = function (params) {
     progressions.fill(params.duration, 0, numOfVertexes);
     return progressions;
 };
+var phaseOneDuration = function (params) {
+    console.log("phase one duration", params);
+    return 0.1;
+};
 var phaseOne = {
-    duration: 0.1,
+    duration: phaseOneDuration,
     progressionsPhaseScope: progressionsPhaseScope,
     progressionsGeneralScope: progressionsGeneralScope,
     groupsParameters: [
         {
             incircle: function () { return true; },
             type: function () { return "radial"; },
-            radius: function () { return 30; },
+            radius: function () { return 100; },
             round: function () { return 1; },
             adaptArms: function () { return true; },
             smartRound: function () { return true; }
@@ -85,13 +89,16 @@ var phaseOne = {
         {
             incircle: function () { return true; },
             type: function () { return "linear"; },
-            radius: function () { return 30; },
+            radius: function () { return 100; },
             round: function () { return 1; },
             adaptArms: function () { return true; },
             smartRound: function () { return true; }
         }
     ]
 };
+///////////////
+// Phase two //
+///////////////
 var progressionsPhaseScope = function (params) {
     var progressions = [];
     var endPath = params.endPath, duration = params.duration;
@@ -129,7 +136,7 @@ var radiusSecondGroup = function (_a) {
     return result / 2;
 };
 var phaseTwo = {
-    duration: 0.5,
+    duration: function () { return 0.45; },
     progressionsPhaseScope: progressionsPhaseScope,
     progressionsGeneralScope: progressionsGeneralScope,
     groupsParameters: [
@@ -137,16 +144,21 @@ var phaseTwo = {
             incircle: function () { return false; },
             type: function () { return "radial"; },
             radius: radiusFirstGroup,
+            adaptArms: function () { return true; },
             round: function () { return 1; }
         },
         {
             incircle: function () { return false; },
             type: function () { return "linear"; },
             radius: radiusSecondGroup,
+            adaptArms: function () { return false; },
             round: function () { return 1; }
         }
     ]
 };
+/////////////////
+// Phase three //
+/////////////////
 var progressionsPhaseScope = function (params) {
     var progressions = [];
     var endPath = params.endPath, duration = params.duration;
@@ -174,7 +186,7 @@ var radiusSecondGroup = function (_a) {
     return result;
 };
 var phaseThree = {
-    duration: 0.4,
+    duration: function () { return 0.45; },
     progressionsPhaseScope: progressionsPhaseScope,
     progressionsGeneralScope: progressionsGeneralScope,
     groupsParameters: [
@@ -185,18 +197,20 @@ var phaseThree = {
                 var vertex = _a.vertex;
                 return vertex.length;
             },
+            adaptArms: function () { return true; },
             round: roundFirstGroup
         },
         {
             incircle: function () { return false; },
             type: function () { return "linear"; },
             radius: radiusSecondGroup,
+            adaptArms: function () { return false; },
             round: function () { return 1; }
         }
     ]
 };
 exports.default = {
-    loop: true,
+    loop: false,
     startGroupsParameters: startGroupsParameters,
     endGroupsParameters: endGroupsParameters,
     baseParameters: baseParameters,
