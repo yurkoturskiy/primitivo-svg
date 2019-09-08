@@ -1,5 +1,3 @@
-import * as log from "loglevel";
-
 import {
   round,
   radToAngle,
@@ -19,6 +17,9 @@ import {
   GroupParameters,
   Keyframe
 } from "./interfaces";
+
+// Logging
+var log = require("loglevel").getLogger("path-log");
 
 /***********
  * Methods *

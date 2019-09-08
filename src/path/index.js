@@ -10,16 +10,9 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var log = __importStar(require("loglevel"));
 var index_1 = require("../misc/index");
+var log = require("loglevel").getLogger("path-log");
 /***********
  * Methods *
  ***********/
@@ -586,10 +579,12 @@ var recalcRadians = function (path) {
     log.info("recalculate radians");
     var vertexes = path.vertexes;
     var _a = path.parameters, centerX = _a.centerX, centerY = _a.centerY;
-    path.vertexes = vertexes.map(function (vertex) {
+    path.vertexes = vertexes.map(function (vertex, index) {
         var deltaX = vertex.x - centerX;
         var deltaY = centerY - vertex.y;
         vertex.radians = Math.atan2(deltaY, deltaX);
+        // if (vertex.radians < 0) vertex.radians = Math.abs(vertex.radians) + Math.PI;
+        log.debug("vertex " + index + " radians: " + vertex.radians);
         vertex.angle = index_1.radToAngle(vertex.radians);
         return vertex;
     });
