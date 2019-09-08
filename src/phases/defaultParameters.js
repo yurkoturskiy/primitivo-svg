@@ -18,21 +18,21 @@ var baseParameters = {
     y: 0,
     width: 1920,
     height: 937,
-    centerX: 400,
-    centerY: 300,
+    centerX: 100,
+    centerY: 100,
     rotate: 45
 };
 var startGroupsParameters = [
     {
-        incircle: true,
+        incircle: false,
         radius: 2,
         round: 1,
         adaptArms: true,
         smartRound: true
     },
     {
-        incircle: true,
-        type: "radial",
+        incircle: false,
+        type: "linear",
         radius: 2,
         round: 1,
         adaptArms: true,
@@ -79,7 +79,7 @@ var phaseOne = {
     progressionsGeneralScope: progressionsGeneralScope,
     groupsParameters: [
         {
-            incircle: function () { return true; },
+            incircle: function () { return false; },
             type: function () { return "radial"; },
             radius: function () { return 100; },
             round: function () { return 1; },
@@ -87,7 +87,7 @@ var phaseOne = {
             smartRound: function () { return true; }
         },
         {
-            incircle: function () { return true; },
+            incircle: function () { return false; },
             type: function () { return "linear"; },
             radius: function () { return 100; },
             round: function () { return 1; },
