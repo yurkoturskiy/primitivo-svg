@@ -10,7 +10,7 @@ var index_3 = __importDefault(require("./spacing/index"));
 var index_4 = __importDefault(require("./phases/index"));
 var log = require("loglevel");
 log.setLevel("warn");
-log.getLogger("path-log").setLevel("debug");
+log.getLogger("path-log").setLevel("warn");
 log.getLogger("phases-log").setLevel("warn");
 log.getLogger("spacing-log").setLevel("warn");
 exports.path = function (parameters) { return index_1.default(parameters); };

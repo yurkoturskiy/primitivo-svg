@@ -12,6 +12,7 @@ var __assign = (this && this.__assign) || function () {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = require("../misc/index");
+// Logging
 var log = require("loglevel").getLogger("path-log");
 /***********
  * Methods *
@@ -579,12 +580,10 @@ var recalcRadians = function (path) {
     log.info("recalculate radians");
     var vertexes = path.vertexes;
     var _a = path.parameters, centerX = _a.centerX, centerY = _a.centerY;
-    path.vertexes = vertexes.map(function (vertex, index) {
+    path.vertexes = vertexes.map(function (vertex) {
         var deltaX = vertex.x - centerX;
         var deltaY = centerY - vertex.y;
         vertex.radians = Math.atan2(deltaY, deltaX);
-        // if (vertex.radians < 0) vertex.radians = Math.abs(vertex.radians) + Math.PI;
-        log.debug("vertex " + index + " radians: " + vertex.radians);
         vertex.angle = index_1.radToAngle(vertex.radians);
         return vertex;
     });
