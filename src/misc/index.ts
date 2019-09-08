@@ -7,9 +7,17 @@ export const angleToRad = (angle: number): number => (angle * Math.PI) / 180;
 export const randomFromRange = (min: number, max: number): number =>
   Math.random() * (max - min) + min;
 
-export const radiansDelta = (a: number, b: number): number => {
-  let delta = Math.abs(a - b);
-  if (delta > Math.PI) delta = 2 * Math.PI - delta;
+export const radiansDelta = (prev: number, cur: number): number => {
+  // Convert negative radians to positive 2PI format
+  if (prev < 0) prev = 2 * Math.PI - Math.abs(prev);
+  if (cur < 0) cur = 2 * Math.PI - Math.abs(cur);
+
+  let delta;
+  if (prev < cur)
+    // Fix if prev rad is before 0 and cur is after
+    delta = Math.abs(prev + (Math.PI * 2 - cur));
+  else delta = Math.abs(prev - cur);
+
   return delta;
 };
 
