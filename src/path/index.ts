@@ -210,7 +210,7 @@ const generateRadialVertexCoordinates = (
   prevVertex: Vertex,
   nextVertex: Vertex
 ): Vertex => {
-  let radiansStep = radiansDelta(prevVertex.radians, nextVertex.radians) / 2;
+  let radiansStep = radiansDelta(nextVertex.radians, prevVertex.radians) / 2;
   vertex.radians = prevVertex.radians + radiansStep;
   vertex.cosx = round(Math.cos(vertex.radians));
   vertex.siny = round(Math.sin(vertex.radians));

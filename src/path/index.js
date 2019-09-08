@@ -173,7 +173,7 @@ var generateLinearVertexCoordinates = function (vertexes, vertex, prevVertex, ne
     return vertex;
 };
 var generateRadialVertexCoordinates = function (vertexes, vertex, prevVertex, nextVertex) {
-    var radiansStep = index_1.radiansDelta(prevVertex.radians, nextVertex.radians) / 2;
+    var radiansStep = index_1.radiansDelta(nextVertex.radians, prevVertex.radians) / 2;
     vertex.radians = prevVertex.radians + radiansStep;
     vertex.cosx = index_1.round(Math.cos(vertex.radians));
     vertex.siny = index_1.round(Math.sin(vertex.radians));
