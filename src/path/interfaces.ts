@@ -57,7 +57,7 @@ export interface Vertex {
   index?: number;
   indexWithingGroup?: number;
   group?: number;
-  round?: number;
+  round?: number[];
   distance?: number;
   radius?: number;
   radians?: number;

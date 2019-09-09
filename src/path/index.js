@@ -81,14 +81,28 @@ var parseGroupParameter = function (parameter, vertexIndex) {
     }
     return parameter;
 };
+var parseGroupParameterReducer = function (key, value, vertexIndex) {
+    switch (key) {
+        case "round":
+            if (typeof value === "object" && value.length > 2)
+                value = value[vertexIndex];
+            if (typeof value === "number")
+                value = [value, value];
+            break;
+        default:
+            // code...
+            break;
+    }
+    return value;
+};
 var getRoundValue = function (group, vertexIndex) {
     /* Get round value for a vertex from given group parameters */
-    var parameter = group.round;
-    parameter = parseGroupParameter(parameter, vertexIndex);
-    if (typeof parameter !== "number")
-        throw "Wrong 'round' parameters in group number " + group.pk;
+    var value = group.round;
+    value = parseGroupParameterReducer("round", value, vertexIndex);
+    if (typeof value !== "object" || value.length !== 2)
+        throw "Wrong 'round' value in group number " + group.pk + ". Round: " + value;
     else
-        return parameter;
+        return value;
 };
 var getDistanceValue = function (group, vertexIndex) {
     /* Get distance value for a vertex from given group parameters */
@@ -292,7 +306,7 @@ var setArms = function (path, mode) {
                 firstArmLength *= firstArmScaleFactor;
             }
             // Round
-            firstArmLength *= vertexes[i - 1].round;
+            firstArmLength *= vertexes[i - 1].round[1];
             // Set angle
             var firstArmRadians = vertexes[i - 1].radians + Math.PI / 2; // angle + 90 from the previous point angle
             var firstArmAngle = index_1.radToAngle(firstArmRadians);
@@ -329,7 +343,7 @@ var setArms = function (path, mode) {
                 secondArmLength *= secondArmScaleFactor;
             }
             // Set round
-            secondArmLength *= vertexes[i].round;
+            secondArmLength *= vertexes[i].round[0];
             // Set angle
             var secondArmRadians = vertexes[i].radians - Math.PI / 2; // angle + 90 from cur point
             var secondArmAngle = index_1.radToAngle(secondArmRadians);

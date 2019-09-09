@@ -95,13 +95,34 @@ const parseGroupParameter = (parameter: any, vertexIndex: number): number => {
   return parameter;
 };
 
-const getRoundValue = (group: GroupParameters, vertexIndex: number): number => {
+const parseGroupParameterReducer = (
+  key: string,
+  value: any,
+  vertexIndex: number
+): any => {
+  switch (key) {
+    case "round":
+      if (typeof value === "object" && value.length > 2)
+        value = value[vertexIndex];
+      if (typeof value === "number") value = [value, value];
+      break;
+    default:
+      // code...
+      break;
+  }
+  return value;
+};
+
+const getRoundValue = (
+  group: GroupParameters,
+  vertexIndex: number
+): number[] => {
   /* Get round value for a vertex from given group parameters */
-  let parameter: any = group.round;
-  parameter = parseGroupParameter(parameter, vertexIndex);
-  if (typeof parameter !== "number")
-    throw `Wrong 'round' parameters in group number ${group.pk}`;
-  else return parameter;
+  let value: any = group.round;
+  value = parseGroupParameterReducer("round", value, vertexIndex);
+  if (typeof value !== "object" || value.length !== 2)
+    throw `Wrong 'round' value in group number ${group.pk}. Round: ${value}`;
+  else return value;
 };
 
 const getDistanceValue = (
@@ -382,7 +403,7 @@ const setArms = (path: PathData, mode: string): PathData => {
         firstArmLength *= firstArmScaleFactor;
       }
       // Round
-      firstArmLength *= vertexes[i - 1].round;
+      firstArmLength *= vertexes[i - 1].round[1];
       // Set angle
       let firstArmRadians = vertexes[i - 1].radians + Math.PI / 2; // angle + 90 from the previous point angle
       let firstArmAngle = radToAngle(firstArmRadians);
@@ -424,7 +445,7 @@ const setArms = (path: PathData, mode: string): PathData => {
         secondArmLength *= secondArmScaleFactor;
       }
       // Set round
-      secondArmLength *= vertexes[i].round;
+      secondArmLength *= vertexes[i].round[0];
       // Set angle
       let secondArmRadians = vertexes[i].radians - Math.PI / 2; // angle + 90 from cur point
       let secondArmAngle = radToAngle(secondArmRadians);
