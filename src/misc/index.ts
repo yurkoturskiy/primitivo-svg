@@ -4,7 +4,7 @@ export const radToAngle = (rad: number): number => (rad * 180) / Math.PI;
 
 export const angleToRad = (angle: number): number => (angle * Math.PI) / 180;
 
-export const randomFromRange = (min: number, max: number): number =>
+export const randomRange = (min: number, max: number): number =>
   Math.random() * (max - min) + min;
 
 export const radiansDelta = (prev: number, cur: number): number => {

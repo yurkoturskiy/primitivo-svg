@@ -2,7 +2,7 @@ import {
   round,
   radToAngle,
   angleToRad,
-  randomFromRange,
+  randomRange,
   radiansDelta,
   getType
 } from "../misc/index";
@@ -82,7 +82,7 @@ const parseGroupParameter = (parameter: any, vertexIndex: number): number => {
   if (typeof parameter !== "object") return parameter;
   // Random for all
   if (typeof parameter === "object" && parameter.length === 2)
-    return randomFromRange(parameter[0], parameter[1]);
+    return randomRange(parameter[0], parameter[1]);
   // Distance per vertex
   if (typeof parameter === "object") {
     parameter = parameter[vertexIndex];
@@ -90,7 +90,7 @@ const parseGroupParameter = (parameter: any, vertexIndex: number): number => {
     if (typeof parameter !== "object") return parameter;
     // Random range
     if (typeof parameter === "object" && parameter.length === 2)
-      return randomFromRange(parameter[0], parameter[1]);
+      return randomRange(parameter[0], parameter[1]);
   }
   return parameter;
 };

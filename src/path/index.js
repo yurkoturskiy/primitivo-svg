@@ -68,7 +68,7 @@ var parseGroupParameter = function (parameter, vertexIndex) {
         return parameter;
     // Random for all
     if (typeof parameter === "object" && parameter.length === 2)
-        return index_1.randomFromRange(parameter[0], parameter[1]);
+        return index_1.randomRange(parameter[0], parameter[1]);
     // Distance per vertex
     if (typeof parameter === "object") {
         parameter = parameter[vertexIndex];
@@ -77,7 +77,7 @@ var parseGroupParameter = function (parameter, vertexIndex) {
             return parameter;
         // Random range
         if (typeof parameter === "object" && parameter.length === 2)
-            return index_1.randomFromRange(parameter[0], parameter[1]);
+            return index_1.randomRange(parameter[0], parameter[1]);
     }
     return parameter;
 };

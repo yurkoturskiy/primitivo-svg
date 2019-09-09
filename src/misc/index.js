@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.round = function (number) { return Math.round(number * 1e6) / 1e6; };
 exports.radToAngle = function (rad) { return (rad * 180) / Math.PI; };
 exports.angleToRad = function (angle) { return (angle * Math.PI) / 180; };
-exports.randomFromRange = function (min, max) {
+exports.randomRange = function (min, max) {
     return Math.random() * (max - min) + min;
 };
 exports.radiansDelta = function (prev, cur) {
