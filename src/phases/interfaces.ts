@@ -74,6 +74,7 @@ export interface GroupParameterMethod {
 export interface DurationMethod {
   startPath: PathData;
   endPath: PathData;
+  prevDurations: number[];
 }
 
 export interface ProgressionsPhaseScopeMethod {
