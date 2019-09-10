@@ -35,8 +35,14 @@ var calcProgressions = function (data) {
     var progressionsPhaseScope = Array(numOfPhases);
     var progressionsGeneralScope = Array(numOfPhases);
     var progressions = [];
+    var durations = [];
     for (var i_1 = 0; i_1 < numOfPhases; i_1++) {
-        var duration = parameters.phases[i_1].duration({ startPath: startPath, endPath: endPath });
+        var duration = parameters.phases[i_1].duration({
+            startPath: startPath,
+            endPath: endPath,
+            prevDurations: durations
+        });
+        durations.push(duration);
         // Calc progressionsPhaseScope
         progressionsPhaseScope[i_1] = parameters.phases[i_1].progressionsPhaseScope({
             startPath: startPath,
