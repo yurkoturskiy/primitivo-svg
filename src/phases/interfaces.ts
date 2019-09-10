@@ -53,7 +53,7 @@ export interface PhaseGroupParameters {
   type?(params: GroupParameterMethod): string; // type value for a group
   incircle?(params: GroupParameterMethod): boolean;
   distance?(params: GroupParameterMethod): number; // return a value for a single vertex
-  round?(params: GroupParameterMethod): number; // return a value for a single vertex
+  round?(params: GroupParameterMethod): number | number[]; // return a value for a single vertex
   smartRound?(params: GroupParameterMethod): boolean; // value for a group
   lengthBasedRound?(params: GroupParameterMethod): boolean; // value for a group
   adaptArms?(params: GroupParameterMethod): boolean; // Keep arms always perpendicular to center
