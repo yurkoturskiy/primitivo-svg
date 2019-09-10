@@ -1,12 +1,15 @@
 var log = require("loglevel").getLogger("phases-log");
 
+const phaseOneRatio = 2;
+const phaseTwoRatio = 2;
+
 const baseParameters = {
   numOfSegments: 4,
   x: 0,
   y: 0,
   width: 1920,
   height: 937,
-  centerX: 100,
+  centerX: 1820,
   centerY: 100,
   rotate: 45
 };
@@ -63,9 +66,17 @@ var progressionsGeneralScope = (params: any): number[] => {
   return progressions;
 };
 
-var phaseOneDuration = (params: any) => {
-  console.log("phase one duration", params);
-  return 0.1;
+var phaseOneDuration = ({ endPath }: any) => {
+  var { minLength, maxLength } = endPath.parameters;
+  if (minLength < 200) minLength = 200;
+  let duration = minLength / phaseOneRatio;
+  duration = 0.5 / (maxLength / duration);
+  return duration;
+};
+
+var phaseOneRadius = ({ endPath, progression }: any) => {
+  const { maxLength } = endPath.parameters;
+  return maxLength * progression;
 };
 
 const phaseOne = {
@@ -76,7 +87,7 @@ const phaseOne = {
     {
       incircle: () => false,
       type: () => "radial",
-      radius: () => 100,
+      radius: phaseOneRadius,
       round: () => 1,
       adaptArms: () => true,
       smartRound: () => true
@@ -84,7 +95,7 @@ const phaseOne = {
     {
       incircle: () => false,
       type: () => "linear",
-      radius: () => 100,
+      radius: phaseOneRadius,
       round: () => 1,
       adaptArms: () => true,
       smartRound: () => true
@@ -95,6 +106,10 @@ const phaseOne = {
 ///////////////
 // Phase two //
 ///////////////
+
+var duration = ({ prevDurations }: any) => {
+  return 0.5 - prevDurations[0];
+};
 
 var progressionsPhaseScope = (params: any): number[] => {
   let progressions: number[] = [];
@@ -153,7 +168,7 @@ var radiusSecondGroup = ({
 };
 
 const phaseTwo = {
-  duration: () => 0.45,
+  duration,
   progressionsPhaseScope,
   progressionsGeneralScope,
   groupsParameters: [
@@ -181,11 +196,65 @@ const phaseTwo = {
 var progressionsPhaseScope = (params: any): number[] => {
   let progressions: number[] = [];
   const { endPath, duration } = params;
-  params.endPath.vertexes.forEach((vertex: any, index: any) => {
-    let maxLength = endPath.parameters.maxLength;
-    let delta = maxLength / vertex.length;
-    progressions.push(1 / delta);
-  });
+  const { vertexes } = endPath;
+  const maxLength = endPath.parameters.maxLengthByGroup[1];
+
+  for (let i = 0; i < vertexes.length; i++) {
+    let vertex = vertexes[i];
+    if (vertex.group === 0) {
+      // Handle M and C type vertexes
+      const prevIndex = i === 0 ? vertexes.length - 2 : i - 1;
+      const nextIndex = i === vertexes.length - 1 ? 1 : i + 1;
+
+      let prevDelta = maxLength / vertexes[prevIndex].length;
+      let nextDelta = maxLength / vertexes[nextIndex].length;
+
+      let prevProgression = 1 / prevDelta;
+      let nextProgression = 1 / nextDelta;
+
+      progressions[prevIndex] = prevProgression;
+      progressions[nextIndex] = nextProgression;
+
+      progressions[i] =
+        nextProgression > prevProgression ? nextProgression : prevProgression;
+    } else if (progressions[i] === undefined) {
+      let delta = maxLength / vertex.length;
+      progressions[i] = 1 / delta;
+    }
+  }
+  return progressions;
+};
+
+var progressionsGeneralScope = (params: any): number[] => {
+  const { duration, endPath, prevPhaseProgressions } = params;
+  const { vertexes } = endPath;
+  const maxLength = endPath.parameters.maxLengthByGroup[1];
+  let progressions: number[] = [];
+  for (let i = 0; i < vertexes.length; i++) {
+    let vertex = vertexes[i];
+    if (vertex.group === 0) {
+      // Handle M and C type vertexes
+      const prevIndex = i === 0 ? vertexes.length - 2 : i - 1;
+      const nextIndex = i === vertexes.length - 1 ? 1 : i + 1;
+
+      let prevDelta = maxLength / vertexes[prevIndex].length;
+      let nextDelta = maxLength / vertexes[nextIndex].length;
+
+      let prevProgression =
+        duration / prevDelta + prevPhaseProgressions[prevIndex];
+      let nextProgression =
+        duration / nextDelta + prevPhaseProgressions[nextIndex];
+
+      progressions[prevIndex] = prevProgression;
+      progressions[nextIndex] = nextProgression;
+
+      progressions[i] =
+        nextProgression > prevProgression ? nextProgression : prevProgression;
+    } else if (progressions[i] === undefined) {
+      let delta = maxLength / vertex.length;
+      progressions[i] = duration / delta + prevPhaseProgressions[i];
+    }
+  }
   return progressions;
 };
 
@@ -196,23 +265,20 @@ var roundFirstGroup = ({
   progressionsGeneralScope,
   progressionsPhaseScope,
   activePhaseIndex
-}: any): number => {
-  let factor =
-    progression / progressionsGeneralScope[activePhaseIndex][vertex.index];
-  let result = 1 - factor;
-  log.debug("progression", progression);
-  log.debug(
-    "vertex",
-    vertex.index,
-    "group",
-    vertex.group,
-    "factor",
-    factor,
-    "round",
-    result,
-    "active phase",
-    activePhaseIndex
-  );
+}: any): number[] => {
+  const { vertexes } = endPath;
+  const prevIndex = vertex.index === 0 ? vertexes.length - 2 : vertex.index - 1;
+  const nextIndex = vertex.index === vertexes.length - 1 ? 1 : vertex.index + 1;
+  let firstFactor =
+    progression / progressionsGeneralScope[activePhaseIndex][prevIndex];
+  let firstArm = 1 - firstFactor;
+  if (firstArm < 0) firstArm = 0;
+
+  let secondFactor =
+    progression / progressionsGeneralScope[activePhaseIndex][nextIndex];
+  let secondArm = 1 - secondFactor;
+  if (secondArm < 0) secondArm = 0;
+  let result: number[] = [firstArm, secondArm];
   return result;
 };
 
@@ -224,7 +290,7 @@ var radiusSecondGroup = ({
   progressionsPhaseScope,
   activePhaseIndex
 }: any): number => {
-  let maxLength = endPath.parameters.maxLength;
+  let maxLength = endPath.parameters.maxLengthByGroup[1];
   let factor =
     (progression / progressionsGeneralScope[activePhaseIndex][vertex.index]) *
     progressionsPhaseScope[activePhaseIndex][vertex.index];
@@ -233,7 +299,7 @@ var radiusSecondGroup = ({
 };
 
 const phaseThree = {
-  duration: () => 0.45,
+  duration: () => 0.5,
   progressionsPhaseScope,
   progressionsGeneralScope,
   groupsParameters: [
