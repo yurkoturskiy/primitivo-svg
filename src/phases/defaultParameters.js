@@ -46,14 +46,16 @@ var endGroupsParameters = [
         incircle: false,
         distance: 1,
         round: 0,
-        adaptArms: true
+        adaptArms: true,
+        lengthBasedRound: true
     },
     {
         incircle: false,
         type: "linear",
         distance: 1,
         round: 1,
-        adaptArms: false
+        adaptArms: false,
+        lengthBasedRound: true
     }
 ];
 ///////////////
@@ -74,8 +76,7 @@ var progressionsGeneralScope = function (params) {
 var phaseOneDuration = function (_a) {
     var endPath = _a.endPath;
     var _b = endPath.parameters, minLength = _b.minLength, maxLength = _b.maxLength;
-    if (minLength < 200)
-        minLength = 200;
+    // if (minLength < 200) minLength = 200;
     var duration = minLength / phaseOneRatio;
     duration = 0.5 / (maxLength / duration);
     return duration;
@@ -161,14 +162,16 @@ var phaseTwo = {
             type: function () { return "radial"; },
             radius: radiusFirstGroup,
             adaptArms: function () { return true; },
-            round: function () { return 1; }
+            round: function () { return 1; },
+            lengthBasedRound: function () { return true; }
         },
         {
             incircle: function () { return false; },
             type: function () { return "linear"; },
             radius: radiusSecondGroup,
             adaptArms: function () { return false; },
-            round: function () { return 1; }
+            round: function () { return 1; },
+            lengthBasedRound: function () { return true; }
         }
     ]
 };
@@ -266,14 +269,16 @@ var phaseThree = {
                 return vertex.length;
             },
             adaptArms: function () { return true; },
-            round: roundFirstGroup
+            round: roundFirstGroup,
+            lengthBasedRound: function () { return true; }
         },
         {
             incircle: function () { return false; },
             type: function () { return "linear"; },
             radius: radiusSecondGroup,
             adaptArms: function () { return false; },
-            round: function () { return 1; }
+            round: function () { return 1; },
+            lengthBasedRound: function () { return true; }
         }
     ]
 };

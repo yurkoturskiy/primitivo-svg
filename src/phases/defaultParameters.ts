@@ -37,14 +37,16 @@ const endGroupsParameters = [
     incircle: false,
     distance: 1,
     round: 0,
-    adaptArms: true
+    adaptArms: true,
+    lengthBasedRound: true
   },
   {
     incircle: false,
     type: "linear",
     distance: 1,
     round: 1,
-    adaptArms: false
+    adaptArms: false,
+    lengthBasedRound: true
   }
 ];
 
@@ -68,7 +70,7 @@ var progressionsGeneralScope = (params: any): number[] => {
 
 var phaseOneDuration = ({ endPath }: any) => {
   var { minLength, maxLength } = endPath.parameters;
-  if (minLength < 200) minLength = 200;
+  // if (minLength < 200) minLength = 200;
   let duration = minLength / phaseOneRatio;
   duration = 0.5 / (maxLength / duration);
   return duration;
@@ -177,14 +179,16 @@ const phaseTwo = {
       type: () => "radial",
       radius: radiusFirstGroup,
       adaptArms: () => true,
-      round: () => 1
+      round: () => 1,
+      lengthBasedRound: () => true
     },
     {
       incircle: () => false,
       type: () => "linear",
       radius: radiusSecondGroup,
       adaptArms: () => false,
-      round: () => 1
+      round: () => 1,
+      lengthBasedRound: () => true
     }
   ]
 };
@@ -308,14 +312,16 @@ const phaseThree = {
       type: () => "radial",
       radius: ({ vertex }: any) => vertex.length,
       adaptArms: () => true,
-      round: roundFirstGroup
+      round: roundFirstGroup,
+      lengthBasedRound: () => true
     },
     {
       incircle: () => false,
       type: () => "linear",
       radius: radiusSecondGroup,
       adaptArms: () => false,
-      round: () => 1
+      round: () => 1,
+      lengthBasedRound: () => true
     }
   ]
 };
