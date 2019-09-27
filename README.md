@@ -4,7 +4,7 @@ Primitivo is a JavaScript library for SVG. That means it prepares data for the S
 
 ## What makes it unique
 
-1. It morphs paths with <animate> tag. JavaScript only initializes data for it.
+1. It morphs paths with animate tag. JavaScript only initializes data for it.
 2. Powerful timing and spacing tuning.
 3. Phases animation allow to calculate frames for a parametric animation and consider parameters of each vertex individually.
 4. C type points paths. They allow morphing any paths with a constant number of vertexes.
