@@ -1,6 +1,19 @@
-# Primitivo - JavaScript SVG library
+# Primitivo-SVG (Alpha) - JavaScript SVG library
 
-Primitivo is a JS SVG library, which generates and animates SVG shapes. You can create: spinners, transitions effects, or element for illustrations.
+Primitivo is a JavaScript library for SVG. That means it prepares data for the SVG and doesn't manipulate the DOM. Think about it as the SVG assistant. With it, you can create spinners, transitions effects, or element for illustrations.
+
+## What makes it unique
+
+1. It morphs paths with <animate> tag. JavaScript only initializes data for it.
+2. Powerful timing and spacing tuning.
+3. Phases animation allow to calculate frames for a parametric animation and consider parameters of each vertex individually.
+4. C type points paths. They allow morphing any paths with a constant number of vertexes.
+
+## Examples:
+
+1. [Sequence of polygons](https://sequence-of-polygons.netlify.com/)
+2. [Smart round](https://smart-round.netlify.com/)
+3. [Noise of distance](https://noise-of-distance.netlify.com/)
 
 ## Path Layer
 
