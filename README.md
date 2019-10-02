@@ -1,6 +1,6 @@
 # Primitivo-SVG (Alpha) - JavaScript SVG library
 
-Primitivo is a JavaScript library for SVG. That means it prepares data for the SVG and doesn't manipulate the DOM. Think about it as the SVG assistant. With it, you can create spinners, transitions effects, or element for illustrations.
+Primitivo is a JavaScript library for SVG. That means it prepares data for the SVG and doesn't manipulate the DOM. Think about it as the SVG assistant. With it, you can create spinners, transitions effects, or elements for illustrations.
 
 ## What makes it unique
 
@@ -13,6 +13,11 @@ Primitivo is a JavaScript library for SVG. That means it prepares data for the S
 1. [Sequence of polygons](https://codesandbox.io/s/github/guandjoy/sequence-of-polygons)
 2. [Smart round](https://codesandbox.io/s/github/guandjoy/smart-round)
 3. [Noise of distance](https://codesandbox.io/s/github/guandjoy/noise-of-distance)
+
+## Collections of design concepts:
+
+1. Dribbble: <https://dribbble.com/Guandjoy/buckets/1504217-primitivo>
+2. Pinterest: <https://www.pinterest.com/yurko_turskiy/primitivo/>
 
 ## Path Layer
 
