@@ -13,7 +13,7 @@ Primitivo is a JavaScript library for SVG. That means it prepares data for the S
 1. [Sequence of polygons](https://codesandbox.io/s/github/guandjoy/sequence-of-polygons)
 2. [Smart round](https://codesandbox.io/s/github/guandjoy/smart-round)
 3. [Noise of distance](https://codesandbox.io/s/github/guandjoy/noise-of-distance)
-4. [Phased transition](https://phased-transition.netlify.com/)
+4. [Phased transition](https://codesandbox.io/s/github/guandjoy/phased-transition)
 
 ## Collections of design concepts:
 
