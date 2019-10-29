@@ -1,4 +1,4 @@
-# Primitivo-SVG (Alpha) - JavaScript SVG library
+# Primitivo-SVG (Alpha) - JavaScript library for SVG
 
 Primitivo is a JavaScript library for SVG. That means it prepares data for the SVG and doesn't manipulate the DOM. Think about it as the SVG assistant. With it, you can create spinners, transitions effects, or elements for illustrations.
 
