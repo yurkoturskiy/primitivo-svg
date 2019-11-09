@@ -7,6 +7,7 @@ Primitivo is a JavaScript library for SVG. That means it prepares data for the S
 1. Morph paths via animate tag;
 2. Powerful timing and spacing controls;
 3. Phased animation;
+4. Animate with SSR and turned off JS (except for interactive cases).
 
 ## Examples:
 
