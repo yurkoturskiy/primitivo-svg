@@ -22,6 +22,12 @@ Primitivo is a JavaScript library for SVG. That means it prepares data for the S
 1. Dribbble: <https://dribbble.com/Guandjoy/buckets/1504217-primitivo>
 2. Pinterest: <https://www.pinterest.com/yurko_turskiy/primitivo/>
 
+## Install:
+
+```shell
+npm install --save primitivo-svg
+```
+
 ## Path Layer
 
 Draw a figure
