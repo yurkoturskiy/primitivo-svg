@@ -82,8 +82,15 @@ function morphingLayer(
       let path = pathLayer(pathParameters);
       paths[i] = path;
       dValues[i] = path.d;
-      if (loop && i !== numOfKeyPaths - 1)
-        dValues[(numOfKeyPaths - 1) * 2 - i] = path.d;
+      if (loop) {
+        if (loop === "linear" && i !== numOfKeyPaths - 1) {
+          // Linear or boomerang loop
+          dValues[(numOfKeyPaths - 1) * 2 - i] = path.d;
+        } else if (loop === "circle" && i === numOfKeyPaths - 1) {
+          // Circle loop. Last path equal to first
+          dValues[numOfKeyPaths] = dValues[0];
+        }
+      }
     }
     dValues = dValues.join(";");
     return dValues;
@@ -97,7 +104,7 @@ function morphingLayer(
 
 const defaults = {
   parameters: {
-    loop: true,
+    loop: "circle",
     numOfKeyPaths: 3
   },
   keyPathsParameters: {

@@ -327,7 +327,7 @@ const phaseThree = {
 };
 
 export default {
-  loop: false,
+  loop: undefined,
   startGroupsParameters,
   endGroupsParameters,
   baseParameters,

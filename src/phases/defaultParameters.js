@@ -283,7 +283,7 @@ var phaseThree = {
     ]
 };
 exports.default = {
-    loop: false,
+    loop: undefined,
     startGroupsParameters: startGroupsParameters,
     endGroupsParameters: endGroupsParameters,
     baseParameters: baseParameters,

@@ -2,7 +2,7 @@ import { GroupParameters } from "../path/interfaces";
 
 export interface AnimateParameters {
   numOfKeyPaths: number;
-  loop: boolean;
+  loop: string;
 }
 
 export interface KeyPathParameters {
@@ -28,6 +28,7 @@ export interface AnimateValue {
 
 export interface Output {
   dValues?: string;
+  numOfKeyPaths?: number;
   keyTimes?: string;
   keySplines?: string;
 }

@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/guandjoy/primitivo-svg#readme",
   "dependencies": {
-    "@types/node": "^12.7.3",
+    "@types/node": "^12.12.7",
     "loglevel": "^1.6.3"
   }
 }

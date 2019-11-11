@@ -7,7 +7,7 @@ import {
 } from "../path/interfaces";
 
 export interface InputParameters {
-  loop: boolean;
+  loop: string;
   startGroupsParameters: GroupParameters[];
   endGroupsParameters: GroupParameters[];
   baseParameters: BaseParameters;
