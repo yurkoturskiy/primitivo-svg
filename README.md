@@ -36,6 +36,10 @@ Bitcoin wallet: `19fxW81ApuCbAu2tW8WebxRQqaoje6YbhJ`
 npm install --save primitivo-svg
 ```
 
+## Backlog:
+
+1. Corners rounding and smoothing
+
 ## Path Layer
 
 Draw a figure
