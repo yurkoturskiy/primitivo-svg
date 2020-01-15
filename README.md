@@ -22,13 +22,11 @@ Primitivo is a JavaScript library for SVG. That means it prepares data for the S
 1. Dribbble: <https://dribbble.com/Guandjoy/buckets/1504217-primitivo>
 2. Pinterest: <https://www.pinterest.com/yurko_turskiy/primitivo/>
 
+## Buy me a coffee :coffee:
 
-## Donation :two_hearts:
-
-Your donations will help to develop Primitivo faster. Please support :blush:
+Coffee will help me to develop Primitivo faster.
 
 Bitcoin wallet: `19fxW81ApuCbAu2tW8WebxRQqaoje6YbhJ`
-
 
 ## Install:
 
