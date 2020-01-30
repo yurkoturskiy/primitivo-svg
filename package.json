@@ -2,7 +2,7 @@
   "name": "primitivo-svg",
   "version": "0.1.0-alpha.1",
   "description": "JS SVG library, which generates and animates SVG shapes. Create spinners, transition, and illustrations",
-  "main": "src/index.js",
+  "main": "build/index.js",
   "scripts": {
     "build": "tsc"
   },
