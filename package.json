@@ -25,6 +25,7 @@
   "homepage": "https://github.com/guandjoy/primitivo-svg#readme",
   "dependencies": {
     "@types/node": "^12.12.7",
-    "loglevel": "^1.6.3"
+    "loglevel": "^1.6.3",
+    "ramda": "^0.26.1"
   }
 }
