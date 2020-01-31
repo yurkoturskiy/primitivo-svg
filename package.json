@@ -27,5 +27,8 @@
     "@types/node": "^12.12.7",
     "loglevel": "^1.6.3",
     "ramda": "^0.26.1"
+  },
+  "devDependencies": {
+    "@types/ramda": "github:types/npm-ramda#dist"
   }
 }
