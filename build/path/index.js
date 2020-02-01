@@ -12,17 +12,17 @@ var __assign = (this && this.__assign) || function () {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = require("../misc/index");
+var ramda_1 = require("ramda");
 // Logging
 var log = require("loglevel").getLogger("path-log");
 /***********
  * Methods *
  ***********/
-var setDefaults = function (path) {
-    defaultParameters.numOfGroups = path.parameters.groups.length; // Set num of groups if not exist
-    path.parameters = __assign({}, defaultParameters, path.parameters);
-    path.parameters.groups = path.parameters.groups.map(function (group) { return (__assign({}, defaultParameters.groups[0], group)); });
-    return path;
-};
+var setDefaultParams = function (parameters) { return (__assign({}, defaultParameters, parameters, { numOfGroups: parameters.groups.length, groups: parameters.groups.map(function (group) { return (__assign({}, defaultParameters.groups[0], group)); }) })); };
+var createPath = function (parameters) { return ({
+    parameters: parameters
+}); };
+var initState = ramda_1.pipe(setDefaultParams, createPath);
 var generateFrame = function (path) {
     /*
      * Generate frame which is the base for a path and
@@ -250,19 +250,19 @@ var generateVertexes = function (path) {
     path.vertexes = vertexes;
     return path;
 };
-var remapVertexes = function (vertexes) {
+var remapVertexes = function (path) {
     /*
      * Add "M" vertex to the array at the start
      * Move first vertex to the end
      * Set index to each vertex
      */
-    var newArray = [];
+    var vertexes = path.vertexes;
     vertexes[vertexes.length] = vertexes[0];
     vertexes[0] = __assign({}, vertexes[0], { type: "M" });
-    vertexes = vertexes.map(function (vertex, index) { return (__assign({}, vertex, { index: index })); });
-    return vertexes;
+    var newVertexes = vertexes.map(function (vertex, index) { return (__assign({}, vertex, { index: index })); });
+    return __assign({}, path, { vertexes: newVertexes });
 };
-var setArms = function (path, mode) {
+var setArms = function (mode, path) {
     var vertexes = path.vertexes;
     var _a = path.parameters, groups = _a.groups, averageLength = _a.averageLength;
     var numOfPoints = vertexes.length - 1; // Minus "M" vertex
@@ -648,13 +648,12 @@ var generateD = function (path) {
 var pathLayer = function (parameters) {
     if (parameters === void 0) { parameters = defaultParameters; }
     // Setup defaults
-    var path = { parameters: parameters };
-    path = setDefaults(path);
+    var path = initState(parameters);
     // Generate shape
     path = generateFrame(path);
     path = generateVertexes(path);
-    path.vertexes = remapVertexes(path.vertexes); // Add M point
-    path = setArms(path, "init");
+    path = remapVertexes(path); // Add M point
+    path = setArms("init", path);
     path = scaleToOne(path);
     path = setCenter(path);
     path = setDistance(path);
@@ -664,7 +663,7 @@ var pathLayer = function (parameters) {
     path = setLength(path);
     path = calcLength(path);
     path = recalcRadians(path);
-    path = setArms(path, "adapt");
+    path = setArms("adapt", path);
     path = shift(path);
     path = generateD(path);
     return path;

@@ -17,6 +17,7 @@ import {
   GroupParameters,
   Keyframe
 } from "./interfaces";
+import { pipe } from "ramda";
 
 // Logging
 var log = require("loglevel").getLogger("path-log");
@@ -25,16 +26,21 @@ var log = require("loglevel").getLogger("path-log");
  * Methods *
  ***********/
 
-const setDefaults = (path: PathData): PathData => {
-  defaultParameters.numOfGroups = path.parameters.groups.length; // Set num of groups if not exist
-  path.parameters = { ...defaultParameters, ...path.parameters };
-
-  path.parameters.groups = path.parameters.groups.map(group => ({
+const setDefaultParams = (parameters: InputParameters): InputParameters => ({
+  ...defaultParameters,
+  ...parameters,
+  numOfGroups: parameters.groups.length,
+  groups: parameters.groups.map(group => ({
     ...defaultParameters.groups[0],
     ...group
-  }));
-  return path;
-};
+  }))
+});
+
+const createPath = (parameters: InputParameters): PathData => ({
+  parameters
+});
+
+const initState = pipe(setDefaultParams, createPath);
 
 const generateFrame = (path: PathData): PathData => {
   /*
@@ -320,21 +326,21 @@ const generateVertexes = (path: PathData): PathData => {
   return path;
 };
 
-const remapVertexes = (vertexes: Vertex[]): Vertex[] => {
+const remapVertexes = (path: PathData): PathData => {
   /*
    * Add "M" vertex to the array at the start
    * Move first vertex to the end
    * Set index to each vertex
    */
+  const { vertexes } = path;
 
-  var newArray = [];
   vertexes[vertexes.length] = vertexes[0];
   vertexes[0] = { ...vertexes[0], type: "M" };
-  vertexes = vertexes.map((vertex, index) => ({ ...vertex, index }));
-  return vertexes;
+  const newVertexes = vertexes.map((vertex, index) => ({ ...vertex, index }));
+  return { ...path, vertexes: newVertexes };
 };
 
-const setArms = (path: PathData, mode: string): PathData => {
+const setArms = (mode: string, path: PathData): PathData => {
   var { vertexes } = path;
   var { groups, averageLength } = path.parameters;
   var numOfPoints = vertexes.length - 1; // Minus "M" vertex
@@ -782,14 +788,12 @@ const pathLayer = (
   parameters: InputParameters = defaultParameters
 ): PathData => {
   // Setup defaults
-  var path: PathData = { parameters };
-  path = setDefaults(path);
-
+  let path = initState(parameters);
   // Generate shape
   path = generateFrame(path);
   path = generateVertexes(path);
-  path.vertexes = remapVertexes(path.vertexes); // Add M point
-  path = setArms(path, "init");
+  path = remapVertexes(path); // Add M point
+  path = setArms("init", path);
 
   path = scaleToOne(path);
   path = setCenter(path);
@@ -800,7 +804,7 @@ const pathLayer = (
   path = setLength(path);
   path = calcLength(path);
   path = recalcRadians(path);
-  path = setArms(path, "adapt");
+  path = setArms("adapt", path);
   path = shift(path);
   path = generateD(path);
   return path;
