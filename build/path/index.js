@@ -23,13 +23,16 @@ var createPath = function (parameters) { return ({
     parameters: parameters
 }); };
 var initState = ramda_1.pipe(setDefaultParams, createPath);
+var calcNumOfVertexes = function (numOfSegments, depth) {
+    return numOfSegments * Math.pow(2, depth);
+};
 var generateFrame = function (path) {
     /*
      * Generate frame which is the base for a path and
      * serve as the base for a 0-group vertexes.
      */
     var _a = path.parameters, depth = _a.depth, rotate = _a.rotate, numOfSegments = _a.numOfSegments, groups = _a.groups;
-    var numOfVertexes = numOfSegments * Math.pow(2, depth);
+    var numOfVertexes = calcNumOfVertexes(numOfSegments, depth);
     var vertexes = [];
     for (var i = 0; i < numOfVertexes; i++) {
         var radians = void 0;

@@ -42,6 +42,9 @@ const createPath = (parameters: InputParameters): PathData => ({
 
 const initState = pipe(setDefaultParams, createPath);
 
+const calcNumOfVertexes = (numOfSegments: number, depth: number): number =>
+  numOfSegments * Math.pow(2, depth);
+
 const generateFrame = (path: PathData): PathData => {
   /*
    * Generate frame which is the base for a path and
@@ -49,8 +52,9 @@ const generateFrame = (path: PathData): PathData => {
    */
 
   const { depth, rotate, numOfSegments, groups } = path.parameters;
-  var numOfVertexes: number = numOfSegments * Math.pow(2, depth);
+  const numOfVertexes: number = calcNumOfVertexes(numOfSegments, depth);
   var vertexes = [];
+
   for (let i = 0; i < numOfVertexes; i++) {
     let radians: number;
     // If custom radians were provided
@@ -74,6 +78,7 @@ const generateFrame = (path: PathData): PathData => {
       angle
     };
   }
+
   path.frame = {
     vertexes,
     numOfVertexes: vertexes.length
