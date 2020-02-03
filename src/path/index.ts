@@ -53,37 +53,43 @@ const generateFrame = (path: PathData): PathData => {
 
   const { depth, rotate, numOfSegments, groups } = path.parameters;
   const numOfVertexes: number = calcNumOfVertexes(numOfSegments, depth);
-  var vertexes = [];
+  // var vertexes = [];
+  const vertexes = Array(numOfVertexes)
+    .fill({})
+    .reduce((acc, vertex, i) => {
+      let radians: number;
+      // If custom radians were provided
+      if (groups[0].radians) radians = getRadiansValue(groups[0], i);
+      // Generate own if not
+      else radians = ((Math.PI * 2) / numOfVertexes) * i;
+      // Rotate
+      radians = radians + angleToRad(rotate);
 
-  for (let i = 0; i < numOfVertexes; i++) {
-    let radians: number;
-    // If custom radians were provided
-    if (groups[0].radians) radians = getRadiansValue(groups[0], i);
-    // Generate own if not
-    else radians = ((Math.PI * 2) / numOfVertexes) * i;
-    // Rotate
-    radians = radians + angleToRad(rotate);
+      const angle = radToAngle(radians);
+      const cosx = round(Math.cos(radians));
+      const siny = round(Math.sin(radians));
+      const x = cosx;
+      const y = siny;
+      return [
+        ...acc,
+        {
+          cosx,
+          siny,
+          x,
+          y,
+          radians,
+          angle
+        }
+      ];
+    }, []);
 
-    let angle = radToAngle(radians);
-    let cosx = round(Math.cos(radians));
-    let siny = round(Math.sin(radians));
-    let x = cosx;
-    let y = siny;
-    vertexes[i] = {
-      cosx,
-      siny,
-      x,
-      y,
-      radians,
-      angle
-    };
-  }
-
-  path.frame = {
-    vertexes,
-    numOfVertexes: vertexes.length
+  return {
+    ...path,
+    frame: {
+      vertexes,
+      numOfVertexes: vertexes.length
+    }
   };
-  return path;
 };
 
 const parseGroupParameter = (parameter: any, vertexIndex: number): number => {

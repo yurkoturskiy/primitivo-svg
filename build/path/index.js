@@ -33,9 +33,11 @@ var generateFrame = function (path) {
      */
     var _a = path.parameters, depth = _a.depth, rotate = _a.rotate, numOfSegments = _a.numOfSegments, groups = _a.groups;
     var numOfVertexes = calcNumOfVertexes(numOfSegments, depth);
-    var vertexes = [];
-    for (var i = 0; i < numOfVertexes; i++) {
-        var radians = void 0;
+    // var vertexes = [];
+    var vertexes = Array(numOfVertexes)
+        .fill({})
+        .reduce(function (acc, vertex, i) {
+        var radians;
         // If custom radians were provided
         if (groups[0].radians)
             radians = getRadiansValue(groups[0], i);
@@ -49,20 +51,21 @@ var generateFrame = function (path) {
         var siny = index_1.round(Math.sin(radians));
         var x = cosx;
         var y = siny;
-        vertexes[i] = {
-            cosx: cosx,
-            siny: siny,
-            x: x,
-            y: y,
-            radians: radians,
-            angle: angle
-        };
-    }
-    path.frame = {
-        vertexes: vertexes,
-        numOfVertexes: vertexes.length
-    };
-    return path;
+        return acc.concat([
+            {
+                cosx: cosx,
+                siny: siny,
+                x: x,
+                y: y,
+                radians: radians,
+                angle: angle
+            }
+        ]);
+    }, []);
+    return __assign({}, path, { frame: {
+            vertexes: vertexes,
+            numOfVertexes: vertexes.length
+        } });
 };
 var parseGroupParameter = function (parameter, vertexIndex) {
     /* Parse distance, round, or radius group parameters */
