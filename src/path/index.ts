@@ -58,10 +58,9 @@ const generateFrame = (path: PathData): PathData => {
     .fill({})
     .reduce((acc, vertex, i) => {
       let radians: number;
-      // If custom radians were provided
-      if (groups[0].radians) radians = getRadiansValue(groups[0], i);
-      // Generate own if not
-      else radians = ((Math.PI * 2) / numOfVertexes) * i;
+      radians = groups[0].radians
+        ? getRadiansValue(groups[0], i) // curtom radians were provide
+        : ((Math.PI * 2) / numOfVertexes) * i;
       // Rotate
       radians = radians + angleToRad(rotate);
 

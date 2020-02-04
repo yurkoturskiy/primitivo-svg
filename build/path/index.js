@@ -38,12 +38,9 @@ var generateFrame = function (path) {
         .fill({})
         .reduce(function (acc, vertex, i) {
         var radians;
-        // If custom radians were provided
-        if (groups[0].radians)
-            radians = getRadiansValue(groups[0], i);
-        // Generate own if not
-        else
-            radians = ((Math.PI * 2) / numOfVertexes) * i;
+        radians = groups[0].radians
+            ? getRadiansValue(groups[0], i) // curtom radians were provide
+            : ((Math.PI * 2) / numOfVertexes) * i;
         // Rotate
         radians = radians + index_1.angleToRad(rotate);
         var angle = index_1.radToAngle(radians);
