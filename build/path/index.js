@@ -518,14 +518,9 @@ var calcLength = function (path) {
     var maxLength = 0;
     var minLength = 0;
     var averageLength = 0;
-    var maxLengthByGroup = [];
-    var minLengthByGroup = [];
-    var averageLengthByGroup = [];
-    for (var i = 0; i < parameters.numOfGroups; i++) {
-        maxLengthByGroup[i] = 0;
-        minLengthByGroup[i] = 0;
-        averageLengthByGroup[i] = 0;
-    }
+    var maxLengthByGroup = Array(parameters.numOfGroups).fill(0);
+    var minLengthByGroup = Array(parameters.numOfGroups).fill(0);
+    var averageLengthByGroup = Array(parameters.numOfGroups).fill(0);
     path.vertexes = path.vertexes.map(function (vertex) {
         var x = vertex.x - parameters.centerX;
         var y = vertex.y - parameters.centerY;

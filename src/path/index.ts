@@ -646,15 +646,9 @@ const calcLength = (path: PathData): PathData => {
   var maxLength: number = 0;
   var minLength: number = 0;
   var averageLength: number = 0;
-  var maxLengthByGroup: number[] = [];
-  var minLengthByGroup: number[] = [];
-  var averageLengthByGroup: number[] = [];
-
-  for (let i = 0; i < parameters.numOfGroups; i++) {
-    maxLengthByGroup[i] = 0;
-    minLengthByGroup[i] = 0;
-    averageLengthByGroup[i] = 0;
-  }
+  var maxLengthByGroup: number[] = Array(parameters.numOfGroups).fill(0);
+  var minLengthByGroup: number[] = Array(parameters.numOfGroups).fill(0);
+  var averageLengthByGroup: number[] = Array(parameters.numOfGroups).fill(0);
 
   path.vertexes = path.vertexes.map(vertex => {
     let x = vertex.x - parameters.centerX;
