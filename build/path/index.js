@@ -269,8 +269,6 @@ var setArms = function (mode, path) {
     var vertexes = path.vertexes;
     var _a = path.parameters, groups = _a.groups, averageLength = _a.averageLength;
     var numOfPoints = vertexes.length - 1; // Minus "M" vertex
-    var firstArmFactors = [];
-    var secondArmFactors = [];
     var averageLength;
     for (var i = 1; i < vertexes.length; i++) {
         // Adapt arms

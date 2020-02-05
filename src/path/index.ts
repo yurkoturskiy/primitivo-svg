@@ -354,8 +354,6 @@ const setArms = (mode: string, path: PathData): PathData => {
   var { vertexes } = path;
   var { groups, averageLength } = path.parameters;
   var numOfPoints = vertexes.length - 1; // Minus "M" vertex
-  var firstArmFactors: number[] = [];
-  var secondArmFactors: number[] = [];
   var averageLength: number;
   for (let i = 1; i < vertexes.length; i++) {
     // Adapt arms
