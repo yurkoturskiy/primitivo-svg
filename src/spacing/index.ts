@@ -22,15 +22,15 @@ function calcTime(
   p4y: number,
   py: number
 ): number {
-  var a = p4y - 3 * p3y + 3 * p2y - p1y;
+  const a = p4y - 3 * p3y + 3 * p2y - p1y;
   log.debug("a", a);
-  var b = 3 * (p3y - 2 * p2y + p1y);
+  const b = 3 * (p3y - 2 * p2y + p1y);
   log.debug("b", b);
-  var c = 3 * (p2y - p1y);
+  const c = 3 * (p2y - p1y);
   log.debug("c", c);
-  var d = p1y - py;
+  const d = p1y - py;
   log.debug("d", d);
-  let ts = solveCubicEquation(a, b, c, d);
+  const ts = solveCubicEquation(a, b, c, d);
   for (let t of ts) {
     if (t > 0 && t < 1) return t;
   }
@@ -44,7 +44,7 @@ function calcPx(
   p4x: number,
   t: number
 ): number {
-  var p =
+  const p =
     p1x * Math.pow(1 - t, 3) +
     3 * p2x * t * Math.pow(1 - t, 2) +
     3 * p3x * Math.pow(t, 2) * (1 - t) +
