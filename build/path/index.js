@@ -562,7 +562,6 @@ var setLength = function (path) {
         return newRadius / radius;
     };
     path.vertexes = vertexes.map(function (vertex, i) {
-        var group = groups[vertex.group];
         // Calc factor
         var factor = vertex.radius ? calcFactor(vertex.radius, vertex.length) : 1;
         // Set length

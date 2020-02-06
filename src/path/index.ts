@@ -562,8 +562,8 @@ const scaleToOne = (path: PathData): PathData => {
 
 const setCenter = (path: PathData): PathData => {
   const { parameters } = path;
-  var factorX = 1 - parameters.centerX / (parameters.width / 2);
-  var factorY = 1 - parameters.centerY / (parameters.height / 2);
+  const factorX = 1 - parameters.centerX / (parameters.width / 2);
+  const factorY = 1 - parameters.centerY / (parameters.height / 2);
   path.vertexes = path.vertexes.map(vertex => {
     vertex.x += factorX;
     vertex.y += factorY;
@@ -702,7 +702,6 @@ const setLength = (path: PathData): PathData => {
     return newRadius / radius;
   };
   path.vertexes = vertexes.map((vertex, i) => {
-    let group = groups[vertex.group];
     // Calc factor
     let factor = vertex.radius ? calcFactor(vertex.radius, vertex.length) : 1;
     // Set length
