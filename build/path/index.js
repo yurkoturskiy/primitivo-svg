@@ -541,9 +541,7 @@ var calcLength = function (path) {
             minLengthByGroup[vertex.group] = vertex.length;
         return vertex;
     });
-    for (var i = 0; i < averageLengthByGroup.length; i++)
-        averageLengthByGroup[i] =
-            averageLengthByGroup[i] / parameters.groups[i].numOfVertexes;
+    averageLengthByGroup = averageLengthByGroup.map(function (len, i) { return len / parameters.groups[i].numOfVertexes; });
     parameters.averageLength = averageLength / path.vertexes.length;
     parameters.averageLengthByGroup = averageLengthByGroup;
     parameters.minLength = minLength;

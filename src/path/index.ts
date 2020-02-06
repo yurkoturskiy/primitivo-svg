@@ -678,9 +678,9 @@ const calcLength = (path: PathData): PathData => {
     return vertex;
   });
 
-  for (let i = 0; i < averageLengthByGroup.length; i++)
-    averageLengthByGroup[i] =
-      averageLengthByGroup[i] / parameters.groups[i].numOfVertexes;
+  averageLengthByGroup = averageLengthByGroup.map(
+    (len, i) => len / parameters.groups[i].numOfVertexes
+  );
 
   parameters.averageLength = averageLength / path.vertexes.length;
   parameters.averageLengthByGroup = averageLengthByGroup;
