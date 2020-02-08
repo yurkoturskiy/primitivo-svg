@@ -18,3 +18,5 @@ const createPath = (parameters: InputParameters): PathData => ({
 });
 
 const initState = pipe(setDefaultParams, createPath);
+
+export default initState;

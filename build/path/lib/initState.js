@@ -21,3 +21,4 @@ var createPath = function (parameters) { return ({
     parameters: parameters
 }); };
 var initState = ramda_1.pipe(setDefaultParams, createPath);
+exports.default = initState;
