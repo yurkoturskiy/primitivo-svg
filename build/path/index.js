@@ -10,19 +10,18 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = require("../misc/index");
-var ramda_1 = require("ramda");
+var defaultParameters_1 = __importDefault(require("./lib/defaultParameters"));
+var initState_1 = __importDefault(require("./lib/initState"));
 // Logging
 var log = require("loglevel").getLogger("path-log");
 /***********
  * Methods *
  ***********/
-var setDefaultParams = function (parameters) { return (__assign({}, defaultParameters, parameters, { numOfGroups: parameters.groups.length, groups: parameters.groups.map(function (group) { return (__assign({}, defaultParameters.groups[0], group)); }) })); };
-var createPath = function (parameters) { return ({
-    parameters: parameters
-}); };
-var initState = ramda_1.pipe(setDefaultParams, createPath);
 var calcNumOfVertexes = function (numOfSegments, depth) {
     return numOfSegments * Math.pow(2, depth);
 };
@@ -639,9 +638,9 @@ var generateD = function (path) {
  * Root *
  ********/
 var pathLayer = function (parameters) {
-    if (parameters === void 0) { parameters = defaultParameters; }
+    if (parameters === void 0) { parameters = defaultParameters_1.default; }
     // Setup defaults
-    var path = initState(parameters);
+    var path = initState_1.default(parameters);
     // Generate shape
     path = generateFrame(path);
     path = generateVertexes(path);
@@ -660,29 +659,5 @@ var pathLayer = function (parameters) {
     path = shift(path);
     path = generateD(path);
     return path;
-};
-var defaultParameters = {
-    numOfSegments: 4,
-    depth: 0,
-    x: 0,
-    y: 0,
-    width: 100,
-    height: 100,
-    centerX: 50,
-    centerY: 50,
-    rotate: 0,
-    numOfGroups: 1,
-    groups: [
-        {
-            type: "linear",
-            incircle: false,
-            round: 0.5,
-            lengthBasedRound: false,
-            adaptArms: false,
-            distance: 1,
-            smartRound: false,
-            preserveRadians: false
-        }
-    ]
 };
 exports.default = pathLayer;

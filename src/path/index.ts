@@ -19,28 +19,15 @@ import {
 } from "./interfaces";
 import { pipe } from "ramda";
 
+import defaultParameters from "./lib/defaultParameters";
+import initState from "./lib/initState";
+
 // Logging
 var log = require("loglevel").getLogger("path-log");
 
 /***********
  * Methods *
  ***********/
-
-const setDefaultParams = (parameters: InputParameters): InputParameters => ({
-  ...defaultParameters,
-  ...parameters,
-  numOfGroups: parameters.groups.length,
-  groups: parameters.groups.map(group => ({
-    ...defaultParameters.groups[0],
-    ...group
-  }))
-});
-
-const createPath = (parameters: InputParameters): PathData => ({
-  parameters
-});
-
-const initState = pipe(setDefaultParams, createPath);
 
 const calcNumOfVertexes = (numOfSegments: number, depth: number): number =>
   numOfSegments * Math.pow(2, depth);
@@ -809,31 +796,6 @@ const pathLayer = (
   path = shift(path);
   path = generateD(path);
   return path;
-};
-
-var defaultParameters = {
-  numOfSegments: 4,
-  depth: 0,
-  x: 0,
-  y: 0,
-  width: 100,
-  height: 100,
-  centerX: 50,
-  centerY: 50,
-  rotate: 0,
-  numOfGroups: 1,
-  groups: [
-    {
-      type: "linear",
-      incircle: false,
-      round: 0.5,
-      lengthBasedRound: false,
-      adaptArms: false,
-      distance: 1,
-      smartRound: false,
-      preserveRadians: false
-    }
-  ]
 };
 
 export default pathLayer;
