@@ -1,26 +1,18 @@
-import {
-  round,
-  radToAngle,
-  angleToRad,
-  randomRange,
-  radiansDelta,
-  getType
-} from "../misc/index";
+import { round, radToAngle, radiansDelta, getType } from "../misc/index";
 
 // Interfaces
 import {
   Vertex,
   PathData,
   InputParameters,
-  FrameVertex,
-  Frame,
-  GroupParameters,
-  Keyframe
+  GroupParameters
 } from "./interfaces";
 import { pipe } from "ramda";
 
 import defaultParameters from "./lib/defaultParameters";
 import initState from "./lib/initState";
+import parseGroupParameter from "./lib/parseGroupParameter";
+import generateFrame from "./lib/generateFrame";
 
 // Logging
 var log = require("loglevel").getLogger("path-log");
@@ -28,75 +20,6 @@ var log = require("loglevel").getLogger("path-log");
 /***********
  * Methods *
  ***********/
-
-const calcNumOfVertexes = (numOfSegments: number, depth: number): number =>
-  numOfSegments * Math.pow(2, depth);
-
-const generateFrame = (path: PathData): PathData => {
-  /*
-   * Generate frame which is the base for a path and
-   * serve as the base for a 0-group vertexes.
-   */
-
-  const { depth, rotate, numOfSegments, groups } = path.parameters;
-  const numOfVertexes: number = calcNumOfVertexes(numOfSegments, depth);
-  // var vertexes = [];
-  const vertexes = Array(numOfVertexes)
-    .fill({})
-    .reduce((acc, vertex, i) => {
-      let radians: number;
-      radians = groups[0].radians
-        ? getRadiansValue(groups[0], i) // curtom radians were provide
-        : ((Math.PI * 2) / numOfVertexes) * i;
-      // Rotate
-      radians = radians + angleToRad(rotate);
-
-      const angle = radToAngle(radians);
-      const cosx = round(Math.cos(radians));
-      const siny = round(Math.sin(radians));
-      const x = cosx;
-      const y = siny;
-      return [
-        ...acc,
-        {
-          cosx,
-          siny,
-          x,
-          y,
-          radians,
-          angle
-        }
-      ];
-    }, []);
-
-  return {
-    ...path,
-    frame: {
-      vertexes,
-      numOfVertexes: vertexes.length
-    }
-  };
-};
-
-const parseGroupParameter = (parameter: any, vertexIndex: number): number => {
-  /* Parse distance, round, or radius group parameters */
-
-  // Number for all
-  if (typeof parameter !== "object") return parameter;
-  // Random for all
-  if (typeof parameter === "object" && parameter.length === 2)
-    return randomRange(parameter[0], parameter[1]);
-  // Distance per vertex
-  if (typeof parameter === "object") {
-    parameter = parameter[vertexIndex];
-    // Number
-    if (typeof parameter !== "object") return parameter;
-    // Random range
-    if (typeof parameter === "object" && parameter.length === 2)
-      return randomRange(parameter[0], parameter[1]);
-  }
-  return parameter;
-};
 
 const parseGroupParameterReducer = (
   key: string,

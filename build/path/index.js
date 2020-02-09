@@ -17,72 +17,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = require("../misc/index");
 var defaultParameters_1 = __importDefault(require("./lib/defaultParameters"));
 var initState_1 = __importDefault(require("./lib/initState"));
+var parseGroupParameter_1 = __importDefault(require("./lib/parseGroupParameter"));
+var generateFrame_1 = __importDefault(require("./lib/generateFrame"));
 // Logging
 var log = require("loglevel").getLogger("path-log");
 /***********
  * Methods *
  ***********/
-var calcNumOfVertexes = function (numOfSegments, depth) {
-    return numOfSegments * Math.pow(2, depth);
-};
-var generateFrame = function (path) {
-    /*
-     * Generate frame which is the base for a path and
-     * serve as the base for a 0-group vertexes.
-     */
-    var _a = path.parameters, depth = _a.depth, rotate = _a.rotate, numOfSegments = _a.numOfSegments, groups = _a.groups;
-    var numOfVertexes = calcNumOfVertexes(numOfSegments, depth);
-    // var vertexes = [];
-    var vertexes = Array(numOfVertexes)
-        .fill({})
-        .reduce(function (acc, vertex, i) {
-        var radians;
-        radians = groups[0].radians
-            ? getRadiansValue(groups[0], i) // curtom radians were provide
-            : ((Math.PI * 2) / numOfVertexes) * i;
-        // Rotate
-        radians = radians + index_1.angleToRad(rotate);
-        var angle = index_1.radToAngle(radians);
-        var cosx = index_1.round(Math.cos(radians));
-        var siny = index_1.round(Math.sin(radians));
-        var x = cosx;
-        var y = siny;
-        return acc.concat([
-            {
-                cosx: cosx,
-                siny: siny,
-                x: x,
-                y: y,
-                radians: radians,
-                angle: angle
-            }
-        ]);
-    }, []);
-    return __assign({}, path, { frame: {
-            vertexes: vertexes,
-            numOfVertexes: vertexes.length
-        } });
-};
-var parseGroupParameter = function (parameter, vertexIndex) {
-    /* Parse distance, round, or radius group parameters */
-    // Number for all
-    if (typeof parameter !== "object")
-        return parameter;
-    // Random for all
-    if (typeof parameter === "object" && parameter.length === 2)
-        return index_1.randomRange(parameter[0], parameter[1]);
-    // Distance per vertex
-    if (typeof parameter === "object") {
-        parameter = parameter[vertexIndex];
-        // Number
-        if (typeof parameter !== "object")
-            return parameter;
-        // Random range
-        if (typeof parameter === "object" && parameter.length === 2)
-            return index_1.randomRange(parameter[0], parameter[1]);
-    }
-    return parameter;
-};
 var parseGroupParameterReducer = function (key, value, vertexIndex) {
     switch (key) {
         case "round":
@@ -109,7 +50,7 @@ var getRoundValue = function (group, vertexIndex) {
 var getDistanceValue = function (group, vertexIndex) {
     /* Get distance value for a vertex from given group parameters */
     var parameter = group.distance;
-    parameter = parseGroupParameter(parameter, vertexIndex);
+    parameter = parseGroupParameter_1.default(parameter, vertexIndex);
     if (typeof parameter !== "number")
         throw "Wrong 'distance' parameters in group number " + group.pk;
     else
@@ -118,7 +59,7 @@ var getDistanceValue = function (group, vertexIndex) {
 var getRadiusValue = function (group, vertexIndex) {
     /* Get radius value for a vertex from given group parameters */
     var parameter = group.radius;
-    parameter = parseGroupParameter(parameter, vertexIndex);
+    parameter = parseGroupParameter_1.default(parameter, vertexIndex);
     if (!parameter)
         return parameter;
     else if (typeof parameter !== "number")
@@ -128,7 +69,7 @@ var getRadiusValue = function (group, vertexIndex) {
 };
 var getTypeValue = function (group, vertexIndex) {
     var parameter = group.type;
-    parameter = parseGroupParameter(parameter, vertexIndex);
+    parameter = parseGroupParameter_1.default(parameter, vertexIndex);
     if (!parameter)
         return parameter;
     else if (typeof parameter !== "string")
@@ -138,7 +79,7 @@ var getTypeValue = function (group, vertexIndex) {
 };
 var getSmartRoundValue = function (group, vertexIndex) {
     var parameter = group.smartRound;
-    parameter = parseGroupParameter(parameter, vertexIndex);
+    parameter = parseGroupParameter_1.default(parameter, vertexIndex);
     if (!parameter)
         return parameter;
     else if (typeof parameter !== "boolean")
@@ -148,7 +89,7 @@ var getSmartRoundValue = function (group, vertexIndex) {
 };
 var getLengthBasedRoundValue = function (group, vertexIndex) {
     var parameter = group.lengthBasedRound;
-    parameter = parseGroupParameter(parameter, vertexIndex);
+    parameter = parseGroupParameter_1.default(parameter, vertexIndex);
     if (!parameter)
         return parameter;
     else if (typeof parameter !== "boolean")
@@ -158,7 +99,7 @@ var getLengthBasedRoundValue = function (group, vertexIndex) {
 };
 var getAdaptArmsValue = function (group, vertexIndex) {
     var parameter = group.adaptArms;
-    parameter = parseGroupParameter(parameter, vertexIndex);
+    parameter = parseGroupParameter_1.default(parameter, vertexIndex);
     if (!parameter)
         return parameter;
     else if (typeof parameter !== "boolean")
@@ -168,7 +109,7 @@ var getAdaptArmsValue = function (group, vertexIndex) {
 };
 var getRadiansValue = function (group, vertexIndex) {
     var parameter = group.radians;
-    parameter = parseGroupParameter(parameter, vertexIndex);
+    parameter = parseGroupParameter_1.default(parameter, vertexIndex);
     if (!parameter)
         return parameter;
     else if (typeof parameter !== "number")
@@ -368,7 +309,7 @@ var setArms = function (mode, path) {
 };
 var getIncircleValue = function (group, vertexIndex) {
     var parameter = group.incircle;
-    parameter = parseGroupParameter(parameter, vertexIndex);
+    parameter = parseGroupParameter_1.default(parameter, vertexIndex);
     if (!parameter)
         return parameter;
     else if (typeof parameter !== "boolean")
@@ -642,7 +583,7 @@ var pathLayer = function (parameters) {
     // Setup defaults
     var path = initState_1.default(parameters);
     // Generate shape
-    path = generateFrame(path);
+    path = generateFrame_1.default(path);
     path = generateVertexes(path);
     path = remapVertexes(path); // Add M point
     path = setArms("init", path);
