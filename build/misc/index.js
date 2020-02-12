@@ -34,3 +34,5 @@ exports.randomRangeForEach = function (min, max) { return function (numOfVertexe
         .fill(0)
         .map(function () { return Math.random() * (max - min) + min; });
 }; };
+// Create same random value for all vertexes
+exports.randomRangeForAll = function (min, max) { return function (numOfVertexes) { return Array(numOfVertexes).fill(Math.random() * (max - min) + min); }; };
