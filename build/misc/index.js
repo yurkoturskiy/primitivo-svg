@@ -28,3 +28,9 @@ exports.getType = function (item) {
     if (typeof item === "number")
         return "number";
 };
+// Create unique random values for each vertex
+exports.randomRangeForEach = function (min, max) { return function (numOfVertexes) {
+    return Array(numOfVertexes)
+        .fill(0)
+        .map(function () { return Math.random() * (max - min) + min; });
+}; };
