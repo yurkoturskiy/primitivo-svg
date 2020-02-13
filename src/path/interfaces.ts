@@ -41,12 +41,12 @@ export interface GroupParameters {
   pk?: number; // number of group
   type?: string | string[]; // linear | radial | combined(not implemented)
   incircle?: boolean | boolean[];
-  distance?: number | number[] | number[][]; // for all | random range | per vertex
-  round?: number | number[] | number[][]; // for all | random range | per vertex
+  distance?: number | Function | number[] | number[][]; // for all | random range | per vertex
+  round?: number | Function | number[] | number[][]; // for all | random range | per vertex
   smartRound?: boolean | boolean[]; // Able to create perfect circle from a polygon with custom radians
   lengthBasedRound?: boolean | boolean[]; // The longer distance from center the bigger round factor is
   adaptArms?: boolean | boolean[]; // Keep arms always perpendicular to center
-  radius?: number | number[] | number[][]; // for all | random range | per vertex
+  radius?: number | Function | number[] | number[][]; // for all | random range | per vertex
   radians?: number[] | number[][]; // Custom radians for each point of a group
   // preserveRadians?: boolean; // Keep the angle on transformation (not implemented)
   numOfVertexes?: number;
