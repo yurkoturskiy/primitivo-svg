@@ -87,9 +87,16 @@ export interface FrameVertex {
   angle: number;
 }
 
-export interface Frame {
-  vertexes: FrameVertex[];
-  numOfVertexes: number;
+export interface FrameParameters {
+  numOfSegments: number;
+  depth: number;
+  rotate: number;
+  group: GroupParameters;
+}
+
+export interface Frame extends FrameParameters {
+  vertexes?: FrameVertex[];
+  numOfVertexes?: number;
 }
 
 export interface Keyframe {

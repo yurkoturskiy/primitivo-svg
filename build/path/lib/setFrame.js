@@ -16,6 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var index_1 = require("../../misc/index");
 var parseGroupParameter_1 = __importDefault(require("./parseGroupParameter"));
+var ramda_1 = require("ramda");
 var calcNumOfVertexes = function (numOfSegments, depth) {
     return numOfSegments * Math.pow(2, depth);
 };
@@ -62,17 +63,13 @@ var vertexesReducer = function (frame) { return function (acc, vertex, i) {
 var setVertexes = function (frame) { return (__assign({}, frame, { vertexes: Array(frame.numOfVertexes)
         .fill({})
         .reduce(vertexesReducer(frame), []) })); };
+var generateFrame = ramda_1.pipe(setFrameParameters, setNumOfVertexes, setVertexes);
 var setFrame = function (path) {
     /*
      * Generate frame which is the base for a path and
      * serve as the base for a 0-group vertexes.
      */
-    var _a = path.parameters, depth = _a.depth, rotate = _a.rotate, numOfSegments = _a.numOfSegments, groups = _a.groups;
-    var numOfVertexes = calcNumOfVertexes(numOfSegments, depth);
-    // var vertexes = [];
-    var vertexes = Array(numOfVertexes)
-        .fill({})
-        .reduce(function (acc, vertex, i) { }, []);
+    var frame = generateFrame(path.parameters);
     return __assign({}, path, { frame: frame });
 };
 exports.default = setFrame;

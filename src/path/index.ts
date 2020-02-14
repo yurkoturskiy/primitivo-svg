@@ -12,7 +12,7 @@ import { pipe } from "ramda";
 import defaultParameters from "./lib/defaultParameters";
 import initState from "./lib/initState";
 import parseGroupParameter from "./lib/parseGroupParameter";
-import generateFrame from "./lib/generateFrame";
+import setFrame from "./lib/setFrame";
 
 // Logging
 var log = require("loglevel").getLogger("path-log");
@@ -701,7 +701,7 @@ const pathLayer = (
   // Setup defaults
   let path = initState(parameters);
   // Generate shape
-  path = generateFrame(path);
+  path = setFrame(path);
   path = generateVertexes(path);
   path = remapVertexes(path); // Add M point
   path = setArms("init", path);

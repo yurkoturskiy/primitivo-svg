@@ -18,7 +18,7 @@ var index_1 = require("../misc/index");
 var defaultParameters_1 = __importDefault(require("./lib/defaultParameters"));
 var initState_1 = __importDefault(require("./lib/initState"));
 var parseGroupParameter_1 = __importDefault(require("./lib/parseGroupParameter"));
-var generateFrame_1 = __importDefault(require("./lib/generateFrame"));
+var setFrame_1 = __importDefault(require("./lib/setFrame"));
 // Logging
 var log = require("loglevel").getLogger("path-log");
 /***********
@@ -583,7 +583,7 @@ var pathLayer = function (parameters) {
     // Setup defaults
     var path = initState_1.default(parameters);
     // Generate shape
-    path = generateFrame_1.default(path);
+    path = setFrame_1.default(path);
     path = generateVertexes(path);
     path = remapVertexes(path); // Add M point
     path = setArms("init", path);
