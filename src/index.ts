@@ -10,5 +10,4 @@ export { default as morphing } from "./morphing/index";
 export { default as spacing } from "./spacing/index";
 export { default as phases } from "./phases/index";
 // Misc functions
-export { randomRange } from "./misc/index";
-
+export { randomRange, perArm } from "./misc/index";

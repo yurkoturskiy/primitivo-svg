@@ -36,3 +36,8 @@ exports.randomRangeForEach = function (min, max) { return function (numOfVertexe
 }; };
 // Create same random value for all vertexes
 exports.randomRangeForAll = function (min, max) { return function (numOfVertexes) { return Array(numOfVertexes).fill(Math.random() * (max - min) + min); }; };
+// Round per arm
+exports.perArm = function (first, second) { return [
+    first,
+    second
+]; };

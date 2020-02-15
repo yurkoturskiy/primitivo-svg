@@ -39,3 +39,9 @@ export const randomRangeForEach = (min: number, max: number) => (
 export const randomRangeForAll = (min: number, max: number) => (
   numOfVertexes: number
 ): number[] => Array(numOfVertexes).fill(Math.random() * (max - min) + min);
+
+// Round per arm
+export const perArm = (first: number, second: number): number[] => [
+  first,
+  second
+];
