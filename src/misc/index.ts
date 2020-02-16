@@ -27,6 +27,9 @@ export const getType = (item: any): string => {
   if (typeof item === "number") return "number";
 };
 
+// Set value for each vertex
+export const perVertex = (...values: number[]) => [...values];
+
 // Create unique random values for each vertex
 export const randomRangeForEach = (min: number, max: number) => (
   numOfVertexes: number

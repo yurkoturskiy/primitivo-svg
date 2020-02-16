@@ -18,4 +18,5 @@ exports.phases = index_4.default;
 // Misc functions
 var index_5 = require("./misc/index");
 exports.randomRange = index_5.randomRange;
+exports.perVertex = index_5.perVertex;
 exports.perArm = index_5.perArm;

@@ -28,6 +28,14 @@ exports.getType = function (item) {
     if (typeof item === "number")
         return "number";
 };
+// Set value for each vertex
+exports.perVertex = function () {
+    var values = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        values[_i] = arguments[_i];
+    }
+    return values.slice();
+};
 // Create unique random values for each vertex
 exports.randomRangeForEach = function (min, max) { return function (numOfVertexes) {
     return Array(numOfVertexes)
