@@ -17,6 +17,11 @@ var index_4 = require("./phases/index");
 exports.phases = index_4.default;
 // Misc functions
 var index_5 = require("./misc/index");
-exports.randomRange = index_5.randomRange;
+// General
+exports.all = index_5.all;
 exports.perVertex = index_5.perVertex;
+exports.randomRangeForAll = index_5.randomRangeForAll;
+exports.randomRangeForEach = index_5.randomRangeForEach;
+// Vertex scope
+exports.randomRange = index_5.randomRange;
 exports.perArm = index_5.perArm;
