@@ -27,6 +27,10 @@ export const getType = (item: any): string => {
   if (typeof item === "number") return "number";
 };
 
+// Fill all
+export const all = (value: number | number[]) => (numOfVertexes: number) =>
+  Array(numOfVertexes).fill(value);
+
 // Set value for each vertex
 export const perVertex = (...values: number[]) => [...values];
 

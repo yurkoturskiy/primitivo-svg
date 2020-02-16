@@ -28,6 +28,10 @@ exports.getType = function (item) {
     if (typeof item === "number")
         return "number";
 };
+// Fill all
+exports.all = function (value) { return function (numOfVertexes) {
+    return Array(numOfVertexes).fill(value);
+}; };
 // Set value for each vertex
 exports.perVertex = function () {
     var values = [];
