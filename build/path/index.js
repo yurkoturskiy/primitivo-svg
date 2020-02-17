@@ -19,64 +19,12 @@ var defaultParameters_1 = __importDefault(require("./lib/defaultParameters"));
 var initState_1 = __importDefault(require("./lib/initState"));
 var parseGroupParameter_1 = __importDefault(require("./lib/parseGroupParameter"));
 var setFrame_1 = __importDefault(require("./lib/setFrame"));
+var generateVertexes_1 = __importDefault(require("./lib/generateVertexes"));
 // Logging
 var log = require("loglevel").getLogger("path-log");
 /***********
  * Methods *
  ***********/
-var parseGroupParameterReducer = function (key, value, vertexIndex) {
-    switch (key) {
-        case "round":
-            if (typeof value === "object" && value.length > 2)
-                value = value[vertexIndex];
-            if (typeof value === "number")
-                value = [value, value];
-            break;
-        default:
-            // code...
-            break;
-    }
-    return value;
-};
-var getRoundValue = function (group, vertexIndex) {
-    /* Get round value for a vertex from given group parameters */
-    var value = group.round;
-    value = parseGroupParameterReducer("round", value, vertexIndex);
-    if (typeof value !== "object" || value.length !== 2)
-        throw "Wrong 'round' value in group number " + group.pk + ". Round: " + value;
-    else
-        return value;
-};
-var getDistanceValue = function (group, vertexIndex) {
-    /* Get distance value for a vertex from given group parameters */
-    var parameter = group.distance;
-    parameter = parseGroupParameter_1.default(parameter, vertexIndex);
-    if (typeof parameter !== "number")
-        throw "Wrong 'distance' parameters in group number " + group.pk;
-    else
-        return parameter;
-};
-var getRadiusValue = function (group, vertexIndex) {
-    /* Get radius value for a vertex from given group parameters */
-    var parameter = group.radius;
-    parameter = parseGroupParameter_1.default(parameter, vertexIndex);
-    if (!parameter)
-        return parameter;
-    else if (typeof parameter !== "number")
-        throw "Wrong 'radius' parameters in group number " + group.pk;
-    else
-        return parameter;
-};
-var getTypeValue = function (group, vertexIndex) {
-    var parameter = group.type;
-    parameter = parseGroupParameter_1.default(parameter, vertexIndex);
-    if (!parameter)
-        return parameter;
-    else if (typeof parameter !== "string")
-        throw "Wrong 'type' parameter in group number " + group.pk;
-    else
-        return parameter;
-};
 var getSmartRoundValue = function (group, vertexIndex) {
     var parameter = group.smartRound;
     parameter = parseGroupParameter_1.default(parameter, vertexIndex);
@@ -116,82 +64,6 @@ var getRadiansValue = function (group, vertexIndex) {
         throw "Wrong 'radians' parameter in group number " + group.pk;
     else
         return parameter;
-};
-var generateLinearVertexCoordinates = function (vertexes, vertex, prevVertex, nextVertex) {
-    // Calc X Y coords
-    vertex.x = prevVertex.x - nextVertex.x; // Substract adjacent points to get x
-    vertex.x *= 0.5; // Make x twice closer to center
-    vertex.x += nextVertex.x; // Position x inbetween of adjacent points
-    vertex.y = prevVertex.y - nextVertex.y; // Make the same with Y
-    vertex.y *= 0.5;
-    vertex.y += nextVertex.y;
-    vertex.radians = Math.atan2(vertex.y, vertex.x);
-    vertex.angle = index_1.radToAngle(vertex.radians);
-    return vertex;
-};
-var generateRadialVertexCoordinates = function (vertexes, vertex, prevVertex, nextVertex) {
-    var radiansStep = index_1.radiansDelta(nextVertex.radians, prevVertex.radians) / 2;
-    vertex.radians = prevVertex.radians + radiansStep;
-    vertex.cosx = index_1.round(Math.cos(vertex.radians));
-    vertex.siny = index_1.round(Math.sin(vertex.radians));
-    vertex.x = vertex.cosx;
-    vertex.y = vertex.siny;
-    return vertex;
-};
-var generateVertexes = function (path) {
-    log.info("generate vertexes");
-    var frame = path.frame;
-    var _a = path.parameters, numOfGroups = _a.numOfGroups, numOfSegments = _a.numOfSegments, groups = _a.groups;
-    var subdivisionDepth = numOfGroups - 1;
-    var numOfPoints = numOfSegments * Math.pow(2, subdivisionDepth);
-    var numOfVertexesPerSide = numOfPoints / frame.numOfVertexes;
-    // Init root group from frame vertexes
-    groups[0].numOfVertexes = frame.numOfVertexes;
-    groups[0].pk = 0;
-    var vertexes = frame.vertexes.map(function (vertex, index) { return (__assign({}, vertex, { type: "C", indexWithingGroup: index, group: 0, round: getRoundValue(groups[0], index), distance: getDistanceValue(groups[0], index), radius: getRadiusValue(groups[0], index) })); });
-    for (var groupIndex = 1; groupIndex < numOfGroups; groupIndex++) {
-        log.debug("group number", groupIndex);
-        var numOfNewVertexes = vertexes.length;
-        log.debug("number of vertexes", numOfNewVertexes);
-        groups[groupIndex].numOfVertexes = numOfNewVertexes;
-        groups[groupIndex].pk = groupIndex;
-        for (var i = 1; i < numOfNewVertexes * 2; i += 2) {
-            var indexWithingGroup = (i - 1) / 2;
-            var protoVertex = {
-                type: "C",
-                group: groupIndex
-            };
-            vertexes.splice(i, 0, protoVertex); // Inser proto vertex in array
-            var lastIndex = vertexes.length - 1;
-            var prevVertexInd = i - 1;
-            var nextVertexInd = i + 1;
-            if (nextVertexInd > lastIndex)
-                nextVertexInd = 0;
-            var vertex = vertexes[i];
-            var prevVertex = vertexes[prevVertexInd];
-            var nextVertex = vertexes[nextVertexInd];
-            var vertexType = getTypeValue(groups[groupIndex], indexWithingGroup);
-            switch (vertexType) {
-                case "linear":
-                    vertex = generateLinearVertexCoordinates(vertexes, vertex, prevVertex, nextVertex);
-                    break;
-                case "radial":
-                    vertex = generateRadialVertexCoordinates(vertexes, vertex, prevVertex, nextVertex);
-                    break;
-                default:
-                    throw "Type for group " + groupIndex + " seems to be wrong.";
-                    break;
-            }
-            // Set distance, round, and radius values per vertex
-            log.debug("vertex index withing a group", indexWithingGroup);
-            vertexes[i].distance = getDistanceValue(groups[groupIndex], indexWithingGroup);
-            vertexes[i].round = getRoundValue(groups[groupIndex], indexWithingGroup);
-            vertexes[i].radius = getRadiusValue(groups[groupIndex], indexWithingGroup);
-            vertexes[i].indexWithingGroup = indexWithingGroup;
-        }
-    }
-    path.vertexes = vertexes;
-    return path;
 };
 var remapVertexes = function (path) {
     /*
@@ -584,7 +456,7 @@ var pathLayer = function (parameters) {
     var path = initState_1.default(parameters);
     // Generate shape
     path = setFrame_1.default(path);
-    path = generateVertexes(path);
+    path = generateVertexes_1.default(path);
     path = remapVertexes(path); // Add M point
     path = setArms("init", path);
     path = scaleToOne(path);
