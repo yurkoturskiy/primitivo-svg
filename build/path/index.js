@@ -20,6 +20,7 @@ var initState_1 = __importDefault(require("./lib/initState"));
 var parseGroupParameter_1 = __importDefault(require("./lib/parseGroupParameter"));
 var setFrame_1 = __importDefault(require("./lib/setFrame"));
 var generateVertexes_1 = __importDefault(require("./lib/generateVertexes"));
+var remapVertexes_1 = __importDefault(require("./lib/remapVertexes"));
 // Logging
 var log = require("loglevel").getLogger("path-log");
 /***********
@@ -64,18 +65,6 @@ var getRadiansValue = function (group, vertexIndex) {
         throw "Wrong 'radians' parameter in group number " + group.pk;
     else
         return parameter;
-};
-var remapVertexes = function (path) {
-    /*
-     * Add "M" vertex to the array at the start
-     * Move first vertex to the end
-     * Set index to each vertex
-     */
-    var vertexes = path.vertexes;
-    vertexes[vertexes.length] = vertexes[0];
-    vertexes[0] = __assign({}, vertexes[0], { type: "M" });
-    var newVertexes = vertexes.map(function (vertex, index) { return (__assign({}, vertex, { index: index })); });
-    return __assign({}, path, { vertexes: newVertexes });
 };
 var setArms = function (mode, path) {
     var vertexes = path.vertexes;
@@ -457,7 +446,7 @@ var pathLayer = function (parameters) {
     // Generate shape
     path = setFrame_1.default(path);
     path = generateVertexes_1.default(path);
-    path = remapVertexes(path); // Add M point
+    path = remapVertexes_1.default(path); // Add M point
     path = setArms("init", path);
     path = scaleToOne(path);
     path = setCenter(path);
