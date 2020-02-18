@@ -18,6 +18,7 @@ import remapVertexes from "./lib/remapVertexes";
 import setArms from "./lib/setArms";
 import scaleToOne from "./lib/scaleToOne";
 import setCenter from "./lib/setCenter";
+import setDistance from "./lib/setDistance";
 
 // logging
 var log = require("loglevel").getLogger("path-log");
@@ -36,25 +37,6 @@ const getRadiansValue = (
   else if (typeof parameter !== "number")
     throw `Wrong 'radians' parameter in group number ${group.pk}`;
   else return parameter;
-};
-
-const setDistance = (path: PathData): PathData => {
-  var { vertexes } = path;
-  var { groups } = path.parameters;
-  path.vertexes = path.vertexes.map((vertex, index) => {
-    // Setup distance
-    vertex.x *= vertex.distance;
-    vertex.y *= vertex.distance;
-    if (vertex.type === "C") {
-      // Setup distance
-      vertex.x1 *= vertexes[index - 1].distance;
-      vertex.y1 *= vertexes[index - 1].distance;
-      vertex.x2 *= vertex.distance;
-      vertex.y2 *= vertex.distance;
-    }
-    return vertex;
-  });
-  return path;
 };
 
 const setPosition = (path: PathData): PathData => {
