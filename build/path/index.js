@@ -19,6 +19,7 @@ var calcLength_1 = __importDefault(require("./lib/calcLength"));
 var setLength_1 = __importDefault(require("./lib/setLength"));
 var recalcRadians_1 = __importDefault(require("./lib/recalcRadians"));
 var shift_1 = __importDefault(require("./lib/shift"));
+var generateD_1 = __importDefault(require("./lib/generateD"));
 // logging
 var log = require("loglevel").getLogger("path-log");
 /***********
@@ -33,28 +34,6 @@ var getRadiansValue = function (group, vertexIndex) {
         throw "Wrong 'radians' parameter in group number " + group.pk;
     else
         return parameter;
-};
-var generateD = function (path) {
-    path.vertexes = path.vertexes.map(function (vertex) {
-        switch (vertex.type) {
-            case "M":
-                vertex.d = vertex.type + " " + vertex.x + " " + vertex.y;
-                break;
-            case "C":
-                vertex.d = vertex.type + "\n" + vertex.x1 + " " + vertex.y1 + ",\n" + vertex.x2 + " " + vertex.y2 + ",\n" + vertex.x + " " + vertex.y;
-                break;
-            default:
-                vertex.d = "";
-        }
-        return vertex;
-    });
-    var d = "";
-    path.vertexes.forEach(function (vertex, i) {
-        d += "\n\n" + vertex.d;
-    });
-    d += "\n\nZ";
-    path.d = d;
-    return path;
 };
 /********
  * Root *
@@ -79,7 +58,7 @@ var pathLayer = function (parameters) {
     path = recalcRadians_1.default(path);
     path = setArms_1.default("adapt", path);
     path = shift_1.default(path);
-    path = generateD(path);
+    path = generateD_1.default(path);
     return path;
 };
 exports.default = pathLayer;

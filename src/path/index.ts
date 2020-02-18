@@ -25,6 +25,7 @@ import calcLength from "./lib/calcLength";
 import setLength from "./lib/setLength";
 import recalcRadians from "./lib/recalcRadians";
 import shift from "./lib/shift";
+import generateD from "./lib/generateD";
 
 // logging
 var log = require("loglevel").getLogger("path-log");
@@ -43,29 +44,6 @@ const getRadiansValue = (
   else if (typeof parameter !== "number")
     throw `Wrong 'radians' parameter in group number ${group.pk}`;
   else return parameter;
-};
-
-const generateD = (path: PathData): PathData => {
-  path.vertexes = path.vertexes.map(vertex => {
-    switch (vertex.type) {
-      case "M":
-        vertex.d = `${vertex.type} ${vertex.x} ${vertex.y}`;
-        break;
-      case "C":
-        vertex.d = `${vertex.type}\n${vertex.x1} ${vertex.y1},\n${vertex.x2} ${vertex.y2},\n${vertex.x} ${vertex.y}`;
-        break;
-      default:
-        vertex.d = ``;
-    }
-    return vertex;
-  });
-  var d = "";
-  path.vertexes.forEach((vertex, i) => {
-    d += "\n\n" + vertex.d;
-  });
-  d += "\n\nZ";
-  path.d = d;
-  return path;
 };
 
 /********
