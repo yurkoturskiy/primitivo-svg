@@ -15,6 +15,8 @@ var scaleToOne_1 = __importDefault(require("./lib/scaleToOne"));
 var setCenter_1 = __importDefault(require("./lib/setCenter"));
 var setDistance_1 = __importDefault(require("./lib/setDistance"));
 var setPosition_1 = __importDefault(require("./lib/setPosition"));
+var setScale_1 = __importDefault(require("./lib/setScale"));
+var calcLength_1 = __importDefault(require("./lib/calcLength"));
 // logging
 var log = require("loglevel").getLogger("path-log");
 /***********
@@ -29,63 +31,6 @@ var getRadiansValue = function (group, vertexIndex) {
         throw "Wrong 'radians' parameter in group number " + group.pk;
     else
         return parameter;
-};
-var setScale = function (path) {
-    var parameters = path.parameters;
-    path.frame.vertexes = path.frame.vertexes.map(function (vertex) {
-        vertex.x *= parameters.width / 2;
-        vertex.y *= parameters.height / 2;
-        return vertex;
-    });
-    path.vertexes = path.vertexes.map(function (vertex) {
-        vertex.x *= parameters.width / 2;
-        vertex.y *= parameters.height / 2;
-        if (vertex.type === "C") {
-            vertex.x1 *= parameters.width / 2;
-            vertex.y1 *= parameters.height / 2;
-            vertex.x2 *= parameters.width / 2;
-            vertex.y2 *= parameters.height / 2;
-        }
-        return vertex;
-    });
-    return path;
-};
-var calcLength = function (path) {
-    var parameters = path.parameters;
-    var maxLength = 0;
-    var minLength = 0;
-    var averageLength = 0;
-    var maxLengthByGroup = Array(parameters.numOfGroups).fill(0);
-    var minLengthByGroup = Array(parameters.numOfGroups).fill(0);
-    var averageLengthByGroup = Array(parameters.numOfGroups).fill(0);
-    path.vertexes = path.vertexes.map(function (vertex) {
-        var x = vertex.x - parameters.centerX;
-        var y = vertex.y - parameters.centerY;
-        vertex.length = Math.sqrt(x * x + y * y);
-        // Average length
-        averageLength += vertex.length;
-        averageLengthByGroup[vertex.group] += vertex.length;
-        // min & max length
-        if (vertex.length < minLength || minLength === 0)
-            minLength = vertex.length;
-        if (vertex.length > maxLength || maxLength === 0)
-            maxLength = vertex.length;
-        if (vertex.length > maxLengthByGroup[vertex.group] ||
-            maxLengthByGroup[vertex.group] === 0)
-            maxLengthByGroup[vertex.group] = vertex.length;
-        if (vertex.length < minLengthByGroup[vertex.group] ||
-            minLengthByGroup[vertex.group] === 0)
-            minLengthByGroup[vertex.group] = vertex.length;
-        return vertex;
-    });
-    averageLengthByGroup = averageLengthByGroup.map(function (len, i) { return len / parameters.groups[i].numOfVertexes; });
-    parameters.averageLength = averageLength / path.vertexes.length;
-    parameters.averageLengthByGroup = averageLengthByGroup;
-    parameters.minLength = minLength;
-    parameters.minLengthByGroup = minLengthByGroup;
-    parameters.maxLength = maxLength;
-    parameters.maxLengthByGroup = maxLengthByGroup;
-    return path;
 };
 var setLength = function (path) {
     log.info("set length");
@@ -188,10 +133,10 @@ var pathLayer = function (parameters) {
     path = setCenter_1.default(path);
     path = setDistance_1.default(path);
     path = setPosition_1.default(path);
-    path = setScale(path);
-    path = calcLength(path);
+    path = setScale_1.default(path);
+    path = calcLength_1.default(path);
     path = setLength(path);
-    path = calcLength(path);
+    path = calcLength_1.default(path);
     path = recalcRadians(path);
     path = setArms_1.default("adapt", path);
     path = shift(path);

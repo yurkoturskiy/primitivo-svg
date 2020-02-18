@@ -20,6 +20,8 @@ import scaleToOne from "./lib/scaleToOne";
 import setCenter from "./lib/setCenter";
 import setDistance from "./lib/setDistance";
 import setPosition from "./lib/setPosition";
+import setScale from "./lib/setScale";
+import calcLength from "./lib/calcLength";
 
 // logging
 var log = require("loglevel").getLogger("path-log");
@@ -38,78 +40,6 @@ const getRadiansValue = (
   else if (typeof parameter !== "number")
     throw `Wrong 'radians' parameter in group number ${group.pk}`;
   else return parameter;
-};
-
-const setScale = (path: PathData): PathData => {
-  const { parameters } = path;
-  path.frame.vertexes = path.frame.vertexes.map(vertex => {
-    vertex.x *= parameters.width / 2;
-    vertex.y *= parameters.height / 2;
-    return vertex;
-  });
-  path.vertexes = path.vertexes.map(vertex => {
-    vertex.x *= parameters.width / 2;
-    vertex.y *= parameters.height / 2;
-    if (vertex.type === "C") {
-      vertex.x1 *= parameters.width / 2;
-      vertex.y1 *= parameters.height / 2;
-      vertex.x2 *= parameters.width / 2;
-      vertex.y2 *= parameters.height / 2;
-    }
-    return vertex;
-  });
-  return path;
-};
-
-const calcLength = (path: PathData): PathData => {
-  const { parameters } = path;
-  var maxLength: number = 0;
-  var minLength: number = 0;
-  var averageLength: number = 0;
-  var maxLengthByGroup: number[] = Array(parameters.numOfGroups).fill(0);
-  var minLengthByGroup: number[] = Array(parameters.numOfGroups).fill(0);
-  var averageLengthByGroup: number[] = Array(parameters.numOfGroups).fill(0);
-
-  path.vertexes = path.vertexes.map(vertex => {
-    let x = vertex.x - parameters.centerX;
-    let y = vertex.y - parameters.centerY;
-    vertex.length = Math.sqrt(x * x + y * y);
-
-    // Average length
-    averageLength += vertex.length;
-    averageLengthByGroup[vertex.group] += vertex.length;
-
-    // min & max length
-    if (vertex.length < minLength || minLength === 0) minLength = vertex.length;
-    if (vertex.length > maxLength || maxLength === 0) maxLength = vertex.length;
-
-    if (
-      vertex.length > maxLengthByGroup[vertex.group] ||
-      maxLengthByGroup[vertex.group] === 0
-    )
-      maxLengthByGroup[vertex.group] = vertex.length;
-
-    if (
-      vertex.length < minLengthByGroup[vertex.group] ||
-      minLengthByGroup[vertex.group] === 0
-    )
-      minLengthByGroup[vertex.group] = vertex.length;
-
-    return vertex;
-  });
-
-  averageLengthByGroup = averageLengthByGroup.map(
-    (len, i) => len / parameters.groups[i].numOfVertexes
-  );
-
-  parameters.averageLength = averageLength / path.vertexes.length;
-  parameters.averageLengthByGroup = averageLengthByGroup;
-  parameters.minLength = minLength;
-  parameters.minLengthByGroup = minLengthByGroup;
-  parameters.maxLength = maxLength;
-  parameters.maxLengthByGroup = maxLengthByGroup;
-
-  return path;
 };
 
 const setLength = (path: PathData): PathData => {
