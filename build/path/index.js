@@ -12,6 +12,7 @@ var generateVertexes_1 = __importDefault(require("./lib/generateVertexes"));
 var remapVertexes_1 = __importDefault(require("./lib/remapVertexes"));
 var setArms_1 = __importDefault(require("./lib/setArms"));
 var scaleToOne_1 = __importDefault(require("./lib/scaleToOne"));
+var setCenter_1 = __importDefault(require("./lib/setCenter"));
 // logging
 var log = require("loglevel").getLogger("path-log");
 /***********
@@ -26,23 +27,6 @@ var getRadiansValue = function (group, vertexIndex) {
         throw "Wrong 'radians' parameter in group number " + group.pk;
     else
         return parameter;
-};
-var setCenter = function (path) {
-    var parameters = path.parameters;
-    var factorX = 1 - parameters.centerX / (parameters.width / 2);
-    var factorY = 1 - parameters.centerY / (parameters.height / 2);
-    path.vertexes = path.vertexes.map(function (vertex) {
-        vertex.x += factorX;
-        vertex.y += factorY;
-        if (vertex.type === "C") {
-            vertex.x1 += factorX;
-            vertex.x2 += factorX;
-            vertex.y1 += factorY;
-            vertex.y2 += factorY;
-        }
-        return vertex;
-    });
-    return path;
 };
 var setDistance = function (path) {
     var vertexes = path.vertexes;
@@ -239,7 +223,7 @@ var pathLayer = function (parameters) {
     path = remapVertexes_1.default(path); // Add M point
     path = setArms_1.default("init", path);
     path = scaleToOne_1.default(path);
-    path = setCenter(path);
+    path = setCenter_1.default(path);
     path = setDistance(path);
     path = setPosition(path);
     path = setScale(path);
