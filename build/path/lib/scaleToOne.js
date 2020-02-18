@@ -74,3 +74,4 @@ var scaleToOne = function (path) {
     });
     return path;
 };
+exports.default = scaleToOne;

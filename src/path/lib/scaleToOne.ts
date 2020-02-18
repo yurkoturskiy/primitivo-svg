@@ -76,3 +76,5 @@ const scaleToOne = (path: PathData): PathData => {
   });
   return path;
 };
+
+export default scaleToOne;
