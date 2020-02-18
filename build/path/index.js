@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = require("../misc/index");
 var defaultParameters_1 = __importDefault(require("./lib/defaultParameters"));
 var initState_1 = __importDefault(require("./lib/initState"));
 var parseGroupParameter_1 = __importDefault(require("./lib/parseGroupParameter"));
@@ -18,6 +17,7 @@ var setPosition_1 = __importDefault(require("./lib/setPosition"));
 var setScale_1 = __importDefault(require("./lib/setScale"));
 var calcLength_1 = __importDefault(require("./lib/calcLength"));
 var setLength_1 = __importDefault(require("./lib/setLength"));
+var recalcRadians_1 = __importDefault(require("./lib/recalcRadians"));
 // logging
 var log = require("loglevel").getLogger("path-log");
 /***********
@@ -32,19 +32,6 @@ var getRadiansValue = function (group, vertexIndex) {
         throw "Wrong 'radians' parameter in group number " + group.pk;
     else
         return parameter;
-};
-var recalcRadians = function (path) {
-    log.info("recalculate radians");
-    var vertexes = path.vertexes;
-    var _a = path.parameters, centerX = _a.centerX, centerY = _a.centerY;
-    path.vertexes = vertexes.map(function (vertex) {
-        var deltaX = vertex.x - centerX;
-        var deltaY = centerY - vertex.y;
-        vertex.radians = Math.atan2(deltaY, deltaX);
-        vertex.angle = index_1.radToAngle(vertex.radians);
-        return vertex;
-    });
-    return path;
 };
 var shift = function (path) {
     var parameters = path.parameters;
@@ -105,7 +92,7 @@ var pathLayer = function (parameters) {
     path = calcLength_1.default(path);
     path = setLength_1.default(path);
     path = calcLength_1.default(path);
-    path = recalcRadians(path);
+    path = recalcRadians_1.default(path);
     path = setArms_1.default("adapt", path);
     path = shift(path);
     path = generateD(path);

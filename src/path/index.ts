@@ -23,6 +23,7 @@ import setPosition from "./lib/setPosition";
 import setScale from "./lib/setScale";
 import calcLength from "./lib/calcLength";
 import setLength from "./lib/setLength";
+import recalcRadians from "./lib/recalcRadians";
 
 // logging
 var log = require("loglevel").getLogger("path-log");
@@ -41,20 +42,6 @@ const getRadiansValue = (
   else if (typeof parameter !== "number")
     throw `Wrong 'radians' parameter in group number ${group.pk}`;
   else return parameter;
-};
-
-const recalcRadians = (path: PathData): PathData => {
-  log.info("recalculate radians");
-  const { vertexes } = path;
-  const { centerX, centerY } = path.parameters;
-  path.vertexes = vertexes.map(vertex => {
-    let deltaX = vertex.x - centerX;
-    let deltaY = centerY - vertex.y;
-    vertex.radians = Math.atan2(deltaY, deltaX);
-    vertex.angle = radToAngle(vertex.radians);
-    return vertex;
-  });
-  return path;
 };
 
 const shift = (path: PathData): PathData => {
