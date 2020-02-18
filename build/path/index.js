@@ -18,6 +18,7 @@ var setScale_1 = __importDefault(require("./lib/setScale"));
 var calcLength_1 = __importDefault(require("./lib/calcLength"));
 var setLength_1 = __importDefault(require("./lib/setLength"));
 var recalcRadians_1 = __importDefault(require("./lib/recalcRadians"));
+var shift_1 = __importDefault(require("./lib/shift"));
 // logging
 var log = require("loglevel").getLogger("path-log");
 /***********
@@ -32,23 +33,6 @@ var getRadiansValue = function (group, vertexIndex) {
         throw "Wrong 'radians' parameter in group number " + group.pk;
     else
         return parameter;
-};
-var shift = function (path) {
-    var parameters = path.parameters;
-    // Apply x and y position parameters
-    var x = parameters.x, y = parameters.y;
-    path.vertexes = path.vertexes.map(function (vertex) {
-        vertex.x += x;
-        vertex.y += y;
-        if (vertex.type === "C") {
-            vertex.x1 += x;
-            vertex.x2 += x;
-            vertex.y1 += y;
-            vertex.y2 += y;
-        }
-        return vertex;
-    });
-    return path;
 };
 var generateD = function (path) {
     path.vertexes = path.vertexes.map(function (vertex) {
@@ -94,7 +78,7 @@ var pathLayer = function (parameters) {
     path = calcLength_1.default(path);
     path = recalcRadians_1.default(path);
     path = setArms_1.default("adapt", path);
-    path = shift(path);
+    path = shift_1.default(path);
     path = generateD(path);
     return path;
 };
