@@ -3,9 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// Methods
 var defaultParameters_1 = __importDefault(require("./lib/defaultParameters"));
 var initState_1 = __importDefault(require("./lib/initState"));
-var parseGroupParameter_1 = __importDefault(require("./lib/parseGroupParameter"));
 var setFrame_1 = __importDefault(require("./lib/setFrame"));
 var generateVertexes_1 = __importDefault(require("./lib/generateVertexes"));
 var remapVertexes_1 = __importDefault(require("./lib/remapVertexes"));
@@ -20,24 +20,6 @@ var setLength_1 = __importDefault(require("./lib/setLength"));
 var recalcRadians_1 = __importDefault(require("./lib/recalcRadians"));
 var shift_1 = __importDefault(require("./lib/shift"));
 var generateD_1 = __importDefault(require("./lib/generateD"));
-// logging
-var log = require("loglevel").getLogger("path-log");
-/***********
- * Methods *
- ***********/
-var getRadiansValue = function (group, vertexIndex) {
-    var parameter = group.radians;
-    parameter = parseGroupParameter_1.default(parameter, vertexIndex);
-    if (!parameter)
-        return parameter;
-    else if (typeof parameter !== "number")
-        throw "Wrong 'radians' parameter in group number " + group.pk;
-    else
-        return parameter;
-};
-/********
- * Root *
- ********/
 var pathLayer = function (parameters) {
     if (parameters === void 0) { parameters = defaultParameters_1.default; }
     // Setup defaults
