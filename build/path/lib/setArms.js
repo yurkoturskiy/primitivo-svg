@@ -16,6 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var parseGroupParameter_1 = __importDefault(require("./parseGroupParameter"));
 var misc_1 = require("../../misc");
+var ramda_1 = require("ramda");
 // logging
 var log = require("loglevel").getLogger("path-log");
 var getAdaptArmsValue = function (group, vertexIndex) {
@@ -150,4 +151,4 @@ var setArms = function (mode, path) {
     }
     return path;
 };
-exports.default = setArms;
+exports.default = ramda_1.curry(setArms);

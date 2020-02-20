@@ -1,6 +1,7 @@
 import { PathData, GroupParameters } from "../interfaces";
 import parseGroupParameter from "./parseGroupParameter";
 import { radiansDelta, radToAngle, round } from "../../misc";
+import { curry } from "ramda";
 
 // logging
 const log = require("loglevel").getLogger("path-log");
@@ -176,4 +177,4 @@ const setArms = (mode: string, path: PathData): PathData => {
   return path;
 };
 
-export default setArms;
+export default curry(setArms);
