@@ -1,4 +1,6 @@
 import { PathData } from "../interfaces";
+import { pipe } from "fp-ts/lib/pipeable";
+import calcLength from "./calcLength";
 
 // logging
 var log = require("loglevel").getLogger("path-log");
@@ -37,4 +39,5 @@ const setLength = (path: PathData): PathData => {
   return path;
 };
 
-export default setLength;
+export default (path: PathData): PathData =>
+  pipe(calcLength(path), setLength, calcLength);

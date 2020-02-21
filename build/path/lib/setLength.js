@@ -1,5 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var pipeable_1 = require("fp-ts/lib/pipeable");
+var calcLength_1 = __importDefault(require("./calcLength"));
 // logging
 var log = require("loglevel").getLogger("path-log");
 var setLength = function (path) {
@@ -35,4 +40,6 @@ var setLength = function (path) {
     log.debug(path);
     return path;
 };
-exports.default = setLength;
+exports.default = (function (path) {
+    return pipeable_1.pipe(calcLength_1.default(path), setLength, calcLength_1.default);
+});
