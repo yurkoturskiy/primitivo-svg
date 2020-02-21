@@ -14,24 +14,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var defaultParameters_1 = __importDefault(require("./defaultParameters"));
-var ramda_1 = require("ramda");
+var pipeable_1 = require("fp-ts/lib/pipeable");
+var defaultParameters_1 = __importDefault(require("./lib/defaultParameters"));
 var setDefaultParams = function (parameters) { return (__assign({}, defaultParameters_1.default, parameters, { numOfGroups: parameters.groups.length, groups: parameters.groups.map(function (group, index) { return (__assign({}, defaultParameters_1.default.groups[0], group, { pk: index })); }) })); };
-var setRound = function (round) {
-    switch (ramda_1.type(round)) {
-        case "Array":
-            return [
-                [0, 1],
-                [0, 1]
-            ];
-    }
-};
-var parseGroupParameters = function (groups) {
-    return groups.map(function (group) { return (__assign({}, group, { round: setRound(group.round) })); });
-};
-var prepareGroups = function (parameters) { return (__assign({}, parameters, { groups: parseGroupParameters(parameters.groups) })); };
 var createPath = function (parameters) { return ({
     parameters: parameters
 }); };
-var initState = ramda_1.pipe(setDefaultParams, createPath);
-exports.default = initState;
+exports.default = (function (parameters) {
+    return pipeable_1.pipe(setDefaultParams(parameters), createPath);
+});

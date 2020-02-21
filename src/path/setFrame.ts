@@ -1,4 +1,4 @@
-import { round, radToAngle, angleToRad } from "../../misc/index";
+import { round, radToAngle, angleToRad } from "../misc/index";
 import {
   PathData,
   GroupParameters,
@@ -6,9 +6,9 @@ import {
   InputParameters,
   FrameVertex,
   FrameParameters
-} from "../interfaces";
-import parseGroupParameter from "./parseGroupParameter";
-import { pipe } from "ramda";
+} from "./interfaces";
+import parseGroupParameter from "./lib/parseGroupParameter";
+import { pipe } from "fp-ts/lib/pipeable";
 
 const calcNumOfVertexes = (numOfSegments: number, depth: number): number =>
   numOfSegments * Math.pow(2, depth);
@@ -74,16 +74,15 @@ const setVertexes = (frame: Frame) => ({
     .reduce(vertexesReducer(frame), [])
 });
 
-const generateFrame = pipe(setFrameParameters, setNumOfVertexes, setVertexes);
-
-const setFrame = (path: PathData): PathData => {
-  /*
-   * Generate frame which is the base for a path and
-   * serve as the base for a 0-group vertexes.
-   */
-
-  const frame = generateFrame(path.parameters);
-  return { ...path, frame };
-};
-
-export default setFrame;
+/**
+ * Generate frame which is the base for a path and
+ * serve as the base for a 0-group vertexes.
+ */
+export default (path: PathData): PathData => ({
+  ...path,
+  frame: pipe(
+    setFrameParameters(path.parameters),
+    setNumOfVertexes,
+    setVertexes
+  )
+});
