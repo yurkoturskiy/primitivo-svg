@@ -1,3 +1,4 @@
+import { pipe } from "fp-ts/lib/pipeable";
 import pathLayer from "../path/index";
 import morphingLayer from "../morphing/index";
 var log = require("loglevel").getLogger("phases-log");
@@ -24,6 +25,8 @@ import {
 
 // Defaults
 import defaultParameters from "./defaultParameters";
+
+const setParameters = (parameters: InputParameters): Data => ({ parameters });
 
 const generateOuterPaths = (data: Data): Data => {
   ////////////////////////////////
@@ -69,7 +72,12 @@ const calcProgressions = (data: Data): Data => {
     // Calc progressionsGeneralScope
     const prevPhaseProgressions = i && progressionsGeneralScope[i - 1];
     progressionsGeneralScope[i] = parameters.phases[i].progressionsGeneralScope(
-      { startPath, endPath, duration, prevPhaseProgressions }
+      {
+        startPath,
+        endPath,
+        duration,
+        prevPhaseProgressions
+      }
     );
 
     // Form progressions objects
@@ -201,15 +209,13 @@ const generateDValues = (data: Data): Data => {
   return data;
 };
 
-const phasesLayer = (parameters: InputParameters = defaultParameters): Data => {
-  log.info("run phases layer");
-  var data: Data = { parameters };
-  data = generateOuterPaths(data);
-  data = calcProgressions(data);
-  data = generateGroupsParameters(data);
-  data = generateDValues(data);
-  log.info("end phases layer");
-  return data;
-};
+const phasesLayer = (parameters: InputParameters = defaultParameters): Data =>
+  pipe(
+    setParameters(parameters),
+    generateOuterPaths,
+    calcProgressions,
+    generateGroupsParameters,
+    generateDValues
+  );
 
 export default phasesLayer;
