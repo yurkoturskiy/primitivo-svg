@@ -30,31 +30,7 @@ import setParameters from "./lib/setParameters";
 import generateOuterPaths from "./lib/generateOuterPaths";
 import calcProgressions from "./lib/calcProgressions";
 import generateGroupsParameters from "./lib/generateGroupsParameters";
-
-const generateDValues = (data: Data): Data => {
-  log.info("start generate d values");
-  const {
-    loop,
-    baseParameters,
-    startGroupsParameters,
-    endGroupsParameters
-  } = data.parameters;
-  const { pathsGroupsParameters } = data;
-  const morphingParams = {
-    numOfKeyPaths: pathsGroupsParameters.length + 1,
-    loop
-  };
-  log.debug("morphing params", morphingParams);
-  // data.progressions.push(1);
-  data.progressions.unshift(0);
-  const pathsParams = {
-    ...baseParameters,
-    groups: [startGroupsParameters, ...pathsGroupsParameters]
-  };
-  log.debug("paths parameters", pathsParams);
-  data.dValues = morphingLayer(morphingParams, pathsParams).dValues;
-  return data;
-};
+import generateDescription from "./lib/generateDescription";
 
 const phasesLayer = (parameters: InputParameters = defaultParameters): Data =>
   pipe(
@@ -62,7 +38,7 @@ const phasesLayer = (parameters: InputParameters = defaultParameters): Data =>
     generateOuterPaths,
     calcProgressions,
     generateGroupsParameters,
-    generateDValues
+    generateDescription
   );
 
 export default phasesLayer;
