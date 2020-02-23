@@ -15,22 +15,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var pipeable_1 = require("fp-ts/lib/pipeable");
-var index_1 = __importDefault(require("../path/index"));
-var index_2 = __importDefault(require("../morphing/index"));
+var index_1 = __importDefault(require("../morphing/index"));
 var log = require("loglevel").getLogger("phases-log");
 // Defaults
 var defaultParameters_1 = __importDefault(require("./defaultParameters"));
+// Methods
+var generateOuterPaths_1 = __importDefault(require("./lib/generateOuterPaths"));
 var setParameters = function (parameters) { return ({ parameters: parameters }); };
-var generateOuterPaths = function (data) {
-    ////////////////////////////////
-    // Create start and end paths //
-    var _a = data.parameters, baseParameters = _a.baseParameters, startGroupsParameters = _a.startGroupsParameters, endGroupsParameters = _a.endGroupsParameters;
-    data.startPath = index_1.default(__assign({}, baseParameters, { groups: startGroupsParameters }));
-    data.endPath = index_1.default(__assign({}, baseParameters, { groups: endGroupsParameters }));
-    log.debug("start path", data.startPath);
-    log.debug("end path", data.endPath);
-    return data;
-};
 var calcProgressions = function (data) {
     var parameters = data.parameters, startPath = data.startPath, endPath = data.endPath;
     var numOfPhases = parameters.phases.length;
@@ -153,11 +144,11 @@ var generateDValues = function (data) {
     data.progressions.unshift(0);
     var pathsParams = __assign({}, baseParameters, { groups: [startGroupsParameters].concat(pathsGroupsParameters) });
     log.debug("paths parameters", pathsParams);
-    data.dValues = index_2.default(morphingParams, pathsParams).dValues;
+    data.dValues = index_1.default(morphingParams, pathsParams).dValues;
     return data;
 };
 var phasesLayer = function (parameters) {
     if (parameters === void 0) { parameters = defaultParameters_1.default; }
-    return pipeable_1.pipe(setParameters(parameters), generateOuterPaths, calcProgressions, generateGroupsParameters, generateDValues);
+    return pipeable_1.pipe(setParameters(parameters), generateOuterPaths_1.default, calcProgressions, generateGroupsParameters, generateDValues);
 };
 exports.default = phasesLayer;

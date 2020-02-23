@@ -25,27 +25,10 @@ import {
 
 // Defaults
 import defaultParameters from "./defaultParameters";
+// Methods
+import generateOuterPaths from "./lib/generateOuterPaths";
 
 const setParameters = (parameters: InputParameters): Data => ({ parameters });
-
-const generateOuterPaths = (data: Data): Data => {
-  ////////////////////////////////
-  // Create start and end paths //
-  const {
-    baseParameters,
-    startGroupsParameters,
-    endGroupsParameters
-  } = data.parameters;
-  data.startPath = pathLayer({
-    ...baseParameters,
-    groups: startGroupsParameters
-  });
-
-  data.endPath = pathLayer({ ...baseParameters, groups: endGroupsParameters });
-  log.debug("start path", data.startPath);
-  log.debug("end path", data.endPath);
-  return data;
-};
 
 const calcProgressions = (data: Data): Data => {
   const { parameters, startPath, endPath } = data;
