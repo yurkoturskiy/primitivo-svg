@@ -22,55 +22,6 @@ var defaultParameters_1 = __importDefault(require("./defaultParameters"));
 // Methods
 var setParameters_1 = __importDefault(require("./lib/setParameters"));
 var generateOuterPaths_1 = __importDefault(require("./lib/generateOuterPaths"));
-var calcProgressions = function (data) {
-    var parameters = data.parameters, startPath = data.startPath, endPath = data.endPath;
-    var numOfPhases = parameters.phases.length;
-    var progressionsPhaseScope = Array(numOfPhases);
-    var progressionsGeneralScope = Array(numOfPhases);
-    var progressions = [];
-    var durations = [];
-    for (var i_1 = 0; i_1 < numOfPhases; i_1++) {
-        var duration = parameters.phases[i_1].duration({
-            startPath: startPath,
-            endPath: endPath,
-            prevDurations: durations
-        });
-        durations.push(duration);
-        // Calc progressionsPhaseScope
-        progressionsPhaseScope[i_1] = parameters.phases[i_1].progressionsPhaseScope({
-            startPath: startPath,
-            endPath: endPath,
-            duration: duration
-        });
-        // Calc progressionsGeneralScope
-        var prevPhaseProgressions = i_1 && progressionsGeneralScope[i_1 - 1];
-        progressionsGeneralScope[i_1] = parameters.phases[i_1].progressionsGeneralScope({
-            startPath: startPath,
-            endPath: endPath,
-            duration: duration,
-            prevPhaseProgressions: prevPhaseProgressions
-        });
-        // Form progressions objects
-        for (var keyVertexIndex = 0; keyVertexIndex < progressionsGeneralScope[i_1].length; keyVertexIndex++)
-            progressions.push(progressionsGeneralScope[i_1][keyVertexIndex]);
-    }
-    log.debug("progressions phase scope", progressionsPhaseScope);
-    log.debug("progressions general scope", progressionsGeneralScope);
-    // Sort progressions objects
-    progressions = progressions.sort(function (a, b) { return a - b; });
-    // Remove dublicates
-    var i = 1;
-    while (i < progressions.length) {
-        if (progressions[i - 1] === progressions[i])
-            progressions.splice(i, 1);
-        else
-            i += 1;
-    }
-    log.debug("progressions", progressions);
-    return __assign({}, data, { progressions: progressions,
-        progressionsGeneralScope: progressionsGeneralScope,
-        progressionsPhaseScope: progressionsPhaseScope });
-};
 var generateGroupsParameters = function (data) {
     // Set groups parameters for each progression and each vertex
     var endPath = data.endPath, startPath = data.startPath, progressions = data.progressions, progressionsGeneralScope = data.progressionsGeneralScope, progressionsPhaseScope = data.progressionsPhaseScope;
@@ -131,6 +82,7 @@ var generateGroupsParameters = function (data) {
     log.debug("paths groups parameters", pathsGroupsParameters);
     return __assign({}, data, { pathsGroupsParameters: pathsGroupsParameters });
 };
+var calcProgressions_1 = __importDefault(require("./lib/calcProgressions"));
 var generateDValues = function (data) {
     log.info("start generate d values");
     var _a = data.parameters, loop = _a.loop, baseParameters = _a.baseParameters, startGroupsParameters = _a.startGroupsParameters, endGroupsParameters = _a.endGroupsParameters;
@@ -149,6 +101,6 @@ var generateDValues = function (data) {
 };
 var phasesLayer = function (parameters) {
     if (parameters === void 0) { parameters = defaultParameters_1.default; }
-    return pipeable_1.pipe(setParameters_1.default(parameters), generateOuterPaths_1.default, calcProgressions, generateGroupsParameters, generateDValues);
+    return pipeable_1.pipe(setParameters_1.default(parameters), generateOuterPaths_1.default, calcProgressions_1.default, generateGroupsParameters_1.default, generateDValues);
 };
 exports.default = phasesLayer;
