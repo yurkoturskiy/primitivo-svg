@@ -26,9 +26,8 @@ import {
 // Defaults
 import defaultParameters from "./defaultParameters";
 // Methods
+import setParameters from "./lib/setParameters";
 import generateOuterPaths from "./lib/generateOuterPaths";
-
-const setParameters = (parameters: InputParameters): Data => ({ parameters });
 
 const calcProgressions = (data: Data): Data => {
   const { parameters, startPath, endPath } = data;
