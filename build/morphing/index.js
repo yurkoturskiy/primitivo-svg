@@ -26,6 +26,7 @@ var log = __importStar(require("loglevel"));
 var index_1 = __importDefault(require("../path/index"));
 // mist
 var index_2 = require("../misc/index");
+var defaultParameters_1 = __importDefault(require("./defaultParameters"));
 var getValueFromRange = function (values, numOfKeyPaths, index) {
     var min = Math.min.apply(Math, values);
     var max = Math.max.apply(Math, values);
@@ -39,11 +40,11 @@ function morphingLayer(parameters, keyPathsParameters) {
      *
      * Figure out first how pathLayer works.
      */
-    if (parameters === void 0) { parameters = defaults.parameters; }
-    if (keyPathsParameters === void 0) { keyPathsParameters = defaults.keyPathsParameters; }
+    if (parameters === void 0) { parameters = defaultParameters_1.default.parameters; }
+    if (keyPathsParameters === void 0) { keyPathsParameters = defaultParameters_1.default.keyPathsParameters; }
     var setDefaults = function () {
-        parameters = __assign({}, defaults.parameters, parameters);
-        keyPathsParameters = __assign({}, defaults.keyPathsParameters, keyPathsParameters);
+        parameters = __assign({}, defaultParameters_1.default.parameters, parameters);
+        keyPathsParameters = __assign({}, defaultParameters_1.default.keyPathsParameters, keyPathsParameters);
     };
     var generateDValues = function () {
         log.info("start generate d values");
@@ -103,36 +104,4 @@ function morphingLayer(parameters, keyPathsParameters) {
     output.dValues = generateDValues();
     return output;
 }
-var defaults = {
-    parameters: {
-        loop: "circle",
-        numOfKeyPaths: 3
-    },
-    keyPathsParameters: {
-        numOfSegments: 3,
-        depth: 0,
-        x: 0,
-        y: 0,
-        width: 200,
-        height: 200,
-        centerX: 100,
-        centerY: 100,
-        rotate: 0,
-        numOfGroups: 2,
-        groups: [
-            {
-                type: "radial",
-                incircle: true,
-                distance: [0.95, 1],
-                round: 1
-            },
-            {
-                type: "radial",
-                incircle: true,
-                distance: [1.3, 1.4],
-                round: [0, 0.3]
-            }
-        ]
-    }
-};
 exports.default = morphingLayer;
