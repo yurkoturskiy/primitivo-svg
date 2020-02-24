@@ -26,7 +26,9 @@ export interface AnimateValue {
   keySplines: string;
 }
 
-export interface Output {
+export interface Data {
+  parameters?: AnimateParameters;
+  keyPathsParameters?: KeyPathParameters;
   dValues?: string;
   numOfKeyPaths?: number;
   keyTimes?: string;
