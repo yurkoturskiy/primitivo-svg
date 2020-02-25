@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // misc functions
-var solveCubicEquation_1 = __importDefault(require("./lib/solveCubicEquation"));
+var calcTime_1 = __importDefault(require("./lib/calcTime"));
 var log = require("loglevel").getLogger("spacing-log");
 var pointToNumber = function (point) {
     log.debug("point to number", point);
@@ -14,23 +14,6 @@ var pointToNumber = function (point) {
     return p;
 };
 var pointToString = function (point) { return point.join(","); };
-function calcTime(p1y, p2y, p3y, p4y, py) {
-    var a = p4y - 3 * p3y + 3 * p2y - p1y;
-    log.debug("a", a);
-    var b = 3 * (p3y - 2 * p2y + p1y);
-    log.debug("b", b);
-    var c = 3 * (p2y - p1y);
-    log.debug("c", c);
-    var d = p1y - py;
-    log.debug("d", d);
-    var ts = solveCubicEquation_1.default(a, b, c, d);
-    for (var _i = 0, ts_1 = ts; _i < ts_1.length; _i++) {
-        var t = ts_1[_i];
-        if (t > 0 && t < 1)
-            return t;
-    }
-    return ts[1];
-}
 function calcPx(p1x, p2x, p3x, p4x, t) {
     var p = p1x * Math.pow(1 - t, 3) +
         3 * p2x * t * Math.pow(1 - t, 2) +
@@ -107,7 +90,7 @@ var spacingLayer = function (parameters) {
             log.debug("p3", p3_1);
             log.debug("p4", p4);
             p[1] = progression[(i + (i % 2)) / 2];
-            t = calcTime(p1_1[1], p2_1[1], p3_1[1], p4[1], p[1]);
+            t = calcTime_1.default(p1_1[1], p2_1[1], p3_1[1], p4[1], p[1]);
             log.debug("t", t);
             p[0] = calcPx(p1_1[0], p2_1[0], p3_1[0], p4[0], t);
             log.debug("p", p);
