@@ -1,7 +1,7 @@
 // Interfaces
 import { Parameters, Output } from "./interfaces";
 // misc functions
-import solveCubicEquation from "./solveCubicEquation";
+import solveCubicEquation from "./lib/solveCubicEquation";
 
 var log = require("loglevel").getLogger("spacing-log");
 

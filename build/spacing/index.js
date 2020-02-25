@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // misc functions
-var solveCubicEquation_1 = __importDefault(require("./solveCubicEquation"));
+var solveCubicEquation_1 = __importDefault(require("./lib/solveCubicEquation"));
 var log = require("loglevel").getLogger("spacing-log");
 var pointToNumber = function (point) {
     log.debug("point to number", point);
