@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // misc functions
 var calcTime_1 = __importDefault(require("./lib/calcTime"));
+var calcPx_1 = __importDefault(require("./lib/calcPx"));
 var log = require("loglevel").getLogger("spacing-log");
 var pointToNumber = function (point) {
     log.debug("point to number", point);
@@ -14,13 +15,6 @@ var pointToNumber = function (point) {
     return p;
 };
 var pointToString = function (point) { return point.join(","); };
-function calcPx(p1x, p2x, p3x, p4x, t) {
-    var p = p1x * Math.pow(1 - t, 3) +
-        3 * p2x * t * Math.pow(1 - t, 2) +
-        3 * p3x * Math.pow(t, 2) * (1 - t) +
-        p4x * Math.pow(t, 3);
-    return p;
-}
 var prepareParameters = function (params) {
     if (!params.keySplines)
         params.keySplines = "0,0,1,1";
@@ -92,7 +86,7 @@ var spacingLayer = function (parameters) {
             p[1] = progression[(i + (i % 2)) / 2];
             t = calcTime_1.default(p1_1[1], p2_1[1], p3_1[1], p4[1], p[1]);
             log.debug("t", t);
-            p[0] = calcPx(p1_1[0], p2_1[0], p3_1[0], p4[0], t);
+            p[0] = calcPx_1.default(p1_1[0], p2_1[0], p3_1[0], p4[0], t);
             log.debug("p", p);
             p5 = [(1 - t) * p1_1[0] + t * p2_1[0], (1 - t) * p1_1[1] + t * p2_1[1]];
             log.debug("p5", p5);
