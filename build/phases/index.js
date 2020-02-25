@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var pipeable_1 = require("fp-ts/lib/pipeable");
-var log = require("loglevel").getLogger("phases-log");
 // Defaults
 var defaultParameters_1 = __importDefault(require("./defaultParameters"));
 // Methods
