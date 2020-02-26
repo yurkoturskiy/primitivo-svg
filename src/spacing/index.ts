@@ -4,16 +4,9 @@ import { Parameters, Output } from "./interfaces";
 import calcTime from "./lib/calcTime";
 import calcPx from "./lib/calcPx";
 import prepareParameters from "./lib/prepareParameters";
+import pointToNumber from "./lib/pointToNumber";
 
 var log = require("loglevel").getLogger("spacing-log");
-
-const pointToNumber = (point: string): number[] => {
-  log.debug("point to number", point);
-  let p: string[] | number[] = point.split(",");
-  p = [Number(p[0]), Number(p[1])];
-  log.debug("converted point to number", p);
-  return p;
-};
 
 const pointToString = (point: number[]): string => point.join(",");
 

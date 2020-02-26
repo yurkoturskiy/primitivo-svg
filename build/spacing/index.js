@@ -7,14 +7,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var calcTime_1 = __importDefault(require("./lib/calcTime"));
 var calcPx_1 = __importDefault(require("./lib/calcPx"));
 var prepareParameters_1 = __importDefault(require("./lib/prepareParameters"));
+var pointToNumber_1 = __importDefault(require("./lib/pointToNumber"));
 var log = require("loglevel").getLogger("spacing-log");
-var pointToNumber = function (point) {
-    log.debug("point to number", point);
-    var p = point.split(",");
-    p = [Number(p[0]), Number(p[1])];
-    log.debug("converted point to number", p);
-    return p;
-};
 var pointToString = function (point) { return point.join(","); };
 var spacingLayer = function (parameters) {
     parameters = prepareParameters_1.default(parameters);
@@ -22,7 +16,7 @@ var spacingLayer = function (parameters) {
     var splines = keySplines.concat();
     for (var i = 0; i < splines.length; i++) {
         if (splines[i] != null)
-            splines[i] = pointToNumber(splines[i]);
+            splines[i] = pointToNumber_1.default(splines[i]);
     }
     log.debug("converted splines", splines);
     var bzs = [];
