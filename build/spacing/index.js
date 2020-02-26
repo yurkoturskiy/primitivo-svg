@@ -8,8 +8,8 @@ var calcTime_1 = __importDefault(require("./lib/calcTime"));
 var calcPx_1 = __importDefault(require("./lib/calcPx"));
 var prepareParameters_1 = __importDefault(require("./lib/prepareParameters"));
 var pointToNumber_1 = __importDefault(require("./lib/pointToNumber"));
+var pointToString_1 = __importDefault(require("./lib/pointToString"));
 var log = require("loglevel").getLogger("spacing-log");
-var pointToString = function (point) { return point.join(","); };
 var spacingLayer = function (parameters) {
     parameters = prepareParameters_1.default(parameters);
     var keyTimes = parameters.keyTimes, keySplines = parameters.keySplines, progression = parameters.progression;
@@ -90,8 +90,8 @@ var spacingLayer = function (parameters) {
             splines[i + 1][0] * factor[0],
             splines[i + 1][1] * factor[1]
         ];
-        splines[i] = pointToString(splines[i]);
-        splines[i + 1] = pointToString(splines[i + 1]);
+        splines[i] = pointToString_1.default(splines[i]);
+        splines[i + 1] = pointToString_1.default(splines[i + 1]);
         splines[i] = [splines[i], splines[i + 1]];
         splines.splice(i + 1, 1);
     }

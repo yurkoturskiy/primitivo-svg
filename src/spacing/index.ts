@@ -5,10 +5,9 @@ import calcTime from "./lib/calcTime";
 import calcPx from "./lib/calcPx";
 import prepareParameters from "./lib/prepareParameters";
 import pointToNumber from "./lib/pointToNumber";
+import pointToString from "./lib/pointToString";
 
 var log = require("loglevel").getLogger("spacing-log");
-
-const pointToString = (point: number[]): string => point.join(",");
 
 const spacingLayer = (parameters: Parameters): Output => {
   parameters = prepareParameters(parameters);
