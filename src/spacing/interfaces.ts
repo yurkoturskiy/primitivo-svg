@@ -4,7 +4,11 @@ export interface Parameters {
   keySplines?: string | string[];
 }
 
-export interface Output {
-  keyTimes: string;
-  keySplines: string;
+export interface Spacing {
+  parameters: Parameters;
+  keyTimes?: string;
+  keyTimesList: number[];
+  keySplines?: string;
+  keySplinesList: number[][];
+  bzs: number[][];
 }
