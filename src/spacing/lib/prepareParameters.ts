@@ -1,15 +1,28 @@
 import { Parameters } from "../interfaces";
+import { update } from "ramda";
+import { pipe } from "fp-ts/lib/pipeable";
 var log = require("loglevel").getLogger("spacing-log");
 
+const setDefaultKeySplines = (params: Parameters): Parameters =>
+  params.keySplines ? params : { ...params, keySplines: "0,0,1,1" };
+
+const initKeyTimesDefaultArray = (numOfKeyTimes: number): number[] =>
+  Array(numOfKeyTimes).fill(null, 0, numOfKeyTimes - 1);
+
+const setDefaultKeyTimes = (params: Parameters): Parameters =>
+  params.keyTimes
+    ? params
+    : {
+        ...params,
+        keyTimes: pipe(
+          update(0, 0, initKeyTimesDefaultArray(params.progression.length)),
+          update(-1, 1)
+        )
+      };
+
 const prepareParameters = (params: Parameters): Parameters => {
-  if (!params.keySplines) params.keySplines = "0,0,1,1";
-  if (!params.keyTimes) {
-    let keyTimes = Array(params.progression.length);
-    keyTimes.fill(null, 0, params.progression.length - 1);
-    keyTimes[0] = 0;
-    keyTimes[keyTimes.length - 1] = 1;
-    params.keyTimes = keyTimes;
-  }
+  params = setDefaultKeySplines(params);
+  params = setDefaultKeyTimes(params);
 
   log.debug(" input progression", params.progression);
   log.debug("input keySplines", params.keySplines);
