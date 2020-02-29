@@ -20,6 +20,14 @@ const setDefaultKeyTimes = (params: Parameters): Parameters =>
         )
       };
 
+const validateKeySplinesFormat = (params: Parameters): Parameters => {
+  if (params.keySplines.length !== 4) throw "Wrong keySplines format";
+  return params;
+};
+
+const initKeySplinesArray = (numOfSplines: number): null[] =>
+  Array(numOfSplines).fill(null, 0, numOfSplines - 1);
+
 const prepareParameters = (params: Parameters): Parameters => {
   params = setDefaultKeySplines(params);
   params = setDefaultKeyTimes(params);
@@ -30,7 +38,7 @@ const prepareParameters = (params: Parameters): Parameters => {
 
   if (typeof params.keySplines === "string") {
     params.keySplines = params.keySplines.split(",");
-    if (params.keySplines.length !== 4) throw "Wrong keySplines format";
+    validateKeySplinesFormat(params);
     let proto = Array((params.progression.length - 1) * 2);
     proto.fill(null, 0, proto.length - 1);
     proto[0] = `${params.keySplines[0]}, ${params.keySplines[1]}`;

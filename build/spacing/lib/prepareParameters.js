@@ -25,24 +25,23 @@ var setDefaultKeyTimes = function (params) {
         ? params
         : __assign({}, params, { keyTimes: pipeable_1.pipe(ramda_1.update(0, 0, initKeyTimesDefaultArray(params.progression.length)), ramda_1.update(-1, 1)) });
 };
+var validateKeySplinesFormat = function (params) {
+    if (params.keySplines.length !== 4)
+        throw "Wrong keySplines format";
+    return params;
+};
+var initKeySplinesArray = function (numOfSplines) {
+    return Array(numOfSplines).fill(null, 0, numOfSplines - 1);
+};
 var prepareParameters = function (params) {
     params = setDefaultKeySplines(params);
     params = setDefaultKeyTimes(params);
-    // if (!params.keySplines) params.keySplines = "0,0,1,1";
-    // if (!params.keyTimes) {
-    //   let keyTimes = Array(params.progression.length);
-    //   keyTimes.fill(null, 0, params.progression.length - 1);
-    //   keyTimes[0] = 0;
-    //   keyTimes[keyTimes.length - 1] = 1;
-    //   params.keyTimes = keyTimes;
-    // }
     log.debug(" input progression", params.progression);
     log.debug("input keySplines", params.keySplines);
     log.debug("input keyTimes", params.keyTimes);
     if (typeof params.keySplines === "string") {
         params.keySplines = params.keySplines.split(",");
-        if (params.keySplines.length !== 4)
-            throw "Wrong keySplines format";
+        validateKeySplinesFormat(params);
         var proto = Array((params.progression.length - 1) * 2);
         proto.fill(null, 0, proto.length - 1);
         proto[0] = params.keySplines[0] + ", " + params.keySplines[1];
