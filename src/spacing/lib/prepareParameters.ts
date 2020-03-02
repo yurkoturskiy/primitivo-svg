@@ -31,8 +31,7 @@ const initKeySplinesArray = (numOfSplines: number): null[] =>
 const prepareParameters = (params: Parameters): Parameters => {
   params = setDefaultKeySplines(params);
   params = setDefaultKeyTimes(params);
-
-  if (typeof params.keySplines === "string") {
+  if (type(params.keySplines) === "String") {
     params.keySplines = params.keySplines.split(",");
     validateKeySplinesFormat(params);
     let proto = Array((params.progression.length - 1) * 2);
