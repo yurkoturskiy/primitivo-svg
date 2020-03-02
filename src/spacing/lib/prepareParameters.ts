@@ -32,10 +32,6 @@ const prepareParameters = (params: Parameters): Parameters => {
   params = setDefaultKeySplines(params);
   params = setDefaultKeyTimes(params);
 
-  log.debug(" input progression", params.progression);
-  log.debug("input keySplines", params.keySplines);
-  log.debug("input keyTimes", params.keyTimes);
-
   if (typeof params.keySplines === "string") {
     params.keySplines = params.keySplines.split(",");
     validateKeySplinesFormat(params);
