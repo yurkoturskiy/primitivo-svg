@@ -1,5 +1,5 @@
 import { Parameters } from "../interfaces";
-import { update } from "ramda";
+import { update, type, split } from "ramda";
 import { pipe } from "fp-ts/lib/pipeable";
 var log = require("loglevel").getLogger("spacing-log");
 
@@ -20,17 +20,49 @@ const setDefaultKeyTimes = (params: Parameters): Parameters =>
         )
       };
 
+const validate = (keySplines: string[]): string[] => {
+  if (keySplines.length !== 4) throw "Wrong keySplines format";
+  return keySplines;
+};
+
+const initKeySplinesArray = (numOfKeySplines: number): null[] =>
+  Array(numOfKeySplines).fill(null, 0, numOfKeySplines - 1);
+
+const format = (numOfKeySplines: number) => (keySplines: string[]): string[] =>
+  pipe(
+    initKeySplinesArray(numOfKeySplines),
+    update(0, `${keySplines[0]}, ${keySplines[1]}`),
+    update(-1, `${keySplines[2]}, ${keySplines[3]}`)
+  );
+
+const parseKeySplines = (
+  keySplines: string,
+  numOfKeySplines: number
+): string[] => pipe(split(",", keySplines), validate, format(numOfKeySplines));
+
+const prepareKeySplines = (params: Parameters): Parameters =>
+  type(params.keySplines) === "String"
+    ? {
+        ...params,
+        keySplines: parseKeySplines(
+          params.keySplines,
+          (params.progression.length - 1) * 2
+        )
+      }
+    : params;
+
 const validateKeySplinesFormat = (params: Parameters): Parameters => {
   if (params.keySplines.length !== 4) throw "Wrong keySplines format";
   return params;
 };
 
-const initKeySplinesArray = (numOfSplines: number): null[] =>
-  Array(numOfSplines).fill(null, 0, numOfSplines - 1);
+const temp = (params: Parameters): Parameters =>
+  pipe(setDefaultKeySplines(params), setDefaultKeyTimes);
 
 const prepareParameters = (params: Parameters): Parameters => {
   params = setDefaultKeySplines(params);
   params = setDefaultKeyTimes(params);
+  params = prepareKeySplines(params);
   if (type(params.keySplines) === "String") {
     params.keySplines = params.keySplines.split(",");
     validateKeySplinesFormat(params);
