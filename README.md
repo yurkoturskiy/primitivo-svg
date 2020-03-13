@@ -11,11 +11,18 @@ Primitivo is a JavaScript library for SVG. That means it prepares data for the S
 
 ## Examples:
 
+#### CodeSandboxes:
+
 1. [Sequence of polygons](https://codesandbox.io/s/github/guandjoy/sequence-of-polygons)
 2. [Smart round](https://codesandbox.io/s/github/guandjoy/smart-round)
 3. [Noise of distance](https://codesandbox.io/s/github/guandjoy/noise-of-distance)
 4. [Phased transition](https://codesandbox.io/s/github/guandjoy/phased-transition)
 5. [Blobby Spinner](https://codesandbox.io/s/github/guandjoy/blobby-spinner)
+
+#### Collections of examples:
+
+- Project on Dribbble: https://dribbble.com/Guandjoy/projects/1539697-Primitivo-SVG
+- Article on Dev.to: https://dev.to/guandjoy/primitivo-the-js-library-for-svg-set-of-examples-27g6
 
 ## Collections of design concepts:
 
