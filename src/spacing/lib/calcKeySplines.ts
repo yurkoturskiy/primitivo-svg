@@ -40,28 +40,18 @@ const calcKeySplines = (parameters: Parameters): Spacing => {
         }
       }
 
+      // Calc points of a spline
       let p1 = bzs[(i + (i % 2)) / 2 - 1];
-      log.debug("p1", p1);
       let p2 = splines[i - 1];
-      log.debug("p2", p2);
       let p3 = splines[p3Index];
-      log.debug("p3", p3);
-      log.debug("p4", p4);
       p[1] = progression[(i + (i % 2)) / 2];
       t = calcTime(p1[1], p2[1], p3[1], p4[1], p[1]);
-      log.debug("t", t);
       p[0] = calcPx(p1[0], p2[0], p3[0], p4[0], t);
-      log.debug("p", p);
       p5 = [(1 - t) * p1[0] + t * p2[0], (1 - t) * p1[1] + t * p2[1]];
-      log.debug("p5", p5);
       p6 = [(1 - t) * p2[0] + t * p3[0], (1 - t) * p2[1] + t * p3[1]];
-      log.debug("p6", p6);
       p7 = [(1 - t) * p3[0] + t * p4[0], (1 - t) * p3[1] + t * p4[1]];
-      log.debug("p7", p7);
       p8 = [(1 - t) * p5[0] + t * p6[0], (1 - t) * p5[1] + t * p6[1]];
-      log.debug("p8", p8);
       p9 = [(1 - t) * p6[0] + t * p7[0], (1 - t) * p6[1] + t * p7[1]];
-      log.debug("p9", p9);
 
       splines[i - 1] = p5.concat();
       splines[i] = p8.concat();
