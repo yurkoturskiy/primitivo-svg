@@ -30,7 +30,7 @@ var generateDValues = function (data) {
     var _a = data.parameters, numOfKeyPaths = _a.numOfKeyPaths, loop = _a.loop;
     var inputKeyPathsParameters = data.keyPathsParameters; // Maybe need to refactor
     var paths = [];
-    var dValues = [];
+    var dValuesFrames = [];
     for (var i = 0; i < numOfKeyPaths; i++) {
         log.info("generate key path number " + i);
         var pathParameters = {};
@@ -61,19 +61,19 @@ var generateDValues = function (data) {
         }
         var path = index_2.default(pathParameters);
         paths[i] = path;
-        dValues[i] = path.d;
+        dValuesFrames[i] = path.d;
         if (loop) {
             if (loop === "linear" && i !== numOfKeyPaths - 1) {
                 // Linear or boomerang loop
-                dValues[(numOfKeyPaths - 1) * 2 - i] = path.d;
+                dValuesFrames[(numOfKeyPaths - 1) * 2 - i] = path.d;
             }
             else if (loop === "circle" && i === numOfKeyPaths - 1) {
                 // Circle loop. Last path equal to first
-                dValues[numOfKeyPaths] = dValues[0];
+                dValuesFrames[numOfKeyPaths] = dValuesFrames[0];
             }
         }
     }
-    dValues = dValues.join(";");
-    return __assign({}, data, { dValues: dValues });
+    var dValues = dValuesFrames.join(";");
+    return __assign({}, data, { dValues: dValues, dValuesFrames: dValuesFrames });
 };
 exports.default = generateDValues;

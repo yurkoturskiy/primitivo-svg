@@ -29,6 +29,7 @@ export interface AnimateValue {
 export interface Data {
   parameters?: AnimateParameters;
   keyPathsParameters?: KeyPathParameters;
+  dValuesFrames?: string[];
   dValues?: string;
   numOfKeyPaths?: number;
   keyTimes?: string;

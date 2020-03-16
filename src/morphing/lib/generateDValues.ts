@@ -21,7 +21,7 @@ const generateDValues = (data: Data): Data => {
   const { numOfKeyPaths, loop } = data.parameters;
   let inputKeyPathsParameters: any = data.keyPathsParameters; // Maybe need to refactor
   let paths = [];
-  let dValues: string[] | string = [];
+  let dValuesFrames: string[] | string = [];
   for (let i = 0; i < numOfKeyPaths; i++) {
     log.info(`generate key path number ${i}`);
     var pathParameters: any = {};
@@ -52,19 +52,19 @@ const generateDValues = (data: Data): Data => {
     }
     let path = pathLayer(pathParameters);
     paths[i] = path;
-    dValues[i] = path.d;
+    dValuesFrames[i] = path.d;
     if (loop) {
       if (loop === "linear" && i !== numOfKeyPaths - 1) {
         // Linear or boomerang loop
-        dValues[(numOfKeyPaths - 1) * 2 - i] = path.d;
+        dValuesFrames[(numOfKeyPaths - 1) * 2 - i] = path.d;
       } else if (loop === "circle" && i === numOfKeyPaths - 1) {
         // Circle loop. Last path equal to first
-        dValues[numOfKeyPaths] = dValues[0];
+        dValuesFrames[numOfKeyPaths] = dValuesFrames[0];
       }
     }
   }
-  dValues = dValues.join(";");
-  return { ...data, dValues };
+  const dValues = dValuesFrames.join(";");
+  return { ...data, dValues, dValuesFrames };
 };
 
 export default generateDValues;
