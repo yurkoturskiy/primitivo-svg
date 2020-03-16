@@ -26,10 +26,10 @@
   "dependencies": {
     "@types/node": "^12.12.7",
     "loglevel": "^1.6.3",
-    "ramda": "^0.26.1"
+    "ramda": "^0.26.1",
+    "fp-ts": "^2.4.3"
   },
   "devDependencies": {
-    "@types/ramda": "github:types/npm-ramda#dist",
-    "fp-ts": "^2.4.3"
+    "@types/ramda": "github:types/npm-ramda#dist"
   }
 }
