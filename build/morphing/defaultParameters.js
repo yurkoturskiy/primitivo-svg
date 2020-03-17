@@ -15,7 +15,6 @@ var defaultParameters = {
         centerX: 100,
         centerY: 100,
         rotate: 0,
-        numOfGroups: 2,
         groups: [
             {
                 type: "radial",

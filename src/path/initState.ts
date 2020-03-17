@@ -6,7 +6,7 @@ import { PathData, InputParameters } from "./interfaces";
 const setDefaultParams = (parameters: InputParameters): InputParameters => ({
   ...defaultParameters,
   ...parameters,
-  numOfGroups: parameters.groups.length,
+  numOfGroups: parameters.numOfGroups || parameters.groups.length,
   groups: parameters.groups.map((group, index) => ({
     ...defaultParameters.groups[0],
     ...group,

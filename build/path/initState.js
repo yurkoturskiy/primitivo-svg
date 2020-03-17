@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var pipeable_1 = require("fp-ts/lib/pipeable");
 var defaultParameters_1 = __importDefault(require("./lib/defaultParameters"));
-var setDefaultParams = function (parameters) { return (__assign({}, defaultParameters_1.default, parameters, { numOfGroups: parameters.groups.length, groups: parameters.groups.map(function (group, index) { return (__assign({}, defaultParameters_1.default.groups[0], group, { pk: index })); }) })); };
+var setDefaultParams = function (parameters) { return (__assign({}, defaultParameters_1.default, parameters, { numOfGroups: parameters.numOfGroups || parameters.groups.length, groups: parameters.groups.map(function (group, index) { return (__assign({}, defaultParameters_1.default.groups[0], group, { pk: index })); }) })); };
 var createPath = function (parameters) { return ({
     parameters: parameters
 }); };
