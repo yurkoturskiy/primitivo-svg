@@ -30,7 +30,10 @@
     "fp-ts": "^2.4.3"
   },
   "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
     "@types/ramda": "github:types/npm-ramda#dist",
+    "babel-jest": "^25.2.6",
     "jest": "^25.2.6"
   }
 }
