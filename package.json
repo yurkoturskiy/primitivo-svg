@@ -30,6 +30,7 @@
     "fp-ts": "^2.4.3"
   },
   "devDependencies": {
-    "@types/ramda": "github:types/npm-ramda#dist"
+    "@types/ramda": "github:types/npm-ramda#dist",
+    "jest": "^25.2.6"
   }
 }
