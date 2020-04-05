@@ -1,7 +1,7 @@
 import { PathData } from "../interfaces";
 
 const generateD = (path: PathData): PathData => {
-  path.vertexes = path.vertexes.map(vertex => {
+  path.vertexes = path.vertexes.map((vertex) => {
     switch (vertex.type) {
       case "M":
         vertex.d = `${vertex.type} ${vertex.x} ${vertex.y}`;
@@ -16,9 +16,9 @@ const generateD = (path: PathData): PathData => {
   });
   var d = "";
   path.vertexes.forEach((vertex, i) => {
-    d += "\n\n" + vertex.d;
+    d += vertex.d + " ";
   });
-  d += "\n\nZ";
+  d += "Z";
   path.d = d;
   return path;
 };
