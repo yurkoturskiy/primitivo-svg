@@ -35,16 +35,15 @@ const scaleToOne = (path: PathData): PathData => {
     // Incircle value is true. Cancel scale and return path as it is.
     return path;
 
-  var maxX = 0;
-  var minX = 0;
-  var maxY = 0;
-  var minY = 0;
-  path.vertexes.forEach(vertex => {
-    if (vertex.x > maxX) maxX = vertex.x;
-    if (vertex.x < minX) minX = vertex.x;
-    if (vertex.y > maxY) maxY = vertex.y;
-    if (vertex.y < minY) minY = vertex.y;
-  });
+  const { maxX, minX, maxY, minY } = path.vertexes.reduce(
+    (acc, vertex) => ({
+      maxX: vertex.x > acc.maxX ? vertex.x : acc.maxX,
+      minX: vertex.x < acc.minX ? vertex.x : acc.minX,
+      maxY: vertex.y > acc.maxY ? vertex.y : acc.minY,
+      minY: vertex.y < acc.minY ? vertex.y : acc.minY,
+    }),
+    { maxX: 0, minX: 0, maxY: 0, minY: 0 }
+  );
   let factorX = 2 / (Math.abs(minX) + maxX);
   let factorY = 2 / (Math.abs(minY) + maxY);
   let shiftX = factorX * maxX - 1;
