@@ -1,7 +1,7 @@
 import pointToNumber from "./pointToNumber";
 import calcTime from "./calcTime";
 import calcPx from "./calcPx";
-import { Spacing, Parameters } from "../interfaces";
+import { Spacing, Parameters } from "../../interfaces";
 import { update } from "ramda";
 import { pipe } from "fp-ts/lib/pipeable";
 
