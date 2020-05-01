@@ -16,7 +16,7 @@ const generateD = (path: PathData): PathData => {
   });
   var d = "";
   path.vertexes.forEach((vertex, i) => {
-    d += vertex.d + " ";
+    d += vertex.d + "\n";
   });
   d += "Z";
   path.d = d;
