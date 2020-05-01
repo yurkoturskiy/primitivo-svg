@@ -15,3 +15,7 @@ export const randomRangePerEach = (min: number, max: number) => (
     .fill(0)
     .map(() => Math.random() * (max - min) + min);
 
+// Create same random value for all vertexes
+export const randomRangeForAll = (min: number, max: number) => (
+  numOfVertexes: number
+): number[] => Array(numOfVertexes).fill(Math.random() * (max - min) + min);
