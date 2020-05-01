@@ -3,6 +3,8 @@ export const setEach = <T>(...parameters: T[]) => (
 ): T[] => [...parameters];
 
 // Fill all with one value
-export const oneToAll = (value: number | number[]) => (numOfVertexes: number) =>
-  Array(numOfVertexes).fill(value);
+export const oneToAll = (value: number | [number, number]) => (
+  numOfVertexes: number
+) => Array(numOfVertexes).fill(value);
+
 
