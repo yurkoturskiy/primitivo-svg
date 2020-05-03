@@ -1,4 +1,5 @@
 node_modules
+mindmaps
 package-lock.json
 *.log
 build

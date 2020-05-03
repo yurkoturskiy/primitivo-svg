@@ -1,4 +1,6 @@
+website
 node_modules
+mindmaps
 src
 examples
 *.ts
