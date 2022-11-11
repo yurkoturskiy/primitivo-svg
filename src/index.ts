@@ -1,5 +1,5 @@
 // Loglevel setup
-var log = require("loglevel");
+import * as log from "loglevel";
 log.setLevel("warn");
 log.getLogger("path-log").setLevel("warn");
 log.getLogger("phases-log").setLevel("warn");
@@ -20,5 +20,5 @@ export {
   randomRangeForEach,
   // Vertex scope
   randomRange,
-  perArm
+  perArm,
 } from "./misc/index";
