@@ -3,7 +3,7 @@ import calcTime from "./calcTime";
 import calcPx from "./calcPx";
 import { Spacing, Parameters } from "../../interfaces";
 import { update } from "ramda";
-import { pipe } from "fp-ts/lib/pipeable";
+import { pipe } from "fp-ts/lib/function";
 
 var log = require("loglevel").getLogger("spacing-log");
 

@@ -1,4 +1,4 @@
-import { pipe } from "fp-ts/lib/pipeable";
+import { pipe } from "fp-ts/lib/function";
 // Methods
 import setArms from "./lib/setArms";
 import scaleToOne from "./lib/scaleToOne";

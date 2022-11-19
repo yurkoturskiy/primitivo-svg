@@ -1,4 +1,4 @@
-import { pipe } from "fp-ts/lib/pipeable";
+import { pipe } from "fp-ts/lib/function";
 import defaultParameters from "./lib/defaultParameters";
 // Interfaces
 import { PathData, InputParameters } from "./interfaces";
@@ -10,12 +10,12 @@ const setDefaultParams = (parameters: InputParameters): InputParameters => ({
   groups: parameters.groups.map((group, index) => ({
     ...defaultParameters.groups[0],
     ...group,
-    pk: index
-  }))
+    pk: index,
+  })),
 });
 
 const createPath = (parameters: InputParameters): PathData => ({
-  parameters
+  parameters,
 });
 
 export default (parameters: InputParameters) =>

@@ -1,4 +1,4 @@
-import { pipe } from "fp-ts/lib/pipeable";
+import { pipe } from "fp-ts/lib/function";
 // Interfaces
 import { PathData, InputParameters } from "./interfaces";
 // Methods

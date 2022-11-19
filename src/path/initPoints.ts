@@ -1,4 +1,4 @@
-import { pipe } from "fp-ts/lib/pipeable";
+import { pipe } from "fp-ts/lib/function";
 import { PathData } from "./interfaces";
 import generateVertexes from "./lib/generateVertexes";
 import remapVertexes from "./lib/remapVertexes";

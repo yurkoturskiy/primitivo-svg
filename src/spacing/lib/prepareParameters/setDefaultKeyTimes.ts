@@ -1,5 +1,5 @@
 import { Parameters } from "../../interfaces";
-import { pipe } from "fp-ts/lib/pipeable";
+import { pipe } from "fp-ts/lib/function";
 import { update } from "ramda";
 
 const initKeyTimesDefaultArray = (numOfKeyTimes: number): number[] =>
